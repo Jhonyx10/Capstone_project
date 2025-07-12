@@ -22,16 +22,13 @@ class UserController extends Controller
     public function index()
     {
         //
-    }
+        $users = $this->userService->getUsers();
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        return response()->json([
+            'message' => 'Users Fetch Successfully',
+            'users' => $users,
+        ], 200);
     }
-
     /**
      * Store a newly created resource in storage.
      */
@@ -51,14 +48,12 @@ class UserController extends Controller
     public function show(string $id)
     {
         //
-    }
+        $user = $this->userService->showUser((int) $id);
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
+        return response()->json([
+            'message' => 'User Details Successfully Fetch',
+            'user' => $user
+        ], 200);
     }
 
     /**

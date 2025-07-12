@@ -37,4 +37,14 @@ class UserService
 
         return $user;
     }
+
+    public function getUsers()
+    {
+        return $user = User::get();
+    }
+
+    public function showUser(int $id):User
+    {
+        return $user = User::findOrFail($id);
+    }
 }
