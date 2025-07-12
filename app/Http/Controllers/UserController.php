@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Requests\CreateAccountRequest;
+use App\Http\Requests\UpdateUserRequest;
 use App\Services\UserService;
 
 class UserController extends Controller
@@ -63,9 +64,16 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateUserRequest $request, string $id)
     {
         //
+         $user = $this->userService->updateUser((int) $id, $request->validated());
+
+         return response()->json([
+            'message' => 'User created successfully.',
+            'user' => $user,
+        ], 201);
+
     }
 
     /**

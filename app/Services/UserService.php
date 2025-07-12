@@ -22,4 +22,19 @@ class UserService
         return $user->delete();
     }
 
+    public function updateUser(int $id, array $data): User
+    {
+        $user = User::findOrFail($id);
+
+        $user->name = $data['name'] ?? $user->name;
+        $user->email = $data['email'] ?? $user->email;
+
+        if(isset($data['password'])) {
+            $user->password = Hash::make($data['password']);
+        }
+
+        $user->save();
+
+        return $user;
+    }
 }
