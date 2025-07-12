@@ -1,0 +1,83 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Http\Requests\CreateAccountRequest;
+use App\Services\UserService;
+
+class UserController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     */
+    protected $userService;
+
+    public function __construct(UserService $userService)
+    {
+        $this->userService = $userService;
+    }
+
+    public function index()
+    {
+        //
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+        //
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+   public function store(CreateAccountRequest $request)
+    {
+        $user = $this->userService->createUser($request->validated());
+
+        return response()->json([
+            'message' => 'User created successfully.',
+            'user' => $user,
+        ], 201);
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(string $id)
+    {
+        //
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(string $id)
+    {
+        //
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, string $id)
+    {
+        //
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+   public function destroy($id)
+    {
+        $deleted = $this->userService->deleteUser($id);
+
+        return response()->json([
+            'message' => $deleted ? 'User deleted successfully.' : 'Failed to delete user.',
+        ]);
+    }
+
+}
