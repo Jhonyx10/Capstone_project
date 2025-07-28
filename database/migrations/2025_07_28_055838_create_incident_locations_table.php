@@ -11,14 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('users', function (Blueprint $table) {
+        Schema::create('incident_locations', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
-            $table->enum('role',['resident','tanod','admin'])->default('resident');
-            $table->rememberToken();
+            $table->foreignId('zone_id')->constrained()->onDelete('cascade');
+            $table->string('location_name');
+            $table->string('latitude');
+            $table->string('longitude');
+            $table->string('landmark');
             $table->timestamps();
         });
     }
@@ -28,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('users');
+        Schema::dropIfExists('incident_locations');
     }
 };

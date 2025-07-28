@@ -11,14 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('users', function (Blueprint $table) {
+        Schema::create('incident_evidence', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
-            $table->enum('role',['resident','tanod','admin'])->default('resident');
-            $table->rememberToken();
+            $table->foreignId('report_id')->constrained('incident_reports')->onDelete('cascade');
+            $table->string('incident_evidence');
+            $table->string('remarks')->nullable();
             $table->timestamps();
         });
     }
@@ -28,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('users');
+        Schema::dropIfExists('incident_evidence');
     }
 };
