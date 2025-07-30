@@ -7,7 +7,7 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Validation\Rule;
 
-class CreateAccountRequest extends FormRequest
+class ZoneRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,16 +25,12 @@ class CreateAccountRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|min:8',
-            'role' => ['required', 'string', Rule::in(['admin', 'user', 'tanod'])],
+            "zone_name" => 'required|string',
+            "latitude" => 'required|string',
+            "longitude" => 'required|string',
         ];
     }
 
-    /**
-     * Customize the error response for failed validation.
-     */
     protected function failedValidation(Validator $validator)
     {
         throw new HttpResponseException(response()->json([
@@ -43,18 +39,12 @@ class CreateAccountRequest extends FormRequest
         ], 422));
     }
 
-    /**
-     * Custom error messages (optional).
-     */
-    public function messages(): array
+     public function messages(): array
     {
         return [
-            'name.required' => 'The name field is required.',
-            'email.required' => 'The email field is required.',
-            'email.email' => 'The email must be a valid email address.',
-            'email.unique' => 'This email is already in use.',
-            'password.required' => 'The password field is required.',
-            'password.min' => 'The password must be at least 8 characters long.',
+           'zone_name.required' => 'zone name is required',
+           'latitude.required' => 'latitude is required',
+            'longitude.required' => 'longitude is required',
         ];
     }
 }

@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\GeoLocationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,5 +23,8 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('users', UserController::class);
     Route::post('/logout', [AuthController::class, 'logout']);
+
+    Route::post('/add-zone', [GeoLocationController::class, 'addZone']);
+    Route::get('/get-zones', [GeoLocationController::class, 'getZones']);
 });
 

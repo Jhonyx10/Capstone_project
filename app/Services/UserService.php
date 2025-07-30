@@ -13,6 +13,7 @@ class UserService
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
+            'role' => $data['role'],
         ]);
     }
 
@@ -40,7 +41,7 @@ class UserService
 
     public function getUsers()
     {
-        return $user = User::get();
+        return $user = User::where('role', 'tanod')->get();
     }
 
     public function showUser(int $id):User

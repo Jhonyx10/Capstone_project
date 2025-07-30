@@ -12,11 +12,17 @@ class AuthService
 
     public function userLogin(array $data): User
     {
-          $user = User::where('email', $data['email'])->first();
+          $user = User::where('name', $data['name'])->first();
 
-        if (!$user || !Hash::check($data['password'], $user->password)) {
+       if (!$user) {
             throw ValidationException::withMessages([
-                'email' => ['The provided credentials are incorrect.'],
+                'name' => ["The provided username doesn't exist."],
+            ]);
+        }
+
+        if (!Hash::check($data['password'], $user->password)) {
+            throw ValidationException::withMessages([
+                'password' => ["The provided password is incorrect."],
             ]);
         }
 
