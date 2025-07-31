@@ -3,12 +3,15 @@
 namespace App\Services;
 
 use App\Models\User;
+use App\Http\Requests\CreateAccountRequest;
 use Illuminate\Support\Facades\Hash;
 
 class UserService
 {
-    public function createUser(array $data): User
+    public function createUser(CreateAccountRequest $request): User
     {
+        $data = $request->validated();
+        
         return User::create([
             'name' => $data['name'],
             'email' => $data['email'],

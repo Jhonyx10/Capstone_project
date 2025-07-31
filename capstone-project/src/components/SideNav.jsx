@@ -31,7 +31,7 @@ const SideNav = () => {
                 <div style={{marginTop: 300}}>
                     <ul>
                         <li>
-                            <Link to="/dashboard">Hotline</Link>
+                            <Link to="/hotline">Hotline</Link>
                         </li>
                         <li>
                             <Link to="/dashboard">Settings</Link>

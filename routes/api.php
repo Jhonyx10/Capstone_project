@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\GeoLocationController;
+use App\Http\Controllers\IncidentTypesController;
+use App\Http\Controllers\ReportController;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,5 +28,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/add-zone', [GeoLocationController::class, 'addZone']);
     Route::get('/get-zones', [GeoLocationController::class, 'getZones']);
+
+    Route::post('/add-category', [IncidentTypesController::class, 'addCategory']);
+    Route::post('/add-incident-type', [IncidentTypesController::class, 'addIncidentType']);
+
+    Route::post('/add-location', [ReportController::class, 'addIncidentLocation']);
 });
 

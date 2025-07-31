@@ -11,6 +11,7 @@ import Volunteers from "../pages/Volunteers";
 import Map from "../pages/Map";
 import Violators from "../pages/Violators";
 import Reports from "../pages/Reports";
+import Hotline from "../pages/Hotline";
 
 const ProtectedRoute = ({ children }) => {
     const { login } = useAppState((state) => state);
@@ -72,6 +73,14 @@ const AuthNavigation = () => {
                     element={
                         <ProtectedRoute>
                             <Reports />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/hotline"
+                    element={
+                        <ProtectedRoute>
+                            <Hotline />
                         </ProtectedRoute>
                     }
                 />
