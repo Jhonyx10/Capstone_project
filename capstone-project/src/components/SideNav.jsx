@@ -2,7 +2,7 @@ import useAppState from "../store/useAppState"
 import { Link } from "react-router-dom";
 import Logout from "./Logout";
 const SideNav = () => {
-    const { user} = useAppState();
+    const { user } = useAppState();
 
     return (
         <div style={{backgroundColor: 'blueViolet', padding: 10, color: '#fff'}}>

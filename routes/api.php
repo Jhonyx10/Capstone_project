@@ -24,6 +24,7 @@ Route::post('/register', [AuthController::class, 'register']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('users', UserController::class);
+    Route::post('/add-profile', [UserController::class, 'addProfile']);
     Route::post('/logout', [AuthController::class, 'logout']);
 
     Route::post('/add-zone', [GeoLocationController::class, 'addZone']);

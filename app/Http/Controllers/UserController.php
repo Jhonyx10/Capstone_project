@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Requests\CreateAccountRequest;
 use App\Http\Requests\UpdateUserRequest;
+use App\Http\Requests\ProfileRequest;
 use App\Services\UserService;
 
 class UserController extends Controller
@@ -83,4 +84,13 @@ class UserController extends Controller
         ]);
     }
 
+    public function addProfile(ProfileRequest $request)
+    {
+        $profile = $this->userService->addProfile($request);
+
+         return response()->json([
+            'message' => 'Profile created successfully.',
+            'profile' => $profile,
+        ], 201);
+    }
 }

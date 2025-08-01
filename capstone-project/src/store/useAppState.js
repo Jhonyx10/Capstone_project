@@ -5,24 +5,34 @@ const useAppState = create(
     persist(
         (set) => ({
             login: false,
+            setLogin: (login) => set({ login }),
             token: "",
+            setToken: (token) => set({ token, login: true }),
             user: "",
+            setUser: (user) => set({ user }),
             volunteers: "",
+            setVolunteers: (volunteers) => set({ volunteers }),
             base_url: "http://127.0.0.1:8000/api/",
             zones: [],
-            setLogin: (login) => set({ login }),
-            setToken: (token) => set({ token, login: true }),
-            setUser: (user) => set({ user }),
-            logout: () => set({ token: "", login: false, user: "", zones: [] }),
-            setVolunteers: (volunteers) => set({ volunteers }),
-            setZones: ( zones ) => set({ zones }),
+            setZones: (zones) => set({ zones }),
+            reports: [],
+            setReports: (reports) => set({ reports }),
+            logout: () =>
+                set({
+                    token: "",
+                    login: false,
+                    user: "",
+                    zones: [],
+                    reports: [],
+                }),
         }),
         {
             name: "app-storage",
             partialize: (state) => ({
                 login: state.login,
                 base_url: state.base_url,
-                token: state.token,
+                // token: state.token,
+                // user: state.user
             }),
         }
     )

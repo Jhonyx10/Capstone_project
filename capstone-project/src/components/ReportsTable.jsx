@@ -1,14 +1,21 @@
 import { useQuery } from "@tanstack/react-query";
 import { getReports, getCategories } from "../functions/ReportsApi";
 import useAppState from "../store/useAppState";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import ReportDetails from "./ReportDetails";
 
 const ReportTable = () => {
-    const { base_url, token } = useAppState();
+    const { base_url, token, setReports } = useAppState();
     const [selectedCategory, setSelectedCategory] = useState("all");
     const [selectedIncidentType, setSelectedIncidentType] = useState("all");
     const [selectedMonth, setSelectedMonth] = useState("all");
     const [selectedTime, setSelectedTime] = useState("all");
+    const [selectedReportId, setSelectedReportId] = useState(null);
+
+    const handleOpen = (reportId) => {
+       setSelectedReportId(reportId);
+       console.log("Selected report ID:", reportId);
+    };
 
     const getTimeFrame = (time) => {
         if (!time) return "";
@@ -22,7 +29,16 @@ const ReportTable = () => {
     const { data } = useQuery({
         queryKey: ["reports"],
         queryFn: () => getReports({ base_url, token }),
+        onSuccess: (data) => {
+           console.log(data)
+        }
     });
+
+   useEffect(() => {
+       if (data) {
+           setReports(data);
+       }
+   }, [data]);
 
     const categories = useQuery({
         queryKey: ["categories"],
@@ -193,6 +209,7 @@ const ReportTable = () => {
                         <th style={thStyle}>Zone</th>
                         <th style={thStyle}>Location</th>
                         <th style={thStyle}>Reported By</th>
+                        <th style={thStyle}>Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -228,10 +245,21 @@ const ReportTable = () => {
                                 {report?.location?.location_name}
                             </td>
                             <td style={tdStyle}>{report?.user?.name}</td>
+                            <td style={tdStyle}>
+                                <button onClick={() => handleOpen(report.id)}>
+                                    View
+                                </button>
+                            </td>
                         </tr>
                     ))}
                 </tbody>
             </table>
+            {selectedReportId && (
+                <ReportDetails
+                    reportId={selectedReportId}
+                    onClose={() => setSelectedReportId(null)}
+                />
+            )}
         </div>
     );
 };

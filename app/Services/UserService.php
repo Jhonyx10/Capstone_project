@@ -3,7 +3,9 @@
 namespace App\Services;
 
 use App\Models\User;
+use App\Models\UserProfile;
 use App\Http\Requests\CreateAccountRequest;
+use App\Http\Requests\ProfileRequest;
 use Illuminate\Support\Facades\Hash;
 
 class UserService
@@ -44,11 +46,29 @@ class UserService
 
     public function getUsers()
     {
-        return $user = User::where('role', 'tanod')->get();
+        return $user = User::with('profile')->where('role', 'tanod')->get();
     }
 
     public function showUser(int $id):User
     {
         return $user = User::findOrFail($id);
+    }
+
+    public function addProfile(ProfileRequest $request): UserProfile
+    {
+        $data = $request->validated();
+
+         if($request->hasFile('photo')) {
+            $data['photo'] = $request->file('photo')->store('photos','public');
+        };
+
+        return UserProfile::create([
+            'user_id' => $data['user_id'],
+            'last_name' => $data['last_name'],
+            'first_name' => $data['first_name'],
+            'age' => $data['age'],
+            'address' => $data['address'],
+            'photo' => $data['photo']
+        ]);     
     }
 }

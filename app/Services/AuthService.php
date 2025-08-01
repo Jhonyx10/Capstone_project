@@ -12,7 +12,7 @@ class AuthService
 
     public function userLogin(array $data): User
     {
-          $user = User::where('name', $data['name'])->first();
+          $user = User::with('profile')->where('name', $data['name'])->first();
 
        if (!$user) {
             throw ValidationException::withMessages([

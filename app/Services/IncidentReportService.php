@@ -58,7 +58,16 @@ class IncidentReportService
 
     public function getIncidentReports()
     {
-        return IncidentReport::with('incidentType.category','location.zone', 'user')->get();
+        return IncidentReport::with('incidentType.category','location.zone', 'user', 'evidences')->get()
+                                ->map(function ($report) {                                 
+                                if ($report->location && $report->location->landmark) {
+                                    $report->location->landmark = asset('storage/' . $report->location->landmark);
+                                }
+                                $report->evidences->map(function ($evidence) {
+                                    $evidence->file_url = asset('storage/' . $evidence->incident_evidence);
+                                    return $evidence;
+                                });
+                                return $report;
+                                });
     }
-
 }

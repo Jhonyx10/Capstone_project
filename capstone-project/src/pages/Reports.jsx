@@ -2,7 +2,7 @@ import SideNav from "../components/SideNav";
 import ReportTable from "../components/ReportsTable";
 const Reports = () => {
     return (
-        <div style={{ display: "flex" }}>
+        <div style={{ display: "flex", margin: 0 }}>
             <SideNav />
             <div>
                 <h1>Reports</h1>
