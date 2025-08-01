@@ -23,4 +23,10 @@ class IncidentTypeService
         ]);
     }
 
+    public function getCategory()
+    {
+        return IncidentCategory::with('incidentTypes')->get();
+    }
+
+
 }

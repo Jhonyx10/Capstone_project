@@ -36,4 +36,13 @@ class IncidentTypesController extends Controller
             'incident_type' => $incident_type,
         ], 200);
     }
+
+    public function getIncidentCategories()
+    {
+        $categories = $this->incidentService->getCategory();
+
+        return response()->json([
+            'categories' => $categories
+        ], 200);
+    }
 }

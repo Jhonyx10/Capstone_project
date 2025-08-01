@@ -11,7 +11,7 @@ class IncidentReport extends Model
 
     protected $table = 'incident_reports';
 
-    protected $fillable = ['incident_type_id', 'data', 'time', 'location_id', 'report_description', 'user_id'];
+    protected $fillable = ['incident_type_id', 'date', 'time', 'location_id', 'report_description', 'user_id'];
 
     public function incidentType()
     {
