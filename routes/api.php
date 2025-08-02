@@ -35,6 +35,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/get-categories', [IncidentTypesController::class, 'getIncidentCategories']);
 
     Route::post('/file-report', [ReportController::class, 'fileReport']);
+    Route::post('/create-violators-profile', [ReportController::class, 'createViolatorsProfile']);
     Route::get('/reports', [ReportController::class, 'getIncidentReports']);
+    Route::get('/report-violators/{id}', [ReportController::class, 'getReportViolators']);
 });
 

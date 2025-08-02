@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Http\Requests\IncidentLocationRequest;
 use App\Http\Requests\IncidentReportRequest;
 use App\Http\Requests\EvidenceRequest;
+use App\Http\Requests\ViolatorsProfileRequest;
+use App\Http\Requests\ViolatorsRecordRequest;
 use App\Services\IncidentReportService;
 use Illuminate\Support\Facades\DB;
 use Exception;
@@ -33,7 +35,8 @@ class ReportController extends Controller
    public function fileReport(
     IncidentLocationRequest $locationRequest,
     IncidentReportRequest $reportRequest,
-    EvidenceRequest $evidenceRequest
+    EvidenceRequest $evidenceRequest,
+    ViolatorsRecordRequest $recordRequest
     )
     {
         try {
@@ -50,12 +53,19 @@ class ReportController extends Controller
 
             $reportEvidence = $this->incidentReport->attachEvidence($evidenceRequest, $report->id);
 
+            $recordData = $recordRequest->validated();
+            $violatorsRecord = [];
+            if (!empty($recordData)) {
+                $violatorsRecord = $this->incidentReport->attachViolatorsRecord($recordRequest, $report->id);
+            }
+
             DB::commit();
 
             return response()->json([
                 'message' => 'Report successfully created.',
                 'report' => $report,
-                'location' => $location
+                'location' => $location,
+                'record' => $violatorsRecord
             ], 201);
         } catch (Exception $e) {
             DB::rollBack();
@@ -74,6 +84,25 @@ class ReportController extends Controller
         return response()->json([
             'message' => 'fetch successful',
             'reports' => $reports
+        ], 200);
+    }
+
+    public function createViolatorsProfile(ViolatorsProfileRequest $request)
+    {
+        $violator = $this->incidentReport->createViolatorsProfile($request);
+
+        return response()->json([
+            'message' => 'created successfully.',
+            'violator' => $violator,
+        ], 201);
+    }
+
+    public function getReportViolators($id)
+    {
+        $reportViolators = $this->incidentReport->reportViolators($id);
+
+        return response()->json([
+            'report_violators' => $reportViolators
         ], 200);
     }
 }

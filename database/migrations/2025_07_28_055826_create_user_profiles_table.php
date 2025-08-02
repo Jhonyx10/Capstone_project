@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('last_name');
             $table->string('first_name');
             $table->integer('age');
+            $table->foreignId('zone_id')->constrained()->onDelete('cascade');
             $table->string('address');
             $table->string('photo');
             $table->timestamps();

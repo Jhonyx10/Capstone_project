@@ -7,7 +7,7 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Validation\Rule;
 
-class ProfileRequest extends FormRequest
+class ViolatorsProfileRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,17 +25,16 @@ class ProfileRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'user_id' => 'required|exists:users,id',
             'last_name' => 'required|string',
             'first_name' => 'required|string',
             'age' => 'required|integer',
             'zone_id' => 'required|exists:zones,id',
             'address' => 'required|string',
-            'photo' => 'required|file|mimes:jpg,png|max:2048',
+            'photo' => 'required|file|mimes:jpg,png|max:2048'
         ];
     }
 
-    protected function failedValidation(Validator $validator)
+     protected function failedValidation(Validator $validator)
     {
         throw new HttpResponseException(response()->json([
             'message' => 'Validation failed.',
@@ -46,13 +45,14 @@ class ProfileRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'user_id.exists' => 'user not found',
-            'last_name.required' => 'please provide your last name.',
-            'first_name.required' => 'please provide your first name.',
-            'age.required' => 'please provide your age.',
-            'address.required' => 'please provide your address.',
-            'photo.required' => 'please provide your picture.',
-            'photo.mimes' => 'the provided image must be in png and jpg.',
+            'last_name.required' => 'last name is required.',
+            'first_name.required' => 'first name is required.',
+            'age.required' => 'age is required.',
+            'zone_id.required' => 'select zone address.',
+            'address.required' => 'address required.',
+            'photo.required' => 'photo is required.',
+            'photo.file' => 'the item must be a file type.',
+            'photo.mimes' => 'the images must be in jpg and png.',
         ];
     }
 }

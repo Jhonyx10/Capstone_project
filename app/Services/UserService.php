@@ -67,6 +67,7 @@ class UserService
             'last_name' => $data['last_name'],
             'first_name' => $data['first_name'],
             'age' => $data['age'],
+            'zone_id' => $data['zone_id'],
             'address' => $data['address'],
             'photo' => $data['photo']
         ]);     

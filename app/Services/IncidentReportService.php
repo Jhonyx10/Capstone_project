@@ -5,9 +5,13 @@ namespace App\Services;
 use App\Models\IncidentLocation;
 use App\Models\IncidentReport;
 use App\Models\IncidentEvidence;
+use App\Models\ViolatorsProfile;
+use App\Models\ViolatorsRecord;
 use App\Http\Requests\IncidentLocationRequest;
 use App\Http\Requests\IncidentReportRequest;
 use App\Http\Requests\EvidenceRequest;
+use App\Http\Requests\ViolatorsProfileRequest;
+use App\Http\Requests\ViolatorsRecordRequest;
 
 
 class IncidentReportService
@@ -58,7 +62,7 @@ class IncidentReportService
 
     public function getIncidentReports()
     {
-        return IncidentReport::with('incidentType.category','location.zone', 'user', 'evidences')->get()
+        return IncidentReport::with('incidentType.category','location.zone', 'user', 'evidences',)->get()
                                 ->map(function ($report) {                                 
                                 if ($report->location && $report->location->landmark) {
                                     $report->location->landmark = asset('storage/' . $report->location->landmark);
@@ -70,4 +74,52 @@ class IncidentReportService
                                 return $report;
                                 });
     }
+
+    public function createViolatorsProfile(ViolatorsProfileRequest $request): ViolatorsProfile
+    {
+        $data = $request->validated();
+
+         if($request->hasFile('photo')) {
+            $data['photo'] = $request->file('photo')->store('violators','public');
+        };
+
+        return ViolatorsProfile::create([
+            'last_name' => $data['last_name'],
+            'first_name' => $data['first_name'],
+            'age' => $data['age'],
+            'zone_id' => $data['zone_id'],
+            'address' => $data['address'],
+            'photo' => $data['photo']
+        ]);
+    }
+
+    public function attachViolatorsRecord(ViolatorsRecordRequest $request, int $reportId): array
+    {
+        $records = [];
+
+        if (!empty($request->violator_id)) {
+            foreach ($request->violator_id as $violatorId) {
+                $records[] = ViolatorsRecord::create([
+                    'report_id' => $reportId,
+                    'violator_id' => $violatorId,
+                ]);
+            }
+        }
+
+        return $records;
+    }
+
+    public function reportViolators(int $id)
+    {
+        $records = ViolatorsRecord::with('violators.zone')->where('report_id', $id)->get();
+
+        $records->each(function ($record) {
+            if ($record->violators && $record->violators->photo) {
+                $record->violators->photo = asset('storage/' . $record->violators->photo);
+            }
+        });
+
+        return $records;
+    }
+
 }

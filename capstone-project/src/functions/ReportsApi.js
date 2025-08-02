@@ -13,6 +13,20 @@ export const getReports = async ({base_url, token}) => {
     }
 }
 
+export const getReportViolators = async ({reportId, base_url, token}) => {
+    try {
+        const response = await axios.get(`${base_url}report-violators/${reportId}`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+         console.log("API response:", response.data);
+        return response.data.report_violators;
+    } catch (error) {
+        console.log(error);
+    }
+}
+
 export const getCategories = async ({base_url, token}) => {
     try {
         const response = await axios.get(`${base_url}get-categories`, {

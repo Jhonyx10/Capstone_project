@@ -31,8 +31,8 @@ const useAppState = create(
             partialize: (state) => ({
                 login: state.login,
                 base_url: state.base_url,
-                // token: state.token,
-                // user: state.user
+                token: state.token,
+                user: state.user
             }),
         }
     )
