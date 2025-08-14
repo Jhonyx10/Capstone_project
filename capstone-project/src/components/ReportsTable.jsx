@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import ReportDetails from "./ReportDetails";
 
 const ReportTable = () => {
-    const { base_url, token, setReports } = useAppState();
+    const { base_url, token, setReports, setCategories } = useAppState();
     const [selectedCategory, setSelectedCategory] = useState("all");
     const [selectedIncidentType, setSelectedIncidentType] = useState("all");
     const [selectedMonth, setSelectedMonth] = useState("all");
@@ -14,7 +14,7 @@ const ReportTable = () => {
 
     const handleOpen = (reportId) => {
        setSelectedReportId(reportId);
-       console.log("Selected report ID:", reportId);
+    //    console.log("Selected report ID:", reportId);
     };
 
     const getTimeFrame = (time) => {
@@ -43,6 +43,10 @@ const ReportTable = () => {
     const categories = useQuery({
         queryKey: ["categories"],
         queryFn: () => getCategories({ base_url, token }),
+        onSuccess: (categories) => {
+            setCategories(categories)
+            // console.log(categories)
+        }
     });
 
     const handleCategoryChange = (e) => {

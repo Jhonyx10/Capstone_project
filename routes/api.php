@@ -29,13 +29,16 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/add-zone', [GeoLocationController::class, 'addZone']);
     Route::get('/get-zones', [GeoLocationController::class, 'getZones']);
+    Route::get('/get-locations', [GeoLocationController::class, 'getLocations']);
 
     Route::post('/add-category', [IncidentTypesController::class, 'addCategory']);
     Route::post('/add-incident-type', [IncidentTypesController::class, 'addIncidentType']);
     Route::get('/get-categories', [IncidentTypesController::class, 'getIncidentCategories']);
+    Route::get('/get-incident-types', [IncidentTypesController::class, 'getIncidentTypes']);
 
     Route::post('/file-report', [ReportController::class, 'fileReport']);
     Route::post('/create-violators-profile', [ReportController::class, 'createViolatorsProfile']);
+    Route::post('/send-request', [ReportController::class, 'sendRequest']);
     Route::get('/reports', [ReportController::class, 'getIncidentReports']);
     Route::get('/report-violators/{id}', [ReportController::class, 'getReportViolators']);
 });

@@ -9,10 +9,10 @@ export const getTanodUser = async({base_url, token}) => {
             }
         });
         console.log("API response:", response.data);
-        return response.data.users;
+        return response.data.users ?? [];
     } catch (error) {
          console.error("Fetching data error:", error);
-         throw error;
+         return [];
     }
 }
 

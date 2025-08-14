@@ -4,8 +4,6 @@ import ReportViolators from "./ReportViolators";
 const ReportDetails = ({ reportId, onClose }) => {
     const { reports} = useAppState();
     const report = reports?.find((r) => r.id === reportId);
-    console.log("Rendering ReportDetails with ID:", reportId);
-    console.log(reports)
     if (!reports || reports.length === 0 || !report) return null;
 
     return (

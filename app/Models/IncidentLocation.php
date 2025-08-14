@@ -22,9 +22,4 @@ class IncidentLocation extends Model
     {
         return $this->hasMany(IncidentReport::class, 'location_id');
     }
-
-    public function requests()
-    {
-        return $this->hasMany(IncidentResponseRequest::class,'location_id');
-    }
 }

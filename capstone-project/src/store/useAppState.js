@@ -10,13 +10,18 @@ const useAppState = create(
             setToken: (token) => set({ token, login: true }),
             user: "",
             setUser: (user) => set({ user }),
-            volunteers: "",
+            volunteers: [],
             setVolunteers: (volunteers) => set({ volunteers }),
             base_url: "http://127.0.0.1:8000/api/",
+            map_token: import.meta.env.VITE_MAPBOX_TOKEN,
             zones: [],
             setZones: (zones) => set({ zones }),
             reports: [],
             setReports: (reports) => set({ reports }),
+            categories: [],
+            setCategories: (categories) => set({ categories }),
+            incidentTypes: [],
+            setIncidentTypes: (incidentTypes) => set({ incidentTypes }),
             logout: () =>
                 set({
                     token: "",
@@ -32,7 +37,8 @@ const useAppState = create(
                 login: state.login,
                 base_url: state.base_url,
                 token: state.token,
-                user: state.user
+                user: state.user,
+                volunteers: state.volunteers,
             }),
         }
     )

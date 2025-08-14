@@ -8,7 +8,10 @@ use App\Http\Requests\IncidentReportRequest;
 use App\Http\Requests\EvidenceRequest;
 use App\Http\Requests\ViolatorsProfileRequest;
 use App\Http\Requests\ViolatorsRecordRequest;
+use App\Http\Requests\ResponseRequest;
 use App\Services\IncidentReportService;
+use App\Events\RequestResponseEvent;
+use App\Events\ReportSubmittedEvent;
 use Illuminate\Support\Facades\DB;
 use Exception;
 
@@ -61,6 +64,8 @@ class ReportController extends Controller
 
             DB::commit();
 
+            broadcast(new ReportSubmittedEvent($report));
+
             return response()->json([
                 'message' => 'Report successfully created.',
                 'report' => $report,
@@ -104,5 +109,17 @@ class ReportController extends Controller
         return response()->json([
             'report_violators' => $reportViolators
         ], 200);
+    }
+
+    public function sendRequest(ResponseRequest $responseRequest)
+    {
+            $response = $this->incidentReport->createResponseRequest($responseRequest->validated());
+
+            broadcast(new RequestResponseEvent($response));
+
+            return response()->json([
+                'message' => 'good.',
+                'response' => $response
+            ], 201);
     }
 }

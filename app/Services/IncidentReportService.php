@@ -7,11 +7,13 @@ use App\Models\IncidentReport;
 use App\Models\IncidentEvidence;
 use App\Models\ViolatorsProfile;
 use App\Models\ViolatorsRecord;
+use App\Models\IncidentRequestResponse;
 use App\Http\Requests\IncidentLocationRequest;
 use App\Http\Requests\IncidentReportRequest;
 use App\Http\Requests\EvidenceRequest;
 use App\Http\Requests\ViolatorsProfileRequest;
 use App\Http\Requests\ViolatorsRecordRequest;
+use App\Http\Requests\ResponseRequest;
 
 
 class IncidentReportService
@@ -62,7 +64,9 @@ class IncidentReportService
 
     public function getIncidentReports()
     {
-        return IncidentReport::with('incidentType.category','location.zone', 'user', 'evidences',)->get()
+        return IncidentReport::with('incidentType.category','location.zone', 'user', 'evidences',)
+                                ->orderByDesc('created_at')
+                                ->get()
                                 ->map(function ($report) {                                 
                                 if ($report->location && $report->location->landmark) {
                                     $report->location->landmark = asset('storage/' . $report->location->landmark);
@@ -122,4 +126,13 @@ class IncidentReportService
         return $records;
     }
 
+    public function createResponseRequest(array $data): IncidentRequestResponse 
+    {
+        return IncidentRequestResponse::create([
+            'user_id' => $data['user_id'],
+            'incident_type_id' => $data['incident_type_id'],
+            'latitude' => $data['latitude'],
+            'longitude' => $data['longitude']
+        ]);
+    }
 }

@@ -1,20 +1,9 @@
-import { getTanodUser } from "../functions/UsersApi";
-import { useQuery } from "@tanstack/react-query";
-import useAppState from "../store/useAppState";
-
+import useVolunteers from "../hooks/useVolunteers";
 
 const TanodCard = () => {
-    const { token, base_url, setVolunteers } = useAppState();
-
-    const { data } = useQuery({
-        queryKey: ["volunteers"],
-        queryFn: () => getTanodUser({ token, base_url }),
-        onSuccess: (data) => {
-            setVolunteers(data);
-            console.log(data)
-        },
-    });
-
+    
+    const {data} = useVolunteers()
+    
     return (
         <>
             {data?.map((volunteers) => (

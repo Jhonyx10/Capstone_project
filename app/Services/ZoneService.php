@@ -2,6 +2,7 @@
 
 namespace App\Services;
 use App\Models\Zone;
+use App\Models\IncidentLocation;
 
 class ZoneService
 {
@@ -18,5 +19,10 @@ class ZoneService
     public function getZones()
     {
         return Zone::get();
+    }
+
+    public function getIncidentLocations()
+    {
+        return IncidentLocation::with('reports')->get();
     }
 }

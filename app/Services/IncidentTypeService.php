@@ -28,5 +28,10 @@ class IncidentTypeService
         return IncidentCategory::with('incidentTypes')->get();
     }
 
+    public function getIncidentTypes()
+    {
+        return IncidentType::get();
+    }
+
 
 }

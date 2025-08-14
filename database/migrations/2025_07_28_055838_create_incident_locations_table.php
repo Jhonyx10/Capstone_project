@@ -15,9 +15,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('zone_id')->constrained()->onDelete('cascade');
             $table->string('location_name');
-            $table->string('latitude');
-            $table->string('longitude');
-            $table->string('landmark');
+            $table->decimal('latitude', 10, 7);
+            $table->decimal('longitude', 10, 7);
+            $table->string('landmark')->nullable();
             $table->timestamps();
         });
     }

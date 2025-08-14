@@ -2,29 +2,20 @@ import useAppState from "../store/useAppState";
 import { getZones } from "../functions/LocationApi";
 import { useQuery } from "@tanstack/react-query";
 
-const Zones = () => {
+const useZones = () => {
     const { base_url, token, setZones } = useAppState();
 
-    const {data} = useQuery({
-        queryKey: ['zones'],
+    return useQuery({
+        queryKey: ["zones"],
         queryFn: () => getZones({ base_url, token }),
         onSuccess: (data) => {
             setZones(data.zones);
-            console.log(data)
+            console.log("Zones fetched:", data);
         },
         onError: (error) => {
-            console.log(error)
-        }
+            console.error("Error fetching zones:", error);
+        },
     });
+};
 
-    return (
-        <div>
-            <ul>
-                {data?.map((zone) => (
-                    <li key={zone.id}>{zone.zone_name}</li>
-                ))}
-            </ul>
-        </div>
-    );
-}
-export default Zones
+export default useZones;
