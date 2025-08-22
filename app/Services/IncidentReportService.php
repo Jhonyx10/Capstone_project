@@ -8,7 +8,6 @@ use App\Models\IncidentEvidence;
 use App\Models\ViolatorsProfile;
 use App\Models\ViolatorsRecord;
 use App\Models\IncidentRequestResponse;
-use App\Http\Requests\IncidentLocationRequest;
 use App\Http\Requests\IncidentReportRequest;
 use App\Http\Requests\EvidenceRequest;
 use App\Http\Requests\ViolatorsProfileRequest;
@@ -19,22 +18,6 @@ use App\Http\Requests\ResponseRequest;
 class IncidentReportService
 {
     // Your service logic here
-    public function addLocation(IncidentLocationRequest $request): IncidentLocation
-    {
-        $data = $request->validated();
-
-        if($request->hasFile('landmark')) {
-            $data['landmark'] = $request->file('landmark')->store('landmarks','public');
-        };
-        
-        return IncidentLocation::create([
-            'zone_id' => $data['zone_id'],
-            'location_name' => $data['location_name'],
-            'latitude' => $data['latitude'],
-            'longitude' => $data['longitude'],
-            'landmark' => $data['landmark']
-        ]);
-    }
 
     public function createIncidentReport(array $data): IncidentReport
     {
@@ -135,4 +118,19 @@ class IncidentReportService
             'longitude' => $data['longitude']
         ]);
     }
+
+    public function getRequestResponse()
+    {
+        return IncidentRequestResponse::where('status', 0)->get();
+    }
+
+    public function getViolators()
+    {
+        return ViolatorsProfile::with('zone')->orderByDesc('created_at')->get()->map(function ($violator) {
+            $violator->photo = asset('storage/' . $violator->photo);
+            return $violator;
+        });
+    }
+
+    
 }

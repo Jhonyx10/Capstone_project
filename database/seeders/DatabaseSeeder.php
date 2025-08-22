@@ -22,6 +22,26 @@ class DatabaseSeeder extends Seeder
             'role' => 'admin',
         ]);
 
+        \App\Models\IncidentCategory::insert([
+            [
+                'category_name' => 'Traffic Incident'
+            ],
+            [
+                'category_name' => 'Public Disturbance'
+            ]
+        ]);
+
+        \App\Models\IncidentType::insert([
+            [
+                'category_id' => 1,
+                'incident_name' => 'Hit And Run',
+            ],
+            [
+                'category_id' => 2,
+                'incident_name' => 'Public Intoxication'
+            ]
+        ]);
+
         \App\Models\Zone::insert([
             [
                 'zone_name' => 'zone 1',

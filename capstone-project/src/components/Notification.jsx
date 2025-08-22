@@ -48,6 +48,38 @@ const Notification = ({ message, onClose }) => {
                    </div>
                </>
            );
+       }else if (message.violator) {
+         const violator = message.violator;
+           return (
+               <>
+                   <h2>👮 New Violator Profile</h2>
+                   <p>
+                       <strong>Name:</strong> {violator.first_name}{" "}
+                       {violator.last_name}
+                   </p>
+                   <p>
+                       <strong>Age:</strong> {violator.age}
+                   </p>
+                   <p>
+                       <strong>Address:</strong> {violator.address}
+                   </p>
+                   <div style={{ textAlign: "right" }}>
+                       <button
+                           onClick={onClose}
+                           style={{
+                               padding: "8px 16px",
+                               backgroundColor: "#16a34a",
+                               color: "#fff",
+                               border: "none",
+                               borderRadius: "6px",
+                               cursor: "pointer",
+                           }}
+                       >
+                           View Profile
+                       </button>
+                   </div>
+               </>
+           );
        } else {
            // Default
            return (

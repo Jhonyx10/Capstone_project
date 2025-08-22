@@ -7,6 +7,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\GeoLocationController;
 use App\Http\Controllers\IncidentTypesController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\ViolatorController;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,7 +30,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/add-zone', [GeoLocationController::class, 'addZone']);
     Route::get('/get-zones', [GeoLocationController::class, 'getZones']);
+    Route::post('/add-location', [GeoLocationController::class, 'addIncidentLocation']);
     Route::get('/get-locations', [GeoLocationController::class, 'getLocations']);
+    Route::get('/get-incident-locations', [GeoLocationController::class, 'getIncidentLocations']);
 
     Route::post('/add-category', [IncidentTypesController::class, 'addCategory']);
     Route::post('/add-incident-type', [IncidentTypesController::class, 'addIncidentType']);
@@ -41,5 +44,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/send-request', [ReportController::class, 'sendRequest']);
     Route::get('/reports', [ReportController::class, 'getIncidentReports']);
     Route::get('/report-violators/{id}', [ReportController::class, 'getReportViolators']);
+    Route::get('/get-violators', [ReportController::class, 'getViolators']);
+    Route::get('/request', [ReportController::class, 'getRequest']);
+
+    Route::get('/violator-details/{id}', [ViolatorController::class, 'getViolatorsDetails']);
 });
 

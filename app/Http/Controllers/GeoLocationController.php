@@ -4,7 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Services\ZoneService;
-use App\Http\Requests\ZoneRequest;
+use App\Http\Requests\IncidentLocationRequest;
+
 
 class GeoLocationController extends Controller
 {
@@ -25,6 +26,16 @@ class GeoLocationController extends Controller
         ], 201);
     }
 
+       public function addIncidentLocation(IncidentLocationRequest $request)
+    {
+        $incident_location = $this->zoneService->addLocation($request);
+
+         return response()->json([
+            'message' => 'created successfully',
+            'incident_location' => $incident_location,
+        ], 200);
+    }
+    
     public function getZones()
     {
         $zones = $this->zoneService->getZones();
@@ -37,11 +48,21 @@ class GeoLocationController extends Controller
 
     public function getLocations()
     {
-        $locations = $this->zoneService->getIncidentLocations();
+        $locations = $this->zoneService->getLocations();
 
         return response()->json([
             'message' => 'Locations Fetch Successful',
             'locations' => $locations
+        ], 200);
+    }
+
+    public function getIncidentLocations()
+    {
+        $locations = $this->zoneService->getIncidentLocations();
+
+        return response()->json([
+            'message' => 'Locations Fetch Successful',
+            'incident_locations' => $locations
         ], 200);
     }
 }

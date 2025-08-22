@@ -22,6 +22,10 @@ export default function App() {
                    channel: "report-submitted-channel",
                    event: ".report-submitted-event",
                },
+               {
+                   channel: "violator-submitted-channel",
+                   event: ".violator-submitted-event",
+               },
            ];
 
            listeners.forEach(({ channel, event }) => {

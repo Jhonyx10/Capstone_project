@@ -26,7 +26,7 @@ class EvidenceRequest extends FormRequest
     {
         return [
             'incident_evidence' => 'required|array',
-            'incident_evidence.*' => 'file|mimes:jpg,png,webp|max:2048',
+            'incident_evidence.*' => 'file|mimes:jpg,png,webp|max:5120',
             'remarks' => 'nullable|string',
         ];
     }

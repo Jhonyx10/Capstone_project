@@ -30,7 +30,7 @@ class ViolatorsProfileRequest extends FormRequest
             'age' => 'required|integer',
             'zone_id' => 'required|exists:zones,id',
             'address' => 'required|string',
-            'photo' => 'required|file|mimes:jpg,png|max:2048'
+            'photo' => 'required|file|mimes:jpg,png|max:5120'
         ];
     }
 

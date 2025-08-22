@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId('incident_type_id')->constrained('incident_types')->onDelete('cascade');
             $table->decimal('latitude', 10, 7);
             $table->decimal('longitude', 10, 7);
+            $table->boolean('status')->default(0);
             $table->timestamps();
         });
     }

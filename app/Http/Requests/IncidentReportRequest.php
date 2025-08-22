@@ -28,6 +28,7 @@ class IncidentReportRequest extends FormRequest
             'incident_type_id' => 'required|exists:incident_types,id',
             'date' => 'required|date',
             'time' => 'required|date_format:H:i',
+            'location_id' => 'required|exists:incident_locations,id',
             'report_description' => 'required|string',
             'user_id' => 'required|exists:users,id'
         ];

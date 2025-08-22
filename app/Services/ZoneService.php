@@ -3,6 +3,8 @@
 namespace App\Services;
 use App\Models\Zone;
 use App\Models\IncidentLocation;
+use App\Models\IncidentReport;
+use App\Http\Requests\IncidentLocationRequest;
 
 class ZoneService
 {
@@ -16,6 +18,23 @@ class ZoneService
         ]); 
     }
 
+        public function addLocation(IncidentLocationRequest $request): IncidentLocation
+    {
+        $data = $request->validated();
+
+        if($request->hasFile('landmark')) {
+            $data['landmark'] = $request->file('landmark')->store('landmarks','public');
+        };
+        
+        return IncidentLocation::create([
+            'zone_id' => $data['zone_id'],
+            'location_name' => $data['location_name'],
+            'latitude' => $data['latitude'],
+            'longitude' => $data['longitude'],
+            'landmark' => $data['landmark']
+        ]);
+    }
+
     public function getZones()
     {
         return Zone::get();
@@ -23,6 +42,11 @@ class ZoneService
 
     public function getIncidentLocations()
     {
-        return IncidentLocation::with('reports')->get();
+        return IncidentReport::with('location')->get();
+    }
+
+    public function getLocations()
+    {
+        return IncidentLocation::get();
     }
 }

@@ -12,6 +12,7 @@ use App\Http\Requests\ResponseRequest;
 use App\Services\IncidentReportService;
 use App\Events\RequestResponseEvent;
 use App\Events\ReportSubmittedEvent;
+use App\Events\CreateViolatorEvent;
 use Illuminate\Support\Facades\DB;
 use Exception;
 
@@ -25,18 +26,7 @@ class ReportController extends Controller
         $this->incidentReport = $incidentReport;
     }
 
-    public function addIncidentLocation(IncidentLocationRequest $request)
-    {
-        $incident_location = $this->incidentReport->addLocation($request);
-
-         return response()->json([
-            'message' => 'created successfully',
-            'incident_location' => $incident_location,
-        ], 200);
-    }
-
    public function fileReport(
-    IncidentLocationRequest $locationRequest,
     IncidentReportRequest $reportRequest,
     EvidenceRequest $evidenceRequest,
     ViolatorsRecordRequest $recordRequest
@@ -45,12 +35,7 @@ class ReportController extends Controller
         try {
             DB::beginTransaction();
 
-            $location = $this->incidentReport->addLocation($locationRequest);
-
-            $reportData = $reportRequest->validated();
-            $reportData['location_id'] = $location->id;
-
-            $report = $this->incidentReport->createIncidentReport($reportData);
+            $report = $this->incidentReport->createIncidentReport($reportRequest->validated());
 
             $evidence = $evidenceRequest->validated();
 
@@ -69,7 +54,6 @@ class ReportController extends Controller
             return response()->json([
                 'message' => 'Report successfully created.',
                 'report' => $report,
-                'location' => $location,
                 'record' => $violatorsRecord
             ], 201);
         } catch (Exception $e) {
@@ -96,6 +80,8 @@ class ReportController extends Controller
     {
         $violator = $this->incidentReport->createViolatorsProfile($request);
 
+        broadcast(new CreateViolatorEvent($violator));
+        
         return response()->json([
             'message' => 'created successfully.',
             'violator' => $violator,
@@ -121,5 +107,23 @@ class ReportController extends Controller
                 'message' => 'good.',
                 'response' => $response
             ], 201);
+    }
+
+    public function getRequest()
+    {
+        $request = $this->incidentReport->getRequestResponse();
+
+        return response()->json([
+            'request' => $request,
+        ], 201);
+    }
+
+    public function getViolators()
+    {
+        $violators = $this->incidentReport->getViolators();
+
+        return response()->json([
+            'violators' => $violators,
+        ], 200);
     }
 }
