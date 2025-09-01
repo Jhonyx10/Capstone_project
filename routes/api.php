@@ -8,6 +8,7 @@ use App\Http\Controllers\GeoLocationController;
 use App\Http\Controllers\IncidentTypesController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ViolatorController;
+use App\Http\Controllers\FCMController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,7 +20,7 @@ use App\Http\Controllers\ViolatorController;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-
+Route::get('/send-notification', [FCMController::class, 'sendFCMNotification']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 
@@ -49,4 +50,3 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/violator-details/{id}', [ViolatorController::class, 'getViolatorsDetails']);
 });
-
