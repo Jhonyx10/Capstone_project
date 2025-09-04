@@ -1,48 +1,112 @@
-import useAppState from "../store/useAppState"
+//assests
+import { AiFillHome } from "react-icons/ai";
+import { MdPeopleAlt } from "react-icons/md";
+import { TbReportSearch } from "react-icons/tb";
+import { BiSolidReport } from "react-icons/bi";
+import { MdReport } from "react-icons/md";
+import { IoCall } from "react-icons/io5";
+import { IoBook } from "react-icons/io5";
+import { FaMapLocationDot } from "react-icons/fa6";
+
+//components and hooks
+import useAppState from "../store/useAppState";
 import { Link } from "react-router-dom";
-import Logout from "./Logout";
+import { motion, AnimatePresence } from "framer-motion";
+import ToggleClose from "./ToggleClose";
+import TitleSection from "./TittleSection";
+import Option from "./Option";
+
 const SideNav = () => {
-    const { user } = useAppState();
+    const { open, setOpen, selected, setSelected } = useAppState();
 
     return (
-        <div style={{backgroundColor: 'blueViolet', padding: 10, color: '#fff'}}>
-            <div>
-                <h1>LOGO</h1>
-                <h5>{user.name}</h5>
-            </div>
-            <nav>
-                <ul>
-                    <li>
-                        <Link to="/dashboard">Dashboard</Link>
-                    </li>
-                    <li>
-                        <Link to="/map">Map</Link>
-                    </li>
-                    <li>
-                        <Link to="/reports">Reports</Link>
-                    </li>
-                    <li>
-                        <Link to="/violators">Violators</Link>
-                    </li>
-                    <li>
-                        <Link to="/volunteers">Volunteers</Link>
-                    </li>
-                </ul>
-                <div style={{marginTop: 300}}>
-                    <ul>
-                        <li>
-                            <Link to="/hotline">Hotline</Link>
-                        </li>
-                        <li>
-                            <Link to="/dashboard">Settings</Link>
-                        </li>
-                        <li>
-                            <Logout />
-                        </li>
-                    </ul>
+        <motion.nav
+            layout
+            initial={false}
+            animate={{
+                width: open ? 225 : 64,
+            }}
+            transition={{ type: "spring", stiffness: 200, damping: 30 }}
+            className="sticky top-0 h-screen shrink-0 border-r border-slate-300 
+               dark:border-slate-950 dark:bg-slate-900 bg-white p-2 flex flex-col justify-between"
+        >
+            <motion.div layout className="mr-1">
+                <TitleSection open={open} />
+                <div className="flex flex-col space-y-1">
+                    <Link to="/dashboard">
+                        <Option
+                            Icon={AiFillHome}
+                            title="Dashboard"
+                            selected={selected}
+                            setSelected={setSelected}
+                            open={open}
+                        />
+                    </Link>
+                    <Link to="/volunteers">
+                        <Option
+                            Icon={MdPeopleAlt}
+                            title="Volunteers"
+                            selected={selected}
+                            setSelected={setSelected}
+                            open={open}
+                        />
+                    </Link>
+                    <Link to="/map">
+                        <Option
+                            Icon={FaMapLocationDot}
+                            title="Map"
+                            selected={selected}
+                            setSelected={setSelected}
+                            open={open}
+                        />
+                    </Link>
+                    <Link to="/reports">
+                        <Option
+                            Icon={BiSolidReport}
+                            title="Reports"
+                            selected={selected}
+                            setSelected={setSelected}
+                            open={open}
+                        />
+                    </Link>
+                    <Link to="/violators">
+                        <Option
+                            Icon={MdReport}
+                            title="Violators"
+                            selected={selected}
+                            setSelected={setSelected}
+                            open={open}
+                        />
+                    </Link>
                 </div>
-            </nav>
-        </div>
+            </motion.div>
+
+            <motion.div layout className="flex flex-col space-y-14 mr-1">
+                <div className="flex flex-col space-y-1 border-t pt-2 border-slate-300 dark:border-slate-950">
+                    <Link to="/hotline">
+                        <Option
+                            Icon={IoCall}
+                            title="Hotline"
+                            selected={selected}
+                            setSelected={setSelected}
+                            open={open}
+                        />
+                    </Link>
+                    <Link to="/hotline">
+                        <Option
+                            Icon={IoBook}
+                            title="Help"
+                            selected={selected}
+                            setSelected={setSelected}
+                            open={open}
+                        />
+                    </Link>
+                </div>
+
+                {/* ToggleClose stays at the very bottom */}
+                <ToggleClose open={open} setOpen={setOpen} />
+            </motion.div>
+        </motion.nav>
     );
-}
-export default SideNav
+};
+export default SideNav;

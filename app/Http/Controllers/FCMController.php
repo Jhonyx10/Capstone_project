@@ -13,7 +13,7 @@ class FCMController extends Controller
     public function sendFCMNotification()
     {   
         // Your FCM token
-        $token = 'f-eDK71NQJuWwbY-Qgv9ZE:APA91bFcSE6cBQw7tNixi3iVdEovxlkR03ISDSXmNX2ltMNOIFzpmbcvAmEjb3shHdY2a52QoKdv0TjMTMpIkzQPjkuHzpI3Ge_g_mrnsfa6sMFyydlaj4Q';
+        $token = 'f-8t7pRDTa6TtOiIOWE-oX:APA91bERzC-7IfoQkqlWL9gDxjdXPSwf9XBHN_V7FEPBOywsbZLXGn2ICzzPeRDKgAa1tY0gafBTerf9PbfsWfK3T73fAQB5aCa1rKKdTi0FDrxqzbtxBXU';
         // $token = 'einlHj_GRT-9nx081NAzaK:APA91bGnX-hWrnmyWeDQRhyyJLRH5RDHB1H549qfbN16lMvhpuCdJK90Ur57l52X1Y9SoH_Vyy2jmJ2LCcK8fyhipm0i-7d9-PcrZVMSH3dDtwHz_uqkGwg';
        $serviceAccountPath = public_path(env('FIREBASE_CREDENTIALS'));
        
@@ -28,10 +28,14 @@ class FCMController extends Controller
 
     //    Create the message
        $message = CloudMessage::withTarget('token', $token)
-           ->withNotification([
-               'title' => 'Test12',
-               'body' => 'This is a test message for us',
-           ]);
+    ->withData([
+        'title' => 'Test12',
+        'body'  => 'This is a test message for us',
+    ])
+    ->withAndroidConfig([
+        'priority' => 'high',
+    ]);
+
        // Send the message
        try {
            $messaging->send($message);
