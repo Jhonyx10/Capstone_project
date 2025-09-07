@@ -241,7 +241,15 @@ const ReportTable = () => {
                                 {report?.incident_type?.incident_name}
                             </td>
                             <td style={tdStyle}>{report?.date}</td>
-                            <td style={tdStyle}>{report?.time}</td>
+                            <td style={tdStyle}>
+                                {new Date(
+                                    `1970-01-01T${report?.time}`
+                                ).toLocaleTimeString("en-US", {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                    hour12: true,
+                                })}
+                            </td>
                             <td style={tdStyle}>
                                 {report?.location?.zone?.zone_name}
                             </td>
