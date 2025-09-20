@@ -3,11 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Contracts\Validation\Validator;
-use Illuminate\Http\Exceptions\HttpResponseException;
-use Illuminate\Validation\Rule;
 
-class ResponseRequest extends FormRequest
+class HotlineRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,10 +22,8 @@ class ResponseRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'user_id' => 'required|exists:users,id',
-            'category_id' => 'required|exists:incident_categories,id',
-            'latitude' => 'required',
-            'longitude' => 'required'
+            'department_name' => 'required|string',
+            'hotline_number' => 'required|string'
         ];
     }
 }

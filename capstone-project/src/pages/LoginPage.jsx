@@ -42,6 +42,10 @@ const LoginPage = () => {
     const loginMutation = useMutation({
         mutationFn: UserLogin,
         onSuccess: async (data) => {
+            if (data.user.role !== "admin") {
+                alert("Access denied. Only admins can log in.");
+                return; 
+            }
             await setToken(data.token);
             setLogin(true);
             setUser(data.user);

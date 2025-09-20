@@ -22,9 +22,4 @@ class IncidentType extends Model
     {
         return $this->hasMany(IncidentReport::class, 'incident_type_id');
     }
-
-    public function requests()
-    {
-        return $this->hasMany(IncidentRequestResponse::class, 'incident_type_id');
-    }
 }

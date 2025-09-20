@@ -17,4 +17,9 @@ class IncidentCategory extends Model
     {
         return $this->hasMany(IncidentType::class, 'category_id');
     }
+
+    public function categories()
+    {
+        return $this->hasMany(IncidentRequestResponse::class, 'category_id');
+    }
 }

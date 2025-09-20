@@ -58,4 +58,15 @@ class User extends Authenticatable
     {
         return $this->hasOne(UserProfile::class, 'user_id');
     }
+
+    public function devices()
+    {
+        return $this->hasMany(UserDevice::class);
+    }
+
+    public function routeNotificationForFcm()
+    {
+        // return all tokens linked to this user
+        return $this->devices()->pluck('fcm_token')->toArray();
+    }
 }

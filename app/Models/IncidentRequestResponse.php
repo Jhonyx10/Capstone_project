@@ -11,16 +11,16 @@ class IncidentRequestResponse extends Model
 
     protected $table = 'incident_request_responses';
 
-    protected $fillable = ['user_id', 'incident_type_id', 'latitude', 'longitude'];
+    protected $fillable = ['user_id', 'category_id', 'latitude', 'longitude'];
 
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    public function incidentType()
+    public function category()
     {
-        return $this->belongsTo(IncidentType::class, 'incident_type_id');
+        return $this->belongsTo(IncidentType::class, 'category_id');
     }
 
     public function responseRecord()

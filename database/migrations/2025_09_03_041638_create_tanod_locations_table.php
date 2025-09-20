@@ -11,14 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('incident_request_responses', function (Blueprint $table) {
+        Schema::create('tanod_locations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('category_id')->constrained('incident_categories')->onDelete('cascade');
+             $table->foreignId('request_id')->constrained('incident_request_responses')->onDelete('cascade');
+            $table->foreignId('tanod_id')->constrained('users')->onDelete('cascade');
             $table->decimal('latitude', 10, 7);
             $table->decimal('longitude', 10, 7);
-            $table->boolean('status')->default(0);
-            $table->timestamps();
+            $table->timestamp('updated_at')->useCurrent();
         });
     }
 
@@ -27,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('incident_request_responses');
+        Schema::dropIfExists('tanod_locations');
     }
 };

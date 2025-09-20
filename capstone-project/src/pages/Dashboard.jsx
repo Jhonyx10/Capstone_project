@@ -1,3 +1,4 @@
+
 // assets
 import { FaCalendarAlt } from "react-icons/fa";
 import { FaRegArrowAltCircleUp } from "react-icons/fa";
@@ -11,8 +12,29 @@ import { motion } from "framer-motion";
 import ViolatorsList from "../components/ViolatorsList";
 import ReactMiniMap from "../components/ReactMiniMap";
 import ZonalIncidentCard from "../components/ZonalIncidentCard";
+import ZoneReportTotal from "../components/ZoneReportTotal";
+import useAppState from "../store/useAppState";
+import { useQuery } from "@tanstack/react-query";
+import { getReports } from "../functions/ReportsApi";
+import { useEffect } from "react";
 
 const Dashboard = () => {
+  const { base_url, token, setReports } = useAppState();
+
+      const { data } = useQuery({
+          queryKey: ["reports"],
+          queryFn: () => getReports({ base_url, token }),
+          onSuccess: (data) => {
+              console.log(data);
+          },
+      });
+
+         useEffect(() => {
+             if (data) {
+                 setReports(data);
+             }
+         }, [data]);
+
     return (
         <motion.div
             layout
@@ -431,6 +453,5 @@ const Dashboard = () => {
                 <ViolatorsList />
             </motion.div>
         </motion.div>
-    );
-};
+}
 export default Dashboard;

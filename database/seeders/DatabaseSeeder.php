@@ -15,11 +15,25 @@ class DatabaseSeeder extends Seeder
     {
         // \App\Models\User::factory(10)->create();
 
-        \App\Models\User::factory()->create([
+        \App\Models\User::insert([
+           [
             'name' => 'admin',
             'email' => 'admin@example.com',
             'password' => Hash::make('password'),
             'role' => 'admin',
+            ],
+            [
+            'name' => 'tanod',
+            'email' => 'tanod@example.com',
+            'password' => Hash::make('password'),
+            'role' => 'tanod',
+            ],
+            [
+            'name' => 'guest',
+            'email' => 'guest@example.com',
+            'password' => Hash::make('password'),
+            'role' => 'resident',
+            ]
         ]);
 
         \App\Models\IncidentCategory::insert([

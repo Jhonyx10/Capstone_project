@@ -6,6 +6,8 @@ const ReportDetails = ({ reportId, onClose }) => {
     const report = reports?.find((r) => r.id === reportId);
     if (!reports || reports.length === 0 || !report) return null;
 
+    console.log("🗺️ Landmark value:", report?.location?.landmark);
+
     return (
         <div style={styles.overlay}>
             <div style={styles.modal}>
@@ -39,13 +41,20 @@ const ReportDetails = ({ reportId, onClose }) => {
                             <strong>Date:</strong> {report?.date}
                         </p>
                         <p>
-                            <strong>Time:</strong> {report?.time}
+                            <strong>Time:</strong>{" "}
+                            {new Date(
+                                `1970-01-01T${report?.time}`
+                            ).toLocaleTimeString("en-US", {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                                hour12: true,
+                            })}
                         </p>
                         <p>
                             <strong>Report Description:</strong> <br />
                             {report?.report_description}
                         </p>
-                        <ReportViolators reportId={reportId}/>
+                        <ReportViolators reportId={reportId} />
                     </div>
                     <div>
                         <p>

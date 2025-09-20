@@ -8,6 +8,7 @@ use App\Models\IncidentEvidence;
 use App\Models\ViolatorsProfile;
 use App\Models\ViolatorsRecord;
 use App\Models\IncidentRequestResponse;
+use App\Models\IncidentResponseRecord;
 use App\Http\Requests\IncidentReportRequest;
 use App\Http\Requests\EvidenceRequest;
 use App\Http\Requests\ViolatorsProfileRequest;
@@ -34,15 +35,34 @@ class IncidentReportService
 
     public function attachEvidence(EvidenceRequest $request, int $reportId): void
     {
-        foreach ($request->file('incident_evidence') as $file) {
-            $filename = $file->store('evidences', 'public');
+            if ($request->hasFile('incident_evidence')) {
+            foreach ($request->file('incident_evidence') as $file) {
+                $filename = $file->store('evidences', 'public');
 
-            IncidentEvidence::create([
-                'report_id' => $reportId,
-                'incident_evidence' => $filename,
-                'remarks' => $request->input('remarks'),
-            ]);
+                IncidentEvidence::create([
+                    'report_id' => $reportId,
+                    'incident_evidence' => $filename,
+                    'remarks' => $request->input('remarks'),
+                ]);
+            }
         }
+    }
+
+    public function attachResponseRecord(array $data, int $reportId): IncidentResponseRecord
+    {
+        return IncidentResponseRecord::create([
+            'request_id'    => $data['request_id'] ?? null,
+            'report_id'     => $reportId,
+            'distance'      => $data['distance'] ?? null,
+            'response_time' => $data['response_time'] ?? null,
+        ]);
+    }
+
+    public function statusUpdate(int $responseId)
+    {
+        $request = IncidentRequestResponse::findOrFail($responseId);
+        $request->status = 1;
+        $request->save();
     }
 
     public function getIncidentReports()
@@ -52,7 +72,9 @@ class IncidentReportService
                                 ->get()
                                 ->map(function ($report) {                                 
                                 if ($report->location && $report->location->landmark) {
-                                    $report->location->landmark = asset('storage/' . $report->location->landmark);
+                                    if (!str_starts_with($report->location->landmark, 'http')) {
+                                            $report->location->landmark = asset('storage/' . $report->location->landmark);
+                                        }
                                 }
                                 $report->evidences->map(function ($evidence) {
                                     $evidence->file_url = asset('storage/' . $evidence->incident_evidence);
@@ -113,7 +135,7 @@ class IncidentReportService
     {
         return IncidentRequestResponse::create([
             'user_id' => $data['user_id'],
-            'incident_type_id' => $data['incident_type_id'],
+            'category_id' => $data['category_id'],
             'latitude' => $data['latitude'],
             'longitude' => $data['longitude']
         ]);
