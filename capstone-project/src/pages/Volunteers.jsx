@@ -1,5 +1,5 @@
-import { useState } from "react"
-import SideNav from "../components/SideNav"
+import { useState } from "react";
+import SideNav from "../components/SideNav";
 import CreateTanodAccount from "../forms/CreateTanodAccount";
 import TanodCard from "../components/TanodCard";
 
@@ -12,7 +12,6 @@ const Volunteers = () => {
 
     return (
         <div style={{ display: "flex" }}>
-            <SideNav />
             <div style={{ width: "100%", padding: 5 }}>
                 <div
                     style={{
@@ -29,11 +28,11 @@ const Volunteers = () => {
                         <CreateTanodAccount onClose={() => setOpen(false)} />
                     )}
                 </div>
-                <div style={{display: 'flex', gap: 50, flexWrap: 'wrap'}}>
+                <div style={{ display: "flex", gap: 50, flexWrap: "wrap" }}>
                     <TanodCard />
                 </div>
             </div>
         </div>
     );
-}
-export default Volunteers
+};
+export default Volunteers;

@@ -15,6 +15,7 @@ use App\Http\Controllers\TanodLocationController;
 use App\Http\Controllers\HotlineController;
 use App\Events\TanodLocationUpdated;
 
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -26,7 +27,10 @@ use App\Events\TanodLocationUpdated;
 |
 */
 
-Route::get('test-notifications', [FCMController::class, 'sendFCMNotification']);
+
+
+Route::get('/send-notification', [FCMController::class, 'sendFCMNotification']);
+
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 
@@ -95,8 +99,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/tanod/location', [TanodLocationController::class, 'update']);// might remove this route.
     Route::apiResource('/user-device', UserDeviceController::class); //might remove this route also.
 
-
 });
-
-
 

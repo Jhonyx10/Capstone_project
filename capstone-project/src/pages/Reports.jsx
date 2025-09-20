@@ -3,12 +3,11 @@ import ReportTable from "../components/ReportsTable";
 const Reports = () => {
     return (
         <div style={{ display: "flex", margin: 0 }}>
-            <SideNav />
             <div>
                 <h1>Reports</h1>
-                    <ReportTable/>
+                <ReportTable />
             </div>
         </div>
     );
-}
-export default Reports
+};
+export default Reports;

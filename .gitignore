@@ -2,6 +2,7 @@
 /node_modules
 /public/build
 /public/hot
+/public/*.json
 /public/storage
 /public/bpat-mobile-firebase-adminsdk-*.json
 /storage/*.key
