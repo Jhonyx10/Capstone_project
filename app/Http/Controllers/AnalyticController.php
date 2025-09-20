@@ -28,6 +28,13 @@ class AnalyticController extends Controller
         return response()->json(['recent_reports' => $recent_reports], 200);
     }
 
+    public function totalReportsByCategory()
+    {
+        $reports_total = $this->analyticsService->getReportsByCategory();
+
+        return response()->json(['reports_total' => $reports_total]);
+    }
+
     public function monthlyReports()
     {
         $monthly_reports = $this->analyticsService->getMonthlyReports();
@@ -47,5 +54,40 @@ class AnalyticController extends Controller
         $violatorsTotal = $this->analyticsService->getViolatorTotalViolations();
 
         return response()->json(['violatorsTotal' => $violatorsTotal], 200);
+    }
+
+    public function averageResponseTime()
+    {
+        $response_time = $this->analyticsService->averageResponseTime();
+
+        return response()->json(['response_time' => $response_time]);
+    }
+
+    public function averageResponseTimeByZone($id)
+    {
+        $averageResponseTime = $this->analyticsService->averageResponseTimeByZone($id);
+
+        return response()->json(['averageResponseTime' => $averageResponseTime]);
+    }
+
+    public function averageResponseTimePerCategory()
+    {
+        $responseTimePerCategory = $this->analyticsService->averageResponseTimePerCategory();
+
+        return response()->json(['response_category' => $responseTimePerCategory]);
+    }
+
+    public function incidentProneZone()
+    {
+        $zones = $this->analyticsService->incidentProneZones();
+
+        return response()->json(['zones' => $zones]);
+    }
+
+    public function compareIncidentCategoriesCurrentPreviousMonth()
+    {
+        $categoryTrends = $this->analyticsService->compareIncidentCategories();
+
+        return response()->json(['category_trend' => $categoryTrends]);
     }
 }

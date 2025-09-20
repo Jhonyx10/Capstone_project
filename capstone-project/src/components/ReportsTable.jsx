@@ -1,11 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
-import { getReports, getCategories } from "../functions/ReportsApi";
+import { getCategories } from "../functions/ReportsApi";
 import useAppState from "../store/useAppState";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import ReportDetails from "./ReportDetails";
 
 const ReportTable = () => {
-    const { base_url, token, setReports, setCategories } = useAppState();
+    const { base_url, token, reports, setCategories } = useAppState();
     const [selectedCategory, setSelectedCategory] = useState("all");
     const [selectedIncidentType, setSelectedIncidentType] = useState("all");
     const [selectedMonth, setSelectedMonth] = useState("all");
@@ -25,20 +25,6 @@ const ReportTable = () => {
         if (hour >= 17 && hour < 21) return "evening";
         return "night"; 
     };
-
-    const { data } = useQuery({
-        queryKey: ["reports"],
-        queryFn: () => getReports({ base_url, token }),
-        onSuccess: (data) => {
-           console.log(data)
-        }
-    });
-
-   useEffect(() => {
-       if (data) {
-           setReports(data);
-       }
-   }, [data]);
 
     const categories = useQuery({
         queryKey: ["categories"],
@@ -66,8 +52,8 @@ const ReportTable = () => {
         setSelectedTime(e.target.value);
     };
 
-   const filteredReports = data?.filter((report) => {
-   const reportMonth = report?.date?.split("-")[1];
+   const filteredReports = reports?.filter((report) => {
+    const reportMonth = new Date(report?.date).getMonth() + 1;
     const categoryMatch =
         selectedCategory === "all" ||
         report?.incident_type?.category?.id === parseInt(selectedCategory);

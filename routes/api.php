@@ -12,6 +12,7 @@ use App\Http\Controllers\ViolatorController;
 use App\Http\Controllers\UserDeviceController;
 use App\Http\Controllers\FCMController;
 use App\Http\Controllers\TanodLocationController;
+use App\Http\Controllers\HotlineController;
 use App\Events\TanodLocationUpdated;
 
 /*
@@ -34,6 +35,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('role:admin')->group(function () {
         Route::post('/add-zone', [GeoLocationController::class, 'addZone']);
         Route::post('/add-category', [IncidentTypesController::class, 'addCategory']);
+        Route::apiResource('/hotline', HotlineController::class);
     });
 
     //tanod only routes, for brgy tanods specific functions.
@@ -63,10 +65,16 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/request', [ReportController::class, 'getRequest']);
         //analytics parts.
         Route::get('/total-reports', [AnalyticController::class, 'totalReports']);
+        Route::get('/total-reports-by-category', [AnalyticController::class, 'totalReportsByCategory']);
         Route::get('/recent-reports', [AnalyticController::class, 'recentReports']);
         Route::get('/monthly-reports', [AnalyticController::class, 'monthlyReports']);
         Route::get('/total-reports-by-zone', [AnalyticController::class, 'zoneIncidentTotal']);
         Route::get('/violators-total-violation', [AnalyticController::class, 'ViolatorTotalViolations']);
+        Route::get('/average-response-time', [AnalyticController::class, 'averageResponseTime']);
+        Route::get('/average-response-time-by-zone/{id}', [AnalyticController::class, 'averageResponseTimeByZone']);
+        Route::get('/average-response-per-category', [AnalyticController::class, 'averageResponseTimePerCategory']);
+        Route::get('/incident-prone-zones', [AnalyticController::class, 'incidentProneZone']);
+        Route::get('/category-trends', [AnalyticController::class, 'compareIncidentCategoriesCurrentPreviousMonth']);
     });
 
     Route::get('/get-categories', [IncidentTypesController::class, 'getIncidentCategories']);
