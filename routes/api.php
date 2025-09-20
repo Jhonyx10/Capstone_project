@@ -20,6 +20,9 @@ use App\Http\Controllers\FCMController;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+
+
+
 Route::get('/send-notification', [FCMController::class, 'sendFCMNotification']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
