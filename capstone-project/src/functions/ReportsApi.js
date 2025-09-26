@@ -52,3 +52,55 @@ export const getIncidentTypes = async ({base_url, token }) => {
           console.log(error);
     }
 }
+
+export const getViolators = async ({base_url, token}) => {
+    try {
+        const response = await axios.get(`${base_url}get-violators`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+        return response.data.violators ?? [];
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+export const reportDetails = async ({token, base_url, id}) => {
+    try {
+        const response = await axios.get(`${base_url}report-details/${id}`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+        return response.data.report_details;
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+export const violatorsDetails = async ({base_url, token, id}) => {
+    try {
+        const response = await axios.get(`${base_url}violator-details/${id}`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+        return response.data.violator
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+export const violatorsRecords = async ({base_url, token, id}) => {
+    try {
+        const response = await axios.get(`${base_url}violators-record/${id}`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+        return response.data.records;
+    } catch (error) {
+        console.log(error);
+    }
+}

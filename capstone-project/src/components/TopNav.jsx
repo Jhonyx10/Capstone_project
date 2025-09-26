@@ -14,6 +14,7 @@ import Lottie from "lottie-react";
 import React, { useRef } from "react";
 
 const TopNav = () => {
+    const { user } = useAppState();
     const {
         currentDateTime,
         weather,
@@ -64,22 +65,22 @@ const TopNav = () => {
                 </motion.div>
 
                 {/* search bar */}
-                <motion.div layout className="relative">
+                {/* <motion.div layout className="relative">
                     <div>
                         <FaSearch
                             className="absolute top-1.5 left-1"
                             size={20}
                             color="#22c55e"
                         />
-                        {/* <Lottie
+                        <Lottie
                             className="absolute size-8"
                             animationData={Search}
                             loop={false}
                             autoPlay={true}
                             lottieRef={searchRef}
-                        /> */}
+                        />
                     </div>
-                    {/* search bar */}
+                    search bar
                     <input
                         type="text"
                         placeholder="Search"
@@ -92,7 +93,7 @@ const TopNav = () => {
        `}
                     />
                 </motion.div>
-
+ */}
                 {/* profile + notifications */}
                 <div>
                     <motion.div
@@ -141,7 +142,7 @@ const TopNav = () => {
                                 Alpha Roger
                             </span>
                             <span className="block font-light text-xs text-slate-500 dark:text-gray-400">
-                                BPAT
+                                {user.role}
                             </span>
                         </motion.div>
                         <motion.div

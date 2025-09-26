@@ -1,24 +1,36 @@
 import useVolunteers from "../hooks/useVolunteers";
 
 const TanodCard = () => {
-    
-    const {data} = useVolunteers()
-    
+    const { data } = useVolunteers();
+
+    if (!data || data.length === 0) {
+        return (
+            <p className="text-gray-500 dark:text-gray-300">
+                No volunteers found.
+            </p>
+        );
+    }
+
     return (
         <>
-            {data?.map((volunteers) => (
+            {data.map((volunteer) => (
                 <div
-                    key={volunteers.id}
-                    style={{ backgroundColor: "green", padding: 10 }}
+                    key={volunteer.id}
+                    className="bg-green-500 dark:bg-green-700 text-white rounded-lg shadow p-4 flex flex-col gap-2 hover:scale-105 transform transition"
                 >
-                    <h1>Brgy. Tanod</h1>
-                    <h5>User Name:</h5>
-                    <h5>{volunteers.name}</h5>
-                    <h5>Email:</h5>
-                    <h5>{volunteers.email}</h5>
+                    <h3 className="text-lg font-semibold">Brgy. Tanod</h3>
+                    <p>
+                        <span className="font-medium">Name:</span>{" "}
+                        {volunteer.name}
+                    </p>
+                    <p>
+                        <span className="font-medium">Email:</span>{" "}
+                        {volunteer.email}
+                    </p>
                 </div>
             ))}
         </>
     );
-}
-export default TanodCard
+};
+
+export default TanodCard;

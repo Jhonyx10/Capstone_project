@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\User;
 use App\Models\IncidentReport;
 use App\Models\ViolatorsRecord;
 use App\Models\ViolatorsProfile;
@@ -119,13 +120,6 @@ class AnalyticService
 
     }
 
-    //total average response time.
-    public function averageResponseTime()
-    {
-       return IncidentResponseRecord::average('response_time');
-
-    }
-
     //average response time by zone idm displayed in the zone details.
     public function averageResponseTimeByZone(int $id)
     {
@@ -200,4 +194,86 @@ class AnalyticService
             )
             ->get();
     }
+
+    public function currentPreviousTotalReports()
+    {
+        $currentMonth = Carbon::now()->month;
+        $previousMonth = Carbon::now()->subMonth()->month;
+        $year = Carbon::now()->year;
+
+        $current = IncidentReport::selectRaw('COUNT(*) as total')
+            ->whereMonth('created_at', $currentMonth)
+            ->whereYear('created_at', $year);
+
+        $previous = IncidentReport::selectRaw('COUNT(*) as total')
+            ->whereMonth('created_at', $previousMonth)
+            ->whereYear('created_at', $year);
+
+        return DB::table(DB::raw("({$current->toSql()}) as current"))
+            ->mergeBindings($current->getQuery())
+            ->leftJoin(DB::raw("({$previous->toSql()}) as previous"), DB::raw("1"), "=", DB::raw("1"))
+            ->mergeBindings($previous->getQuery())
+            ->selectRaw('
+                current.total as current_total,
+                COALESCE(previous.total, 0) as previous_total,
+                ((current.total - COALESCE(previous.total, 0)) / NULLIF(previous.total, 0)) * 100 as percent_change
+            ')
+            ->first();
+    }
+
+        //total average response time.
+    public function averageResponseTime()
+    {
+        $currentMonth = Carbon::now()->month;
+        $previousMonth = Carbon::now()->subMonth()->month;
+        $year = Carbon::now()->year;
+
+        $current = IncidentResponseRecord::selectRaw('AVG(response_time) as cur_response_time')
+            ->whereMonth('created_at', $currentMonth)
+            ->whereYear('created_at', $year);
+
+        $previous = IncidentResponseRecord::selectRaw('AVG(response_time) as prev_response_time')
+            ->whereMonth('created_at', $previousMonth)
+            ->whereYear('created_at', $year);
+
+        return DB::table(DB::raw("({$current->toSql()}) as current"))
+            ->mergeBindings($current->getQuery())
+            ->leftJoin(DB::raw("({$previous->toSql()}) as previous"), DB::raw("1"), "=", DB::raw("1"))
+            ->mergeBindings($previous->getQuery())
+            ->selectRaw(
+                'current.cur_response_time as current_response,
+                COALESCE(previous.prev_response_time, 0) as previous_response,
+                ((current.cur_response_time - COALESCE(previous.prev_response_time, 0)) / NULLIF(previous.prev_response_time, 0)) * 100 as percent_change'
+            )
+            ->first();
+    }
+
+    public function registeredUsers()
+    {
+        $currentMonth = Carbon::now()->month;
+        $previousMonth = Carbon::now()->subMonth()->month;
+        $year = Carbon::now()->year;
+
+        $cur = User::selectRaw('COUNT(*) as cnt')
+                ->where('role', '=', 'resident')
+                ->whereMonth('created_at', $currentMonth)
+                ->whereYear('created_at', $year);
+
+        $prev = User::selectRaw('COUNT(*) as cnt')
+                    ->where('role', '=', 'resident')
+                    ->whereMonth('created_at', $previousMonth)
+                    ->whereYear('created_at', $year);
+
+        return DB::table(DB::raw("({$cur->toSql()}) as cur"))
+            ->mergeBindings($cur->getQuery())
+            ->leftJoin(DB::raw("({$prev->toSql()}) as prev"), DB::raw("1"), "=", DB::raw("1"))
+            ->mergeBindings($prev->getQuery())
+            ->selectRaw(
+                'cur.cnt as current_month_registered, 
+                COALESCE(prev.cnt, 0) as previous_month_registered,
+                ((cur.cnt - COALESCE(prev.cnt, 0)) / NULLIF(prev.cnt, 0)) * 100 as monthly_registered'
+            )
+            ->first();
+    }
+
 }

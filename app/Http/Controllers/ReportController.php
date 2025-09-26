@@ -110,6 +110,13 @@ public function fileReport(
         ], 201);
     }
 
+    public function reportDetails($id)
+    {
+        $report_details = $this->incidentReport->reportDetails($id);
+
+        return response()->json(['report_details' => $report_details]);
+    }
+
     public function getReportViolators($id)
     {
         $reportViolators = $this->incidentReport->reportViolators($id);

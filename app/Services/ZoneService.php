@@ -47,6 +47,15 @@ class ZoneService
 
     public function getLocations()
     {
-        return IncidentLocation::get();
+        return IncidentLocation::with('reports.incidentType')->get()
+            ->map(function ($location) {
+                if ($location->landmark) {
+                    if (!str_starts_with($location->landmark, 'http')) {
+                        $location->landmark = asset('storage/' . $location->landmark);
+                    }
+                }
+                return $location;
+            });
     }
+
 }

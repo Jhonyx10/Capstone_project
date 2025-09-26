@@ -84,6 +84,28 @@ class IncidentReportService
                                 });
     }
 
+    public function reportDetails(int $id)
+    {
+        $report = IncidentReport::with('incidentType.category','location.zone', 'user', 'evidences')
+            ->where('id', $id)
+            ->first(); 
+
+        if ($report) {
+            if ($report->location && $report->location->landmark) {
+                if (!str_starts_with($report->location->landmark, 'http')) {
+                    $report->location->landmark = asset('storage/' . $report->location->landmark);
+                }
+            }
+
+            $report->evidences->map(function ($evidence) {
+                $evidence->file_url = asset('storage/' . $evidence->incident_evidence);
+                return $evidence;
+            });
+        }
+
+        return $report;
+    }
+
     public function createViolatorsProfile(ViolatorsProfileRequest $request): ViolatorsProfile
     {
         $data = $request->validated();

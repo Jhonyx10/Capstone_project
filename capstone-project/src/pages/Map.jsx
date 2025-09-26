@@ -1,11 +1,13 @@
-import useAppState from "../store/useAppState";
 import ReactMap from "../components/ReactMap";
+import { motion } from "framer-motion"
 
 const Map = () => {
-    const { zones, user } = useAppState();
     return (
         <div style={{ display: "flex" }}>
-            <div
+            <motion.div
+                layout
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.1 }}
                 style={{
                     width: "100%",
                     height: "600px",
@@ -13,7 +15,7 @@ const Map = () => {
                 }}
             >
                 <ReactMap />
-            </div>
+            </motion.div>
         </div>
     );
 };

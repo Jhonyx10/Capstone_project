@@ -1,92 +1,16 @@
 import { motion, AnimatePresence } from "framer-motion";
 import useAppState from "../store/useAppState";
 import Barangay from "../assets/img/Barangay.png"; // adjust path to your image
+import useZoneIncidentDetails from "../hooks/useZonesIncidentDetails";
 
 const ZonalIncidentCard = () => {
     const { open } = useAppState();
-    const zones = [
-        {
-            image: Barangay,
-            zoneName: "Zone 5",
-            totalReports: 9000000,
-            reports: [
-                { type: "Curfew", count: 120000 },
-                { type: "Accident", count: 50000 },
-                { type: "Robbery", count: 20000 },
-                { type: "Others", count: 10000 },
-            ],
-        },
-        {
-            image: Barangay,
-            zoneName: "Zone 6",
-            totalReports: 15,
-            reports: [
-                { type: "Curfew", count: 7 },
-                { type: "Car Accident", count: 3 },
-                { type: "Robbery", count: 4 },
-                { type: "Others", count: 1 },
-            ],
-        },
-        {
-            image: Barangay,
-            zoneName: "Zone 7",
-            totalReports: 8,
-            reports: [
-                { type: "Curfew", count: 3 },
-                { type: "Car Accident", count: 2 },
-                { type: "Robbery", count: 2 },
-                { type: "Others", count: 1 },
-            ],
-        },
-        {
-            image: Barangay,
-            zoneName: "Zone 8",
-            totalReports: 22,
-            reports: [
-                { type: "Curfew", count: 10 },
-                { type: "Car Accident", count: 7 },
-                { type: "Robbery", count: 3 },
-                { type: "Others", count: 2 },
-            ],
-        },
-        {
-            image: Barangay,
-            zoneName: "Zone 9",
-            totalReports: 11,
-            reports: [
-                { type: "Curfew", count: 5 },
-                { type: "Car Accident", count: 3 },
-                { type: "Robbery", count: 2 },
-                { type: "Others", count: 1 },
-            ],
-        },
-        {
-            image: Barangay,
-            zoneName: "Zone 10",
-            totalReports: 18,
-            reports: [
-                { type: "Curfew", count: 9 },
-                { type: "Car Accident", count: 4 },
-                { type: "Robbery", count: 3 },
-                { type: "Others", count: 2 },
-            ],
-        },
-        {
-            image: Barangay,
-            zoneName: "Zone 11",
-            totalReports: 25,
-            reports: [
-                { type: "Curfew", count: 12 },
-                { type: "Car Accident", count: 6 },
-                { type: "Robbery", count: 5 },
-                { type: "Others", count: 2 },
-            ],
-        },
-    ];
+    const { data } = useZoneIncidentDetails()
+
 
     return (
         <motion.div className="flex flex-col gap-2 max-h-[500px] overflow-y-auto hide-scrollbar pr-1">
-            {zones.map((zone, index) => (
+            {data?.map((zoneData, index) => (
                 <motion.div
                     key={index}
                     whileHover={{ scale: 1.02 }}
@@ -97,28 +21,32 @@ const ZonalIncidentCard = () => {
                     {/* Zone Image + Name */}
                     <div className="flex flex-col items-center">
                         <img
-                            src={zone.image}
-                            alt={zone.zoneName}
+                            src={Barangay} // fallback image
+                            alt={zoneData.zone.zone_name}
                             className="w-12 h-12 object-contain"
                         />
                         <p className="text-sm font-medium text-gray-700 dark:text-white mt-1">
-                            {zone.zoneName}
+                            {zoneData.zone.zone_name}
                         </p>
                     </div>
 
                     {/* Report Breakdown */}
                     <div className="flex flex-col gap-[2px] text-[11px] text-gray-600 dark:text-gray-300">
-                        {zone.reports.map((report, i) => (
+                        {zoneData.categories.map((cat, i) => (
                             <div
                                 key={i}
                                 className="flex justify-between border-b border-gray-200 dark:border-slate-700 last:border-0"
                             >
                                 <p className="whitespace-nowrap block">
-                                    {(report.type.length > 8) & open
-                                        ? report.type.slice(0, 8) + "..."
-                                        : report.type}
+                                    {(cat.category.category_name.length > 8) &
+                                    open
+                                        ? cat.category.category_name.slice(
+                                              0,
+                                              8
+                                          ) + "..."
+                                        : cat.category.category_name}
                                 </p>
-                                <p className="font-medium">{report.count}</p>
+                                <p className="font-medium">{cat.count}</p>
                             </div>
                         ))}
                     </div>
@@ -153,7 +81,7 @@ const ZonalIncidentCard = () => {
                             Count
                         </motion.p>
                         <p className="text-center text-xl mt-4 font-semibold text-green-600">
-                            {zone.totalReports}
+                            {zoneData.zone_total}
                         </p>
                     </div>
                 </motion.div>

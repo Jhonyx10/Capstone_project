@@ -23,4 +23,11 @@ class ViolatorController extends Controller
             'violator' => $violator
         ], 200);
     }
+
+    public function violatorsRecords($id)
+    {
+        $records = $this->violator->violatorsRecords($id);
+
+        return response()->json(['records' => $records]);
+    }
 }

@@ -63,9 +63,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/add-incident-type', [IncidentTypesController::class, 'addIncidentType']);
         Route::get('/get-incident-types', [IncidentTypesController::class, 'getIncidentTypes']);
         Route::get('/reports', [ReportController::class, 'getIncidentReports']);
+        Route::get('/report-details/{id}', [ReportController::class, 'reportDetails']);
         Route::get('/report-violators/{id}', [ReportController::class, 'getReportViolators']);
         Route::get('/get-violators', [ReportController::class, 'getViolators']);
         Route::get('/violator-details/{id}', [ViolatorController::class, 'getViolatorsDetails']);
+        Route::get('/violators-record/{id}', [ViolatorController::class, 'violatorsRecords']);
         Route::get('/request', [ReportController::class, 'getRequest']);
         //analytics parts.
         Route::get('/total-reports', [AnalyticController::class, 'totalReports']);
@@ -79,6 +81,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/average-response-per-category', [AnalyticController::class, 'averageResponseTimePerCategory']);
         Route::get('/incident-prone-zones', [AnalyticController::class, 'incidentProneZone']);
         Route::get('/category-trends', [AnalyticController::class, 'compareIncidentCategoriesCurrentPreviousMonth']);
+        Route::get('/months-current-previous', [AnalyticController::class, 'currentPreviousChanges']);
+        Route::get('/registered-users', [AnalyticController::class, 'registeredResidents']);
     });
 
     Route::get('/get-categories', [IncidentTypesController::class, 'getIncidentCategories']);

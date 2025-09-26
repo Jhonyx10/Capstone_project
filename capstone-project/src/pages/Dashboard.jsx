@@ -18,8 +18,44 @@ import { useQuery } from "@tanstack/react-query";
 import { getReports } from "../functions/ReportsApi";
 import { useEffect } from "react";
 
+//analytical hooks
+import useMonthsCurPrev from "../hooks/useMonthsCurPrev";
+import useCurPrevResponseTime from "../hooks/useCurPrevResponseTime";
+import useRegisteredUsers from "../hooks/useRegisteredUsers";
+
 const Dashboard = () => {
   const { base_url, token, setReports } = useAppState();
+  
+    const { data: curPrev } = useMonthsCurPrev();
+    const { data: responseTime} = useCurPrevResponseTime();
+    const { data: registeredUsers } = useRegisteredUsers();
+
+    const current = curPrev?.current_total ?? 0;
+    const previous = curPrev?.previous_total ?? 0;
+
+    // Calculate absolute increase
+    const increase = current - previous;
+
+    // Calculate percentage change safely
+    let percentChange = 0;
+
+    if (previous > 0) {
+        percentChange = ((current - previous) / previous) * 100;
+    } else if (current > 0) {
+        percentChange = 100; // default when previous is 0
+    }
+
+    // Round to 2 decimal places
+    percentChange = Math.round(percentChange * 100) / 100;
+
+
+    const registered_users = 
+        (registeredUsers?.current_month_registered ?? 0) -
+        (registeredUsers?.previous_month_registered ?? 0)
+
+    const response_time =
+        (responseTime?.current_response ?? 0) -
+        (responseTime?.previous_response ?? 0);
 
       const { data } = useQuery({
           queryKey: ["reports"],
@@ -112,10 +148,10 @@ const Dashboard = () => {
                         <motion.div className="flex items-center space-x-2">
                             {" "}
                             <p className="text-3xl text-gray-700 dark:text-white">
-                                12
+                                {curPrev?.current_total ?? 0}
                             </p>
                             <p className="text-xs leading-tight text-gray-700 dark:text-white">
-                                People reported
+                                Incidents reported
                                 <span className="block text-gray-700 dark:text-white">
                                     this month
                                 </span>
@@ -123,7 +159,11 @@ const Dashboard = () => {
                         </motion.div>
 
                         <motion.div className="p-0.5 rounded-md bg-green-500">
-                            <p className="text-xs leading-tight ">0.2%</p>
+                            <p className="text-xs leading-tight ">
+                                {increase > 0
+                                    ? `+${percentChange}%`
+                                    : `${percentChange}%`}
+                            </p>
                         </motion.div>
                     </motion.div>
                     <motion.div
@@ -137,9 +177,11 @@ const Dashboard = () => {
                         }}
                         className="flex items-center mt-4"
                     >
-                        <span className="text-xl mr-1 text-green-700">12</span>
+                        <span className="text-xl mr-1 text-green-700">
+                            {increase}
+                        </span>
                         <p className="text-xs leading-tight text-gray-700 dark:text-white">
-                            increase from last month
+                            Incident increase from previous month
                         </p>
                     </motion.div>
                 </motion.div>
@@ -205,10 +247,10 @@ const Dashboard = () => {
                         <motion.div className="flex items-center space-x-2">
                             {" "}
                             <p className="text-3xl text-gray-700 dark:text-white">
-                                4.50
+                                {responseTime?.current_response ?? 0}
                             </p>
                             <p className="text-xs leading-tight text-gray-700 dark:text-white">
-                                mins reponse
+                                mins response
                                 <span className="block text-gray-700 dark:text-white">
                                     time
                                 </span>
@@ -216,7 +258,9 @@ const Dashboard = () => {
                         </motion.div>
 
                         <motion.div className="p-0.5 rounded-md bg-green-500">
-                            <p className="text-xs leading-tight">0.2%</p>
+                            <p className="text-xs leading-tight">
+                                {responseTime?.percent_change ?? 0}%
+                            </p>
                         </motion.div>
                     </motion.div>
                     <motion.div
@@ -230,7 +274,9 @@ const Dashboard = () => {
                         }}
                         className="flex items-center mt-4"
                     >
-                        <span className="text-xl mr-1 text-green-700">15</span>
+                        <span className="text-xl mr-1 text-green-700">
+                            {response_time}
+                        </span>
                         <p className="text-xs leading-tight text-gray-700 dark:text-white">
                             increase from last month
                         </p>
@@ -295,7 +341,7 @@ const Dashboard = () => {
                         <motion.div className="flex items-center space-x-2">
                             {" "}
                             <p className="text-3xl text-gray-700 dark:text-white">
-                                19
+                                {/* {registeredUsers.current_month_registered ?? 0} */}
                             </p>
                             <p className="text-xs leading-tight text-gray-700 dark:text-white">
                                 people report
@@ -306,7 +352,9 @@ const Dashboard = () => {
                         </motion.div>
 
                         <motion.div className="p-0.5 rounded-md bg-green-500">
-                            <p className="text-xs leading-tight">0.2%</p>
+                            <p className="text-xs leading-tight">
+                                {registeredUsers?.monthly_registered ?? 0}%
+                            </p>
                         </motion.div>
                     </motion.div>
                     <motion.div
@@ -320,9 +368,11 @@ const Dashboard = () => {
                         }}
                         className="flex items-center mt-4"
                     >
-                        <span className="text-xl mr-1 text-green-700">15</span>
+                        <span className="text-xl mr-1 text-green-700">
+                            {registered_users ?? 0}
+                        </span>
                         <p className="text-xs leading-tight text-gray-700 dark:text-white">
-                            people report in recent month
+                            registered user in recent months
                         </p>
                     </motion.div>
                 </motion.div>
@@ -356,7 +406,7 @@ const Dashboard = () => {
                         <motion.div className="flex flex-row items-center space-x-1 ">
                             <IoMegaphoneSharp color="#22c55e" size={24} />
                             <h1 className="text-gray-700 dark:text-white font-medium">
-                                Current total resquest
+                                Current total request
                             </h1>
                         </motion.div>
                         <motion.div className="transform rotate-30 ">
@@ -391,7 +441,7 @@ const Dashboard = () => {
                                 25
                             </p>
                             <p className="text-xs leading-tight text-gray-700 dark:text-white">
-                                people repor
+                                people report
                                 <span className="block text-gray-700 dark:text-white">
                                     this month
                                 </span>
@@ -443,7 +493,7 @@ const Dashboard = () => {
                     </div>
 
                     {/* <BarChart labels={labels} data={data} /> */}
-                    <div className="flex flex-row justify-between items-center gap-2">
+                    <div className="flex flex-row justify-between gap-2">
                         {/* Left side map */}
                         <ReactMiniMap />
                         <ZonalIncidentCard />
@@ -453,5 +503,5 @@ const Dashboard = () => {
                 <ViolatorsList />
             </motion.div>
         </motion.div>
-}
+    );}
 export default Dashboard;

@@ -1,38 +1,36 @@
 import { useState } from "react";
-import SideNav from "../components/SideNav";
 import CreateTanodAccount from "../forms/CreateTanodAccount";
 import TanodCard from "../components/TanodCard";
 
 const Volunteers = () => {
     const [open, setOpen] = useState(false);
 
-    const OpenForm = () => {
-        setOpen((prev) => !prev);
-    };
+    const toggleForm = () => setOpen((prev) => !prev);
 
     return (
-        <div style={{ display: "flex" }}>
-            <div style={{ width: "100%", padding: 5 }}>
-                <div
-                    style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                    }}
+        <div className="p-6">
+            {/* Header */}
+            <div className="flex justify-between items-center mb-6">
+                <h1 className="text-2xl font-semibold text-gray-800 dark:text-white">
+                    Volunteers
+                </h1>
+                <button
+                    onClick={toggleForm}
+                    className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition"
                 >
-                    <h1>Volunteers</h1>
-                    <button onClick={OpenForm} style={{ height: "40px" }}>
-                        Create Account
-                    </button>
-                    {open && (
-                        <CreateTanodAccount onClose={() => setOpen(false)} />
-                    )}
-                </div>
-                <div style={{ display: "flex", gap: 50, flexWrap: "wrap" }}>
-                    <TanodCard />
-                </div>
+                    Create Account
+                </button>
+            </div>
+
+            {/* Form Modal */}
+            {open && <CreateTanodAccount onClose={() => setOpen(false)} />}
+
+            {/* Volunteer Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <TanodCard />
             </div>
         </div>
     );
 };
+
 export default Volunteers;

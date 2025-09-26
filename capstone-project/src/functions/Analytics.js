@@ -28,3 +28,42 @@ export const zoneAverageResponseTimeById = async ({ base_url, token, zoneId}) =>
         console.log(error)
     }
 }
+
+export const currentPreviousChanges = async ({ base_url, token }) => {
+    try {
+        const response = await axios.get(`${base_url}months-current-previous`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+        return response.data.months
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+export const responseTimeCurPrev = async ({ base_url, token }) => {
+    try {
+        const response = await axios.get(`${base_url}average-response-time`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+        return response.data.response_time;
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+export const registeredUsers = async ({ base_url, token }) => {
+    try {
+         const response = await axios.get(`${base_url}registered-users`, {
+             headers: {
+                 Authorization: `Bearer ${token}`,
+             },
+         });
+         return response.data.registered_users;
+    } catch (error) {
+        console.log(error)
+    }
+}

@@ -14,6 +14,8 @@ import Violators from "../pages/Violators";
 import Reports from "../pages/Reports";
 import Hotline from "../pages/Hotline";
 import Layout from "../pages/Layout";
+import ReportDetails from "../components/details/ReportDetails";
+import ViolatorsDetails from "../components/details/ViolatorsDetails";
 import { AnimatePresence } from "framer-motion";
 
 const ProtectedRoute = ({ children }) => {
@@ -54,15 +56,18 @@ const AnimatedRoutes = () => {
                     <Route path="/violators" element={<Violators />} />
                     <Route path="/reports" element={<Reports />} />
                     <Route path="/hotline" element={<Hotline />} />
+                    <Route path="/report-details/:id" element={<ReportDetails/>}/>
+                    <Route path="/violators-details/:id" element={<ViolatorsDetails/>}/>
                 </Route>
             </Routes>
         </AnimatePresence>
     );
 };
 
-const AuthNavigation = () => (
+const AuthNavigation = ({ children }) => (
     <Router>
         <AnimatedRoutes />
+        {children}
     </Router>
 );
 

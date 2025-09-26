@@ -14,6 +14,12 @@ class AnalyticController extends Controller
         $this->analyticsService = $analyticsService;
     }
 
+    public function registeredResidents()
+    {
+        $users = $this->analyticsService->registeredUsers();
+
+        return response()->json(['registered_users' => $users]);
+    }
     public function totalReports() 
     {
         $total_reports = $this->analyticsService->getTotalReports();
@@ -40,6 +46,13 @@ class AnalyticController extends Controller
         $monthly_reports = $this->analyticsService->getMonthlyReports();
 
         return response()->json(['monthly_reports' => $monthly_reports], 200);
+    }
+
+    public function currentPreviousChanges()
+    {
+        $months = $this->analyticsService->currentPreviousTotalReports();
+
+        return response()->json(['months' => $months]);
     }
 
     public function zoneIncidentTotal()

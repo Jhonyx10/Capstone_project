@@ -1,13 +1,17 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import {
+    QueryClient,
+    QueryClientProvider,
+    useQueryClient,
+} from "@tanstack/react-query";
 import AuthNavigation from "./navigation/AuthNavigation";
 import { useEffect, useState } from "react";
 import echo from "./echo";
 import Notification from "./components/Notification";
 
 const queryClient = new QueryClient();
-export default function App() {
-    const [message, setMessage] = useState(null);
-    const [showModal, setShowModal] = useState(false);
+
+function EchoListeners({ setMessage, setShowModal }) {
+    const qc = useQueryClient();
 
     useEffect(() => {
         const listeners = [
@@ -28,8 +32,9 @@ export default function App() {
         listeners.forEach(({ channel, event }) => {
             echo.channel(channel).listen(event, (e) => {
                 setMessage(e.response || e);
-                console.log;
                 setShowModal(true);
+                qc.invalidateQueries({ queryKey: ["violators"] });
+                qc.invalidateQueries({ queryKey: ["reports"] });
             });
         });
 
@@ -38,20 +43,29 @@ export default function App() {
                 echo.leave(channel);
             });
         };
-    }, []);
+    }, [qc, setMessage, setShowModal]);
+
+    return null; // this component only handles side effects
+}
+
+export default function App() {
+    const [message, setMessage] = useState(null);
+    const [showModal, setShowModal] = useState(false);
 
     return (
-        <>
-            <QueryClientProvider client={queryClient}>
-                <AuthNavigation />
-
+        <QueryClientProvider client={queryClient}>
+            <AuthNavigation>
+                <EchoListeners
+                    setMessage={setMessage}
+                    setShowModal={setShowModal}
+                />
                 {showModal && (
                     <Notification
                         message={message}
                         onClose={() => setShowModal(false)}
                     />
                 )}
-            </QueryClientProvider>
-        </>
+            </AuthNavigation>
+        </QueryClientProvider>
     );
 }
