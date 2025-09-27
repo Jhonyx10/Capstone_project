@@ -1,4 +1,4 @@
-import ReactMap from "../components/ReactMap";
+import ReactMap from "../components/map/ReactMap";
 import { motion } from "framer-motion"
 
 const Map = () => {

@@ -123,14 +123,14 @@ class AnalyticService
     //average response time by zone idm displayed in the zone details.
     public function averageResponseTimeByZone(int $id)
     {
-       return IncidentResponseRecord::selectRaw('zones.id as zone_id, AVG(incident_response_records.response_time) as avg_response_time')
-                                ->join('incident_reports', 'incident_reports.id', '=', 'incident_response_records.report_id')
-                                ->join('incident_locations', 'incident_locations.id', '=', 'incident_reports.location_id')
-                                ->join('zones', 'zones.id', '=', 'incident_locations.zone_id')
-                                ->where('zone_id', $id)
-                                ->groupBy('zones.id', 'zones.zone_name')
-                                ->first();
+        return IncidentResponseRecord::whereHas('report.location.zone', function ($query) use ($id) {
+            $query->where('id', $id);
+        })
+        ->with(['report.location.zone:id,zone_name'])
+        ->selectRaw('AVG(response_time) as avg_response_time')
+        ->first();
     }
+
 
     //average response time per incident category
     public function averageResponseTimePerCategory()

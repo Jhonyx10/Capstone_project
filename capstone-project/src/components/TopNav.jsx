@@ -139,7 +139,7 @@ const TopNav = () => {
                             }}
                         >
                             <span className="block text-xs font-semibold dark:text-white ">
-                                Alpha Roger
+                                {user.name}
                             </span>
                             <span className="block font-light text-xs text-slate-500 dark:text-gray-400">
                                 {user.role}

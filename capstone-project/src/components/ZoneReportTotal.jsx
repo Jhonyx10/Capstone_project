@@ -1,5 +1,5 @@
 import useZoneIncidentDetails from "../hooks/useZonesIncidentDetails";
-import ZoneDetails from "./ZoneDetails";
+import ZoneDetails from "./map/ZoneDetails";
 import { useState } from "react";
 
 const ZoneReportTotal = () => {

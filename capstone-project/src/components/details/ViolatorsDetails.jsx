@@ -26,8 +26,8 @@ const ViolatorsDetails = () => {
 
     if (isViolatorLoading)
         return (
-            <div className="w-full flex justify-center mt-4">
-                <p className="font-bold text-white text-lg">Loading...</p>
+            <div className="flex justify-center item-center mt-10 text-white">
+                <p className="font-bold text-2xl">Loading...</p>
             </div>
         );
     if (isViolatorError || !violator) return <p>No record found.</p>;

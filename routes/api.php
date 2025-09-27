@@ -39,7 +39,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('role:admin')->group(function () {
         Route::post('/add-zone', [GeoLocationController::class, 'addZone']);
         Route::post('/add-category', [IncidentTypesController::class, 'addCategory']);
-        Route::apiResource('/hotline', HotlineController::class);
     });
 
     //tanod only routes, for brgy tanods specific functions.
@@ -57,6 +56,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     //admin and tanods shared routes for multi role access.
     Route::middleware('role:admin,tanod')->group(function () {
+        Route::apiResource('users', UserController::class);
         Route::get('/get-zones', [GeoLocationController::class, 'getZones']);
         Route::get('/get-locations', [GeoLocationController::class, 'getLocations']);
         Route::get('/get-incident-locations', [GeoLocationController::class, 'getIncidentLocations']);
@@ -68,6 +68,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/get-violators', [ReportController::class, 'getViolators']);
         Route::get('/violator-details/{id}', [ViolatorController::class, 'getViolatorsDetails']);
         Route::get('/violators-record/{id}', [ViolatorController::class, 'violatorsRecords']);
+        Route::get('/violators-violations', [ViolatorController::class, 'violatorsViolationCount']);
         Route::get('/request', [ReportController::class, 'getRequest']);
         //analytics parts.
         Route::get('/total-reports', [AnalyticController::class, 'totalReports']);
@@ -84,9 +85,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/months-current-previous', [AnalyticController::class, 'currentPreviousChanges']);
         Route::get('/registered-users', [AnalyticController::class, 'registeredResidents']);
     });
-
+    
+    Route::apiResource('/hotline', HotlineController::class);
     Route::get('/get-categories', [IncidentTypesController::class, 'getIncidentCategories']);
-    Route::apiResource('users', UserController::class);
     Route::post('/add-profile', [UserController::class, 'addProfile']);
     Route::post('/logout', [AuthController::class, 'logout']);
 

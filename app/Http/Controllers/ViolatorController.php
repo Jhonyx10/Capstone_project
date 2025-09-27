@@ -30,4 +30,11 @@ class ViolatorController extends Controller
 
         return response()->json(['records' => $records]);
     }
+
+    public function violatorsViolationCount()
+    {
+        $violations = $this->violator->violatorsViolationCount();
+
+        return response()->json(['violations' => $violations]);
+    }
 }

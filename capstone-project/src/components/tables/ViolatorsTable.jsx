@@ -55,7 +55,7 @@ const ViolatorsTable = () => {
                 damping: 20,
                 delay: 0.1,
             }}
-            className="p-4 ml-10 w-full"
+            className="p-4 ml-0 w-full"
         >
             <Search search={search} setSearch={setSearch} />
             <div

@@ -10,7 +10,7 @@ import { FaDotCircle } from "react-icons/fa";
 // components and hooks
 import { motion } from "framer-motion";
 import ViolatorsList from "../components/ViolatorsList";
-import ReactMiniMap from "../components/ReactMiniMap";
+import ReactMiniMap from "../components/map/ReactMiniMap";
 import ZonalIncidentCard from "../components/ZonalIncidentCard";
 import ZoneReportTotal from "../components/ZoneReportTotal";
 import useAppState from "../store/useAppState";

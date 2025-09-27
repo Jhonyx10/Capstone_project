@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
-import useAppState from "../store/useAppState";
+import useAppState from "../../store/useAppState";
 import Map, { Marker } from "react-map-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
-import useZones from "../hooks/useZones";
-import useLocations from "../hooks/useLocations";
+import useZones from "../../hooks/useZones";
+import useLocations from "../../hooks/useLocations";
 import { motion } from "framer-motion";
 
 const ReactMiniMap = () => {

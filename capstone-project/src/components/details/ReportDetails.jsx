@@ -20,7 +20,11 @@ const ReportDetails = () => {
         queryFn: () => reportDetails({ token, base_url, id }),
     });
 
-    if (isLoading) return <p>Loading...</p>;
+    if (isLoading) return (
+        <div className="flex justify-center item-center mt-10 text-white">
+            <p className="font-bold text-2xl">Loading...</p>
+        </div>
+    );
     if (isError || !report) return <p>No report found.</p>;
 
     if (!report) {

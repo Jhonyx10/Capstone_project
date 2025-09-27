@@ -67,3 +67,16 @@ export const registeredUsers = async ({ base_url, token }) => {
         console.log(error)
     }
 }
+
+export const violatorsViolationTotal = async ({base_url, token}) => {
+    try {
+        const response = await axios.get(`${base_url}violators-violations`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+        return response.data.violations;
+    } catch (error) {
+        console.log(error);
+    }
+}

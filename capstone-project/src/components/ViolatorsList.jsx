@@ -2,44 +2,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import useAppState from "../store/useAppState";
 import Barangay from "../assets/img/Barangay.png";
+import { useQuery } from "@tanstack/react-query";
+import { violatorsViolationTotal } from "../functions/Analytics";
+import { useNavigate } from "react-router-dom";
 
-const mockViolators = [
-    {
-        id: "1",
-        name: "John Doe",
-        age: 26,
-        violations: 24,
-        avatar: "/placeholder.svg",
-    },
-    {
-        id: "2",
-        name: "Jane Smith",
-        age: 32,
-        violations: 18,
-        avatar: "/placeholder.svg",
-    },
-    {
-        id: "3",
-        name: "Michael Johnson",
-        age: 29,
-        violations: 12,
-        avatar: "/placeholder.svg",
-    },
-    {
-        id: "4",
-        name: "Emily Davis",
-        age: 22,
-        violations: 30,
-        avatar: "/placeholder.svg",
-    },
-    {
-        id: "5",
-        name: "Chris Brown",
-        age: 35,
-        violations: 15,
-        avatar: "/placeholder.svg",
-    },
-];
 
 // Helper function → only first 5 characters
 const cutToFive = (text) => (!text ? "" : text.substring(0, 5));
@@ -64,8 +30,14 @@ const itemVariants = {
 };
 
 export default function ViolatorsList() {
-    const { open } = useAppState();
+    const { open, base_url, token } = useAppState();
     const [selected, setSelected] = useState(null); // modal state
+    const navigate = useNavigate();
+
+    const {data} = useQuery({
+        queryKey: ['violations_total'],
+        queryFn: () => violatorsViolationTotal({base_url, token})
+    })
 
     return (
         <>
@@ -111,7 +83,7 @@ export default function ViolatorsList() {
                 </div>
 
                 {/* Violators List */}
-                {mockViolators.slice(0, 5).map((violator) => (
+                {data?.map((violator) => (
                     <motion.div
                         key={violator.id}
                         variants={itemVariants}
@@ -125,15 +97,15 @@ export default function ViolatorsList() {
                             ) : (
                                 <motion.img
                                     layoutId={`avatar-${violator.id}`} // shared element ID
-                                    src={Barangay}
-                                    alt={violator.name}
+                                    src={violator.photo}
+                                    alt={violator.first_name}
                                     className="w-12 h-12 rounded-full object-cover border cursor-pointer"
                                     onClick={() => setSelected(violator)} // 👈 open modal
                                 />
                             )}
                             <div>
                                 <div className="font-medium text-gray-700 text-base dark:text-white">
-                                    {cutToFive(violator.name)}
+                                    {violator.first_name}
                                 </div>
                             </div>
                         </div>
@@ -154,34 +126,20 @@ export default function ViolatorsList() {
                                     duration: 0.3,
                                     ease: "easeInOut",
                                 }}
-                                className="mr-2 dark:text-white"
+                                className="mr-2 dark:text-white text-center"
                             >
-                                {" "}
-                                {violator.violations}{" "}
-                            </motion.p>{" "}
-                            {!open && (
-                                <motion.div
-                                    key="violations-text"
-                                    initial={{ y: 20, opacity: 0 }}
-                                    animate={{ y: 0, opacity: 1 }}
-                                    exit={{ y: -20, opacity: 0 }}
-                                    transition={{ duration: 0.3 }}
-                                    className="text-base font-medium text-gray-700 dark:text-white"
-                                >
-                                    {" "}
-                                    violations{" "}
-                                </motion.div>
-                            )}{" "}
+                                {violator.total_violations}
+                            </motion.p>
                         </div>
 
                         {/* Actions */}
                         <div className="flex justify-between sm:justify-center items-center">
                             <motion.button
                                 whileTap={{ scale: 0.95 }}
-                                className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
+                                className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors hover:cursor-pointer"
                                 onClick={() => setSelected(violator)} // 👈 open modal
                             >
-                                Details
+                                View
                             </motion.button>
                         </div>
                     </motion.div>
@@ -192,7 +150,7 @@ export default function ViolatorsList() {
             <AnimatePresence>
                 {selected && (
                     <motion.div
-                        className="fixed inset-0 bg-gray-50/60 dark:bg-gray-700/90  flex items-center justify-center z-50"
+                        className="fixed inset-0 bg-gray-50/60 dark:bg-gray-700/90 flex items-center justify-center z-50"
                         onClick={() => setSelected(null)}
                     >
                         <motion.div
@@ -202,53 +160,91 @@ export default function ViolatorsList() {
                         >
                             {/* Avatar */}
                             <img
-                                src={Barangay}
-                                alt={selected.name}
+                                src={selected.photo || Barangay} // use selected photo, fallback to placeholder
+                                alt={selected.first_name}
                                 className="w-32 h-32 rounded-full mx-auto border object-cover"
                                 layoutId={`avatar-${selected.id}`}
                             />
 
                             {/* Info */}
-                            <motion.div layout className="mt-4 text-center">
-                                <motion.h2
-                                    initial={{ y: -20, opacity: 0 }}
-                                    animate={{ y: 0, opacity: 1 }}
-                                    transition={{
-                                        type: "spring",
-                                        stiffness: 200,
-                                        damping: 20,
-                                        delay: 0.3,
-                                    }}
-                                    className="text-xl font-semibold text-gray-800 dark:text-white"
-                                >
-                                    {selected.name}
-                                </motion.h2>
-                                <motion.p
-                                    initial={{ y: -20, opacity: 0 }}
-                                    animate={{ y: 0, opacity: 1 }}
-                                    transition={{
-                                        type: "spring",
-                                        stiffness: 200,
-                                        damping: 20,
-                                        delay: 0.4,
-                                    }}
-                                    className="text-gray-600 dark:text-gray-300"
-                                >
-                                    Age: {selected.age}
-                                </motion.p>
-                                <motion.p
-                                    initial={{ y: -20, opacity: 0 }}
-                                    animate={{ y: 0, opacity: 1 }}
-                                    transition={{
-                                        type: "spring",
-                                        stiffness: 200,
-                                        damping: 20,
-                                        delay: 0.5,
-                                    }}
-                                    className="text-gray-600 dark:text-gray-300"
-                                >
-                                    Violations: {selected.violations}
-                                </motion.p>
+                            <motion.h2
+                                initial={{ y: -20, opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
+                                transition={{
+                                    type: "spring",
+                                    stiffness: 200,
+                                    damping: 20,
+                                    delay: 0.3,
+                                }}
+                                className="text-xl text-center font-semibold text-gray-800 dark:text-white"
+                            >
+                                {selected.first_name} {selected.last_name}
+                            </motion.h2>
+                            <motion.div
+                                layout
+                                className="mt-4 flex justify-between"
+                            >
+                                <div>
+                                    <motion.p
+                                        initial={{ y: -20, opacity: 0 }}
+                                        animate={{ y: 0, opacity: 1 }}
+                                        transition={{
+                                            type: "spring",
+                                            stiffness: 200,
+                                            damping: 20,
+                                            delay: 0.4,
+                                        }}
+                                        className="text-gray-600 dark:text-gray-300"
+                                    >
+                                        Age: {selected.age}
+                                    </motion.p>
+                                    <motion.p
+                                        initial={{ y: -20, opacity: 0 }}
+                                        animate={{ y: 0, opacity: 1 }}
+                                        transition={{
+                                            type: "spring",
+                                            stiffness: 200,
+                                            damping: 20,
+                                            delay: 0.6,
+                                        }}
+                                        className="text-gray-600 mt-2 dark:text-gray-300"
+                                    >
+                                        Address: {selected.address}
+                                    </motion.p>
+                                </div>
+                                <div>
+                                    <motion.p
+                                        initial={{ y: -20, opacity: 0 }}
+                                        animate={{ y: 0, opacity: 1 }}
+                                        transition={{
+                                            type: "spring",
+                                            stiffness: 200,
+                                            damping: 20,
+                                            delay: 0.5,
+                                        }}
+                                        className="text-gray-600 dark:text-gray-300"
+                                    >
+                                        Violations: {selected.total_violations}
+                                    </motion.p>
+                                    <motion.button
+                                        onClick={() =>
+                                            navigate(
+                                                `/violators-details/${selected.id}`
+                                            )
+                                        }
+                                        initial={{ y: -20, opacity: 0 }}
+                                        animate={{ y: 0, opacity: 1 }}
+                                        transition={{
+                                            type: "spring",
+                                            stiffness: 200,
+                                            damping: 20,
+                                            delay: 0.6,
+                                        }}
+                                        className="mt-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors hover:cursor-pointer"
+                                    >
+                                        Details
+                                    </motion.button>
+                                </div>
                             </motion.div>
 
                             {/* Close Button */}
