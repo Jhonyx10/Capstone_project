@@ -6,6 +6,7 @@ import { BiSolidReport } from "react-icons/bi";
 import { MdReport } from "react-icons/md";
 import { IoCall } from "react-icons/io5";
 import { IoBook } from "react-icons/io5";
+import { IoAnalytics } from "react-icons/io5";
 import { FaMapLocationDot } from "react-icons/fa6";
 
 //components and hooks
@@ -42,10 +43,10 @@ const SideNav = () => {
                             open={open}
                         />
                     </Link>
-                    <Link to="/volunteers">
+                    <Link to="/analytics">
                         <Option
-                            Icon={MdPeopleAlt}
-                            title="Volunteers"
+                            Icon={IoAnalytics}
+                            title="Analytics"
                             selected={selected}
                             setSelected={setSelected}
                             open={open}
@@ -73,6 +74,15 @@ const SideNav = () => {
                         <Option
                             Icon={MdReport}
                             title="Violators"
+                            selected={selected}
+                            setSelected={setSelected}
+                            open={open}
+                        />
+                    </Link>
+                    <Link to="/volunteers">
+                        <Option
+                            Icon={MdPeopleAlt}
+                            title="Volunteers"
                             selected={selected}
                             setSelected={setSelected}
                             open={open}

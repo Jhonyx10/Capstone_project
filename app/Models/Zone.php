@@ -15,7 +15,7 @@ class Zone extends Model
 
     public function locations()
     {
-        return $this->hasMany(IncidentLocation::class, 'location_id');
+        return $this->hasMany(IncidentLocation::class, 'zone_id');
     }
 
     public function userProfile()

@@ -1,9 +1,10 @@
-import SideNav from "../components/SideNav";
 
 const Hotline = () => {
     return (
-        <div style={{ display: "flex" }}>
-            <div>
+        <div
+            className="flex m-2"
+        >
+            <div style={{ width: "80%" }}>
                 <h1>Hotline</h1>
             </div>
         </div>

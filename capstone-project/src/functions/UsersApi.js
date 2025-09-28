@@ -5,10 +5,8 @@ export const getTanodUser = async({base_url, token}) => {
         const response = await axios.get(`${base_url}users`, {
             headers: {
                 Authorization: `Bearer ${token}`,
-                Accept: 'application/json'
             }
         });
-        console.log("API response:", response.data);
         return response.data.users ?? [];
     } catch (error) {
          console.error("Fetching data error:", error);
@@ -21,7 +19,6 @@ export const createTanodAccount = async ({base_url, token, accountForm }) => {
         const response = await axios.post(`${base_url}users`, accountForm, {
             headers: {
                 Authorization: `Bearer ${token}`,
-                Accept: 'application/json',
             }
         })
         return response.data.user

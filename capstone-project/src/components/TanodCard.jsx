@@ -29,18 +29,18 @@ const TanodCard = () => {
     };
 
     return (
-        <div className="grid gap-6 sm:grid-cols-1">
+        <div className="flex flex-wrap w-full">
             {data.map((volunteer, index) => (
                 <motion.div
                     key={volunteer.id}
-                    className="max-w-sm mx-auto bg-white dark:bg-gray-900 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300"
+                    className="max-w-sm m-2 bg-white dark:bg-gray-900 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300"
                     custom={index}
                     initial="hidden"
                     animate="visible"
                     variants={cardVariants}
                 >
                     {/* Avatar */}
-                    <div className="flex flex-col items-center p-6 border-b">
+                    <div className="flex flex-col items-center p-2 border-b">
                         {volunteer.profile?.photo ? (
                             <img
                                 className="h-24 w-24 rounded-full border-4 border-white dark:border-gray-800 object-cover shadow"

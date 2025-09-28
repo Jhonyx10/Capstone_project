@@ -12,6 +12,7 @@ import Volunteers from "../pages/Volunteers";
 import Map from "../pages/Map";
 import Violators from "../pages/Violators";
 import Reports from "../pages/Reports";
+import Analytics from "../pages/Analytics";
 import Hotline from "../pages/Hotline";
 import Layout from "../pages/Layout";
 import ReportDetails from "../components/details/ReportDetails";
@@ -55,6 +56,7 @@ const AnimatedRoutes = () => {
                     <Route path="/map" element={<Map />} />
                     <Route path="/violators" element={<Violators />} />
                     <Route path="/reports" element={<Reports />} />
+                    <Route path="/analytics" element={<Analytics/>} />
                     <Route path="/hotline" element={<Hotline />} />
                     <Route path="/report-details/:id" element={<ReportDetails/>}/>
                     <Route path="/violators-details/:id" element={<ViolatorsDetails/>}/>

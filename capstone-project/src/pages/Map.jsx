@@ -3,7 +3,7 @@ import { motion } from "framer-motion"
 
 const Map = () => {
     return (
-        <div style={{ display: "flex" }}>
+        <div>
             <motion.div
                 layout
                 exit={{ opacity: 0, y: -10 }}

@@ -70,15 +70,24 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/violators-record/{id}', [ViolatorController::class, 'violatorsRecords']);
         Route::get('/violators-violations', [ViolatorController::class, 'violatorsViolationCount']);
         Route::get('/request', [ReportController::class, 'getRequest']);
-        //analytics parts.
+
+        //analytics reports here.
         Route::get('/total-reports', [AnalyticController::class, 'totalReports']);
         Route::get('/total-reports-by-category', [AnalyticController::class, 'totalReportsByCategory']);
         Route::get('/recent-reports', [AnalyticController::class, 'recentReports']);
+        Route::get('/year-report-comparison', [AnalyticController::class, 'yearReportComparison']);
         Route::get('/monthly-reports', [AnalyticController::class, 'monthlyReports']);
         Route::get('/total-reports-by-zone', [AnalyticController::class, 'zoneIncidentTotal']);
+
+        //analytics for violators here.
         Route::get('/violators-total-violation', [AnalyticController::class, 'ViolatorTotalViolations']);
+        Route::get('/monthly-recorded-violators', [AnalyticController::class, 'monthlyRecordedViolators']);
+        Route::get('/zone-total-violators', [AnalyticController::class, 'totalViolatorsPerZone']);
+
+        //analytics for incident response time.
         Route::get('/average-response-time', [AnalyticController::class, 'averageResponseTime']);
         Route::get('/average-response-time-by-zone/{id}', [AnalyticController::class, 'averageResponseTimeByZone']);
+        Route::get('/average-response-time-per-zone', [AnalyticController::class, 'zoneAverageResponseTime']);
         Route::get('/average-response-per-category', [AnalyticController::class, 'averageResponseTimePerCategory']);
         Route::get('/incident-prone-zones', [AnalyticController::class, 'incidentProneZone']);
         Route::get('/category-trends', [AnalyticController::class, 'compareIncidentCategoriesCurrentPreviousMonth']);

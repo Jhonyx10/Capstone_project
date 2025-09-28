@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\IncidentReport;
 use App\Models\ViolatorsRecord;
 use App\Models\ViolatorsProfile;
+use App\Models\Zone;
 use App\Models\IncidentResponseRecord;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -22,6 +23,21 @@ class AnalyticService
         return IncidentReport::count();
     }
 
+    public function yearComparisonAnalytics()
+    {
+        $currentYear = Carbon::now()->year;
+        $previousYear = Carbon::now()->subYear()->year;
+
+        $reports = IncidentReport::selectRaw('YEAR(created_at) as year, MONTH(created_at) as month, COUNT(*) as total')
+            ->whereYear('created_at', $currentYear)
+            ->orWhereYear('created_at', $previousYear)
+            ->groupBy('year', 'month')
+            ->orderBy('year')
+            ->orderBy('month')
+            ->get();
+
+        return $reports;
+    }
     /**
      * Get incident reports created in the last X days.
      *
@@ -120,6 +136,24 @@ class AnalyticService
 
     }
 
+    public function monthlyRecordedViolators()
+    {
+        return ViolatorsProfile::selectRaw('MONTH(created_at) as month, count(*) as total')
+                                 ->whereYear('created_at', Carbon::now()->year)
+                                 ->groupBy('month')
+                                 ->orderBy('month')
+                                 ->get();
+    }
+
+    public function totalViolatorsByZone()
+    {
+        return ViolatorsProfile::selectRaw('count(*) as total, zones.zone_name as zone_name')
+                                ->join('zones', 'zones.id', '=', 'violators_profiles.zone_id')
+                                 ->whereYear('violators_profiles.created_at', Carbon::now()->year)
+                                 ->groupBy('zone_name')
+                                 ->get();
+    }
+
     //average response time by zone idm displayed in the zone details.
     public function averageResponseTimeByZone(int $id)
     {
@@ -131,6 +165,15 @@ class AnalyticService
         ->first();
     }
 
+    public function zoneAverageResponseTime()
+    {
+        return IncidentResponseRecord::selectRaw('zones.id, zones.zone_name, AVG(incident_response_records.response_time) as average_zone_response')
+            ->join('incident_reports', 'incident_reports.id', '=', 'incident_response_records.report_id')
+            ->join('incident_locations', 'incident_locations.id', '=', 'incident_reports.location_id')
+            ->join('zones', 'zones.id', '=', 'incident_locations.zone_id')
+            ->groupBy('zones.id', 'zones.zone_name')
+            ->get();
+    }
 
     //average response time per incident category
     public function averageResponseTimePerCategory()

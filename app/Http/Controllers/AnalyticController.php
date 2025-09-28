@@ -103,4 +103,32 @@ class AnalyticController extends Controller
 
         return response()->json(['category_trend' => $categoryTrends]);
     }
+
+    public function yearReportComparison()
+    {
+        $reports = $this->analyticsService->yearComparisonAnalytics();
+
+        return response()->json(['reports' => $reports]);
+    }
+
+    public function zoneAverageResponseTime()
+    {
+        $response_time = $this->analyticsService->zoneAverageResponseTime();
+
+        return response()->json(['response_time' => $response_time]);
+    }
+
+    public function monthlyRecordedViolators()
+    {
+        $violators = $this->analyticsService->monthlyRecordedViolators();
+
+        return response()->json(['violators' => $violators]);
+    }
+
+    public function totalViolatorsPerZone()
+    {
+        $zone_violators = $this->analyticsService->totalViolatorsByZone();
+
+        return response()->json(['zone_violators' => $zone_violators]);
+    }
 }
