@@ -1,7 +1,8 @@
-import ReactMap from "../components/map/ReactMap";
-import { motion } from "framer-motion"
-
-const Map = () => {
+import { motion } from "framer-motion";
+import IncidentRequestMap from "../components/map/IncidentRequestMap";
+import useAppState from "../store/useAppState";
+const IncidentRequest = () => {
+    const { open } = useAppState()
     return (
         <div>
             <motion.div
@@ -12,9 +13,9 @@ const Map = () => {
                     height: "600px",
                 }}
             >
-                <ReactMap />
+            <IncidentRequestMap/>
             </motion.div>
         </div>
     );
 };
-export default Map;
+export default IncidentRequest;

@@ -319,4 +319,47 @@ class AnalyticService
             ->first();
     }
 
+    public function prevYearMonthIncidentTrend()
+    {
+        $month = Carbon::now()->month;
+        $currentYear = Carbon::now()->year;
+        $previousYear = Carbon::now()->subYear()->year;
+
+        return IncidentReport::selectRaw('
+                incident_categories.id as category_id,
+                incident_categories.category_name as category,
+                YEAR(incident_reports.created_at) as year,
+                COUNT(*) as total
+            ')
+            ->join('incident_types', 'incident_types.id', '=', 'incident_reports.incident_type_id')
+            ->join('incident_categories', 'incident_categories.id', '=', 'incident_types.category_id')
+            ->whereMonth('incident_reports.created_at', $month)
+            ->whereIn(DB::raw('YEAR(incident_reports.created_at)'), [$currentYear, $previousYear])
+            ->groupBy('incident_categories.id', 'incident_categories.category_name', DB::raw('YEAR(incident_reports.created_at)'))
+            ->orderBy('incident_categories.id')
+            ->get();
+    }
+
+    public function prevYearZonesIncidentTrend()
+    {
+        $month = Carbon::now()->month;
+        $currentYear = Carbon::now()->year;
+        $previousYear = Carbon::now()->subYear()->year;
+
+        return IncidentReport::selectRaw('
+                zones.id as zone_id,
+                zones.zone_name as zone_name,
+                YEAR(incident_reports.created_at) as year,
+                COUNT(*) as total
+            ')
+            ->join('incident_locations', 'incident_locations.id', '=', 'incident_reports.location_id')
+            ->join('zones', 'zones.id', '=', 'incident_locations.zone_id')
+            ->whereMonth('incident_reports.created_at', $month)
+            ->whereIn(DB::raw('YEAR(incident_reports.created_at)'), [$currentYear, $previousYear])
+            ->groupBy('zones.id', 'zones.zone_name', DB::raw('YEAR(incident_reports.created_at)'))
+            ->orderBy('zones.id')
+            ->get();
+    }
+
+
 }

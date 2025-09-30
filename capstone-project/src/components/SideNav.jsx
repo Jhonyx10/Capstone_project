@@ -1,15 +1,14 @@
-//assests
+import { useState } from "react";
+// assets
 import { AiFillHome } from "react-icons/ai";
 import { MdPeopleAlt } from "react-icons/md";
-import { TbReportSearch } from "react-icons/tb";
 import { BiSolidReport } from "react-icons/bi";
 import { MdReport } from "react-icons/md";
-import { IoCall } from "react-icons/io5";
-import { IoBook } from "react-icons/io5";
-import { IoAnalytics } from "react-icons/io5";
+import { IoCall, IoBook, IoAnalytics } from "react-icons/io5";
 import { FaMapLocationDot } from "react-icons/fa6";
-
-//components and hooks
+import { IoLocationSharp } from "react-icons/io5";
+import { IoAlertSharp } from "react-icons/io5";
+// components and hooks
 import useAppState from "../store/useAppState";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -19,6 +18,7 @@ import Option from "./Option";
 
 const SideNav = () => {
     const { open, setOpen, selected, setSelected } = useAppState();
+    const [mapOpen, setMapOpen] = useState(false);
 
     return (
         <motion.nav
@@ -29,7 +29,7 @@ const SideNav = () => {
             }}
             transition={{ type: "spring", stiffness: 200, damping: 30 }}
             className="sticky top-0 h-screen shrink-0 border-r border-slate-300 
-               dark:border-slate-950 dark:bg-slate-900 bg-white p-2 flex flex-col justify-between"
+               dark:border-slate-950 dark:bg-slate-900 bg-white p-2 flex flex-col justify-between z-50"
         >
             <motion.div layout className="mr-1">
                 <TitleSection open={open} />
@@ -52,15 +52,55 @@ const SideNav = () => {
                             open={open}
                         />
                     </Link>
-                    <Link to="/map">
-                        <Option
-                            Icon={FaMapLocationDot}
-                            title="Map"
-                            selected={selected}
-                            setSelected={setSelected}
-                            open={open}
-                        />
-                    </Link>
+
+                    {/* Dropdown for Map */}
+                    <div>
+                        <button
+                            onClick={() => setMapOpen(!mapOpen)}
+                            className="w-full"
+                        >
+                            <Option
+                                Icon={FaMapLocationDot}
+                                title="Map"
+                                selected={selected}
+                                setSelected={setSelected}
+                                open={open}
+                            />
+                        </button>
+                        <AnimatePresence>
+                            {mapOpen && (
+                                <motion.div
+                                    initial={{ height: 0, opacity: 0 }}
+                                    animate={{ height: "auto", opacity: 1 }}
+                                    exit={{ height: 0, opacity: 0 }}
+                                    transition={{ duration: 0.2 }}
+                                    className={`flex flex-col space-y-1 overflow-hidden relative ${
+                                        open ? "ml-6" : "ml-0"
+                                    }`} 
+                                >
+                                    <Link to="/map">
+                                        <Option
+                                            Icon={IoLocationSharp}
+                                            title="HeatMap"
+                                            selected={selected}
+                                            setSelected={setSelected}
+                                            open={open}
+                                        />
+                                    </Link>
+                                    <Link to="/incident-request">
+                                        <Option
+                                            Icon={IoAlertSharp}
+                                            title="Incident Request"
+                                            selected={selected}
+                                            setSelected={setSelected}
+                                            open={open}
+                                        />
+                                    </Link>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </div>
+
                     <Link to="/reports">
                         <Option
                             Icon={BiSolidReport}

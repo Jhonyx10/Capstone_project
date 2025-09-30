@@ -130,6 +130,8 @@ public function fileReport(
     {
             $response = $this->incidentReport->createResponseRequest($responseRequest->validated());
 
+            broadcast(new RequestResponseEvent($response));
+            
             return response()->json([
                 'response' => $response
             ], 201);

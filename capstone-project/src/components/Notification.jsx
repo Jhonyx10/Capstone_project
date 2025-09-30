@@ -96,7 +96,6 @@ const Notification = ({ message, onClose, duration = 7000 }) => {
                         <strong>Report Submitted By:</strong>{" "}
                         {reportedBy ? reportedBy.name : "Anonymous"}
                     </p>
-                    <p>ID: {message?.report?.id}</p>
                     <div className="text-right mt-4">
                         <button
                             onClick={() => {

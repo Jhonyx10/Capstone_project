@@ -48,12 +48,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/create-violators-profile', [ReportController::class, 'createViolatorsProfile']);
     });
 
-    //residents only route, for residents specific work.
-    Route::middleware('role:resident')->group(function () {
-        Route::post('/send-request', [ReportController::class, 'sendRequest']);
-        Route::get('/user-request/{id}',[TanodLocationController::class, 'userRequest']);
-    });
-
     //admin and tanods shared routes for multi role access.
     Route::middleware('role:admin,tanod')->group(function () {
         Route::apiResource('users', UserController::class);
@@ -78,6 +72,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/year-report-comparison', [AnalyticController::class, 'yearReportComparison']);
         Route::get('/monthly-reports', [AnalyticController::class, 'monthlyReports']);
         Route::get('/total-reports-by-zone', [AnalyticController::class, 'zoneIncidentTotal']);
+        Route::get('/incident-trend', [AnalyticController::class, 'monthIncidentTrendFromPreviousYear']);
+        Route::get('/zones-incident-trend', [AnalyticController::class, 'zonesIncidentTrendFromPreviousYear']);
 
         //analytics for violators here.
         Route::get('/violators-total-violation', [AnalyticController::class, 'ViolatorTotalViolations']);
@@ -107,7 +103,10 @@ Route::middleware('auth:sanctum')->group(function () {
         return response()->json(['status' => 'okay']);
     });
     
-    
+    //resident api request routes
+    Route::post('/send-request', [ReportController::class, 'sendRequest']);
+    Route::get('/user-request/{id}',[TanodLocationController::class, 'userRequest']);
+
 
 
     Route::post('/tanod/location', [TanodLocationController::class, 'update']);// might remove this route.

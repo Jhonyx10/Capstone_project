@@ -1,4 +1,5 @@
 import axios from "axios";
+import { data } from "react-router-dom";
 
 export const zoneReportDetails = async ({ base_url, token}) => {
     try {
@@ -164,3 +165,29 @@ export const ZoneTotalViolators = async ({base_url, token}) => {
         console.log(error);
     }
 }
+
+export const IncidentTrendForTheMonth = async ({base_url, token}) => {
+    try {
+        const response = await axios.get(`${base_url}incident-trend`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
+        return response.data.incident_trend;
+    } catch (error) {
+         console.log(error);
+    }
+}
+
+export const IncidentTrendForZones = async ({ base_url, token }) => {
+    try {
+        const response = await axios.get(`${base_url}zones-incident-trend`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        return response.data.zones_trends;
+    } catch (error) {
+        console.log(error);
+    }
+};

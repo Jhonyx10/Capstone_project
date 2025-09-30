@@ -51,6 +51,8 @@ const useAppState = create(
                 setOpen: (open) => set({ open }),
                 selected: "Dashboard",
                 setSelected: (selected) => set({ selected }),
+                route: null,
+                setRoute: (route) => set({ route }),
                 weather: null,
                 setWeather: (weather) => set({ weather }),
                 currentDateTime: formatDateTime(),

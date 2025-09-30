@@ -5,6 +5,8 @@ import ZoneReportsChart from "../components/charts/ZoneReportsChart";
 import ZoneAverageResponseChart from "../components/charts/ZoneAverageResponseTimeChart";
 import MonthlyRecordedViolatorsChart from "../components/charts/MonthlyRecordedViolatorsChart";
 import ZoneTotalViolatorsChart from "../components/charts/ZoneTotalViolatorsChart";
+import IncidentTrendChart from "../components/charts/IncidentTrendsChart";
+import ZoneIncidentTrendsChart from "../components/charts/ZoneIncidentTrendsChart";
 import { motion } from "framer-motion"
 
 const Analytics = () => {
@@ -36,6 +38,8 @@ const Analytics = () => {
             <div className="flex flex-wrap gap-4 justify-center">
                 <MonthlyReportChart />
                 <YearComparisonChart />
+                <IncidentTrendChart/>
+                <ZoneIncidentTrendsChart/>
             </div>
             <motion.h1
                 layout

@@ -30,3 +30,17 @@ export const getLocations = async ({base_url, token }) => {
           return [];
     }
 }
+
+export const incidentRequest = async ({base_url, token}) => {
+    try {
+        const response = await axios.get(`${base_url}request`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+        return response.data.request;
+    } catch (error) {
+         console.log(error);
+         return [];
+    }
+}

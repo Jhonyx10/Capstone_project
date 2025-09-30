@@ -131,4 +131,18 @@ class AnalyticController extends Controller
 
         return response()->json(['zone_violators' => $zone_violators]);
     }
+
+    public function monthIncidentTrendFromPreviousYear()
+    {
+        $incident_trend = $this->analyticsService->prevYearMonthIncidentTrend();
+
+        return response()->json(['incident_trend' => $incident_trend]);
+    }
+
+    public function zonesIncidentTrendFromPreviousYear()
+    {
+        $zones_incident_trends = $this->analyticsService->prevYearZonesIncidentTrend();
+
+        return response()->json(['zones_trends' => $zones_incident_trends]);
+    }
 }
