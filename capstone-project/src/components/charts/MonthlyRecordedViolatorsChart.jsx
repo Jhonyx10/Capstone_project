@@ -1,7 +1,5 @@
 import useAppState from "../../store/useAppState";
 import React from "react";
-import { useQuery } from "@tanstack/react-query";
-import { MonthlyRecordedViolators } from "../../functions/Analytics";
 import { motion } from "framer-motion";
 import {
     Chart as ChartJS,
@@ -23,16 +21,11 @@ ChartJS.register(
     Legend
 );
 
-const MonthlyRecordedViolatorsChart = () => {
-    const { darkMode, token, base_url } = useAppState();
-
-    const { data: reportedViolators } = useQuery({
-        queryKey: ["monthly_recorded_violators"],
-        queryFn: () => MonthlyRecordedViolators({ token, base_url }),
-    });
+const MonthlyRecordedViolatorsChart = ({data, isLoading}) => {
+    const { darkMode } = useAppState();
 
     // Fallback if no data yet
-    const monthlyViolators = reportedViolators || [];
+    const monthlyViolators = data?.violators || [];
 
     // Labels for months
     const labels = [

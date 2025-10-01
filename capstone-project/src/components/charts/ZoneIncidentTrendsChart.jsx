@@ -1,7 +1,5 @@
 import useAppState from "../../store/useAppState";
 import React from "react";
-import { useQuery } from "@tanstack/react-query";
-import { IncidentTrendForZones } from "../../functions/Analytics";
 import { motion } from "framer-motion";
 import {
     Chart as ChartJS,
@@ -23,19 +21,14 @@ ChartJS.register(
     Legend
 );
 
-const ZoneIncidentTrendsChart = () => {
-    const { darkMode, token, base_url } = useAppState();
-
-    const { data } = useQuery({
-        queryKey: ["zones_incident_trend"],
-        queryFn: () => IncidentTrendForZones({ token, base_url }),
-    });
+const ZoneIncidentTrendsChart = ({data, isLoading}) => {
+    const { darkMode } = useAppState();
 
     const currentMonth = new Date().toLocaleString("default", {
         month: "long",
     });
 
-    const incidentTrend = data || [];
+    const incidentTrend = data?.zone_incident_trends || [];
 
     // Extract unique zones and years
     const zones = [...new Set(incidentTrend.map((item) => item.zone_name))];
@@ -118,7 +111,7 @@ const ZoneIncidentTrendsChart = () => {
                     darkMode ? "text-white" : "text-black"
                 }`}
             >
-                {currentMonth} 
+                {currentMonth} <span className="text-sm">from previous years data.</span>
             </h1>
             <Bar data={chartData} options={options} />
         </motion.div>

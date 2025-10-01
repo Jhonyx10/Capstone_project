@@ -7,9 +7,26 @@ import MonthlyRecordedViolatorsChart from "../components/charts/MonthlyRecordedV
 import ZoneTotalViolatorsChart from "../components/charts/ZoneTotalViolatorsChart";
 import IncidentTrendChart from "../components/charts/IncidentTrendsChart";
 import ZoneIncidentTrendsChart from "../components/charts/ZoneIncidentTrendsChart";
+import CategoryAvgResponseTimeChart from "../components/charts/CategoryAvgResponseTimeChart";
+import useAppState from "../store/useAppState";
+import { useQuery } from "@tanstack/react-query";
+import { AnalyticalData } from "../functions/Analytics";
 import { motion } from "framer-motion"
+import { useEffect } from "react";
 
 const Analytics = () => {
+    const { base_url, token} = useAppState();
+
+    const { data, isLoading, isError } = useQuery({
+        queryKey: ["analytics"],
+        queryFn: () => AnalyticalData({ base_url, token }),
+        enabled: !!base_url && !!token,
+    });
+
+        useEffect(() => {
+            if (data) console.log(data);
+        }, [data]);
+    
     return (
         <div className="m-4">
             <motion.h1
@@ -21,10 +38,12 @@ const Analytics = () => {
             >
                 Analytics
             </motion.h1>
-            <div className="flex m-2 justify-center gap-4">
-                <CategoryReportsChart />
-                <ZoneReportsChart />
-                <ZoneAverageResponseChart />
+
+            <div className="flex m-2 flex-wrap justify-center gap-4">
+                <CategoryReportsChart data={data} isLoading={isLoading} />
+                <ZoneReportsChart data={data} isLoading={isLoading} />
+                <ZoneAverageResponseChart data={data} isLoading={isLoading} />
+                <CategoryAvgResponseTimeChart data={data}/>
             </div>
             <motion.h1
                 layout
@@ -36,10 +55,10 @@ const Analytics = () => {
                 Incident Reports
             </motion.h1>
             <div className="flex flex-wrap gap-4 justify-center">
-                <MonthlyReportChart />
-                <YearComparisonChart />
-                <IncidentTrendChart/>
-                <ZoneIncidentTrendsChart/>
+                <MonthlyReportChart data={data} isLoading={isLoading} />
+                <YearComparisonChart data={data} isLoading={isLoading} />
+                <IncidentTrendChart data={data} isLoading={isLoading} />
+                <ZoneIncidentTrendsChart data={data} isLoading={isLoading} />
             </div>
             <motion.h1
                 layout
@@ -51,8 +70,15 @@ const Analytics = () => {
                 Incident Violators
             </motion.h1>
             <div className="flex flex-wrap gap-4 justify-center">
-                <MonthlyRecordedViolatorsChart/>
-                <ZoneTotalViolatorsChart/>
+                <MonthlyRecordedViolatorsChart
+                    data={data}
+                    isLoading={isLoading}
+                />
+                <ZoneTotalViolatorsChart
+                    data={data}
+                    isLoading={isLoading}
+                    isError={isError}
+                />
             </div>
         </div>
     );

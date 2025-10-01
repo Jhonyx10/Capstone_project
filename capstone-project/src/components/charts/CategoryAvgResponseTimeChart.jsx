@@ -1,37 +1,45 @@
 import useAppState from "../../store/useAppState";
 import { motion } from "framer-motion";
-import { Chart as ChartJS, Title, Tooltip, Legend, ArcElement } from "chart.js";
+import { Chart as ChartJS, ArcElement, Tooltip, Legend, Title } from "chart.js";
 import { Pie } from "react-chartjs-2";
 
-ChartJS.register(Title, Tooltip, Legend, ArcElement);
+ChartJS.register(ArcElement, Tooltip, Legend, Title);
 
-const ZoneAverageResponseChart = ({ data, isLoading }) => {
+const CategoryAvgResponseTimeChart = ({ data }) => {
     const { darkMode } = useAppState();
 
-    if (isLoading) return null;
-    if (!data || !data.response_time || data.response_time.length === 0)
+    if (
+        !data ||
+        !data.category_response_time ||
+        data.category_response_time.length === 0
+    ) {
         return <p>No data available</p>;
+    }
 
-    // Extract labels (zone names) and values (reports count)
-    const labels = data.response_time.map((item) => item.zone_name);
-    const values = data.response_time.map((item) => item.reports);
+    // Extract labels & values
+    const labels = data.category_response_time.map(
+        (item) => `${item.category_name}`
+    );
+    const values = data.category_response_time.map((item) => item.reports);
 
     const chartData = {
         labels,
         datasets: [
             {
-                label: "Incident Reports",
+                label: "Reports",
                 data: values,
                 backgroundColor: [
                     "#22c55e",
-                    "#3b82f6",
-                    "#f97316",
-                    "#e11d48",
-                    "#9333ea",
-                    "#14b8a6",
+                    "rgba(255, 99, 132, 1)",
+                    "#4e79a7",
+                    "#f28e2b",
+                    "#76b7b2",
+                    "#edc948",
+                    "#b07aa1",
+                    "#ff9da7",
+                    "#9c755f",
+                    "#bab0ab",
                 ],
-                borderColor: darkMode ? "#0f172a" : "#fff",
-                borderWidth: 2,
             },
         ],
     };
@@ -44,23 +52,24 @@ const ZoneAverageResponseChart = ({ data, isLoading }) => {
                 labels: {
                     color: darkMode ? "#fff" : "#000",
                     font: {
-                        size: 10,
+                        size: 9,
+                        family: "Arial",
                     },
                 },
             },
             title: {
                 display: true,
-                text: "Average Response Time By Zone",
+                text: "Average Response Time By Category",
                 color: darkMode ? "#fff" : "#000",
             },
             tooltip: {
                 callbacks: {
                     label: function (context) {
                         const index = context.dataIndex;
-                        const item = data.response_time[index];
-                        return `${item.zone_name}: ${
+                        const item = data.category_response_time[index];
+                        return `${item.category_name}: ${
                             item.reports
-                        } reports | Avg Response: ${item.average_zone_response.toFixed(
+                        } reports | Avg Response: ${item.avg_response_time.toFixed(
                             2
                         )} mins`;
                     },
@@ -71,14 +80,9 @@ const ZoneAverageResponseChart = ({ data, isLoading }) => {
 
     return (
         <motion.div
-            initial={{ y: -20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{
-                type: "spring",
-                stiffness: 200,
-                damping: 20,
-                delay: 0.1,
-            }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
             whileHover={{ scale: 1.02 }}
             className={`p-4 shadow-lg rounded-md ${
                 darkMode ? "bg-slate-900" : "bg-white"
@@ -89,4 +93,4 @@ const ZoneAverageResponseChart = ({ data, isLoading }) => {
     );
 };
 
-export default ZoneAverageResponseChart;
+export default CategoryAvgResponseTimeChart;

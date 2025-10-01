@@ -1,27 +1,22 @@
 import useAppState from "../../store/useAppState";
-import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { Chart as ChartJS, Title, Tooltip, Legend, ArcElement } from "chart.js";
-import { Pie } from "react-chartjs-2";
-import { zoneReportDetails } from "../../functions/Analytics";
+import { Doughnut } from "react-chartjs-2";
 
 ChartJS.register(Title, Tooltip, Legend, ArcElement);
 
-const ZoneReportsChart = () => {
-    const { darkMode, token, base_url } = useAppState();
-
-    const { data: zoneReports, isLoading } = useQuery({
-        queryKey: ["zone_reports"],
-        queryFn: () => zoneReportDetails({ base_url, token }),
-    });
+const ZoneReportsChart = ({data, isLoading}) => {
+    const { darkMode} = useAppState();
 
     if (isLoading) return null;
-    if (!zoneReports || zoneReports.length === 0)
+    if (!data || data.length === 0)
         return <p>No data available</p>;
 
     // Extract labels (zone names) and values (zone_total)
-    const labels = zoneReports.map((item) => item.zone.zone_name);
-    const values = zoneReports.map((item) => item.zone_total);
+   const labels = data?.zones?.map(
+       (item) => `${item.zone_name} (${item.percentage}%)`
+   );
+    const values = data?.zones?.map((item) => item.total_incidents);
 
     const chartData = {
         labels,
@@ -78,7 +73,7 @@ const ZoneReportsChart = () => {
                 darkMode ? "bg-slate-900" : "bg-white"
             }`}
         >
-            <Pie data={chartData} options={options} />
+            <Doughnut data={chartData} options={options} />
         </motion.div>
     );
 };

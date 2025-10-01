@@ -34,20 +34,6 @@ class AnalyticController extends Controller
         return response()->json(['recent_reports' => $recent_reports], 200);
     }
 
-    public function totalReportsByCategory()
-    {
-        $reports_total = $this->analyticsService->getReportsByCategory();
-
-        return response()->json(['reports_total' => $reports_total]);
-    }
-
-    public function monthlyReports()
-    {
-        $monthly_reports = $this->analyticsService->getMonthlyReports();
-
-        return response()->json(['monthly_reports' => $monthly_reports], 200);
-    }
-
     public function currentPreviousChanges()
     {
         $months = $this->analyticsService->currentPreviousTotalReports();
@@ -83,48 +69,6 @@ class AnalyticController extends Controller
         return response()->json(['averageResponseTime' => $averageResponseTime]);
     }
 
-    public function averageResponseTimePerCategory()
-    {
-        $responseTimePerCategory = $this->analyticsService->averageResponseTimePerCategory();
-
-        return response()->json(['response_category' => $responseTimePerCategory]);
-    }
-
-    public function incidentProneZone()
-    {
-        $zones = $this->analyticsService->incidentProneZones();
-
-        return response()->json(['zones' => $zones]);
-    }
-
-    public function compareIncidentCategoriesCurrentPreviousMonth()
-    {
-        $categoryTrends = $this->analyticsService->compareIncidentCategories();
-
-        return response()->json(['category_trend' => $categoryTrends]);
-    }
-
-    public function yearReportComparison()
-    {
-        $reports = $this->analyticsService->yearComparisonAnalytics();
-
-        return response()->json(['reports' => $reports]);
-    }
-
-    public function zoneAverageResponseTime()
-    {
-        $response_time = $this->analyticsService->zoneAverageResponseTime();
-
-        return response()->json(['response_time' => $response_time]);
-    }
-
-    public function monthlyRecordedViolators()
-    {
-        $violators = $this->analyticsService->monthlyRecordedViolators();
-
-        return response()->json(['violators' => $violators]);
-    }
-
     public function totalViolatorsPerZone()
     {
         $zone_violators = $this->analyticsService->totalViolatorsByZone();
@@ -132,17 +76,46 @@ class AnalyticController extends Controller
         return response()->json(['zone_violators' => $zone_violators]);
     }
 
-    public function monthIncidentTrendFromPreviousYear()
+    public function analytics()
     {
+        //total incident reports by categories.
+        $category_reports = $this->analyticsService->getReportsByCategory();
+        //total incident reports by zones.
+        $zones = $this->analyticsService->incidentPerZones();
+        //incident occurrence of current and previous month by category.
+        $categoryTrends = $this->analyticsService->compareIncidentCategories();
+        //incident report total from current and previous years.
+        $reports = $this->analyticsService->yearComparisonAnalytics();
+        //average response time for each zones.
+        $response_time = $this->analyticsService->zoneAverageResponseTime();
+        //monthly recorded violators.
+        $violators = $this->analyticsService->monthlyRecordedViolators();
+        //total violators for each zones.
+        $zone_violators = $this->analyticsService->totalViolatorsByZone();
+        //incident trend for the current month from the current and previous year.
         $incident_trend = $this->analyticsService->prevYearMonthIncidentTrend();
-
-        return response()->json(['incident_trend' => $incident_trend]);
-    }
-
-    public function zonesIncidentTrendFromPreviousYear()
-    {
+        //incident trend for zone of the current month from the current and previous year.
         $zones_incident_trends = $this->analyticsService->prevYearZonesIncidentTrend();
+        //monthly incident reports.
+        $monthly_reports = $this->analyticsService->getMonthlyReports();
+        //average response time per categories.
+        $responseTimePerCategory = $this->analyticsService->averageResponseTimePerCategory();
+        //over all total reports.
+        $over_all_total_reports = $this->analyticsService->overAllTotalReports();
 
-        return response()->json(['zones_trends' => $zones_incident_trends]);
+        return response()->json([
+
+            'category_reports' => $category_reports,
+            'zones' => $zones,
+            'reports' => $reports,
+            'response_time' => $response_time,
+            'violators' => $violators,
+            'zone_violators' => $zone_violators,
+            'incident_trend' => $incident_trend,
+            'zone_incident_trends' => $zones_incident_trends,
+            'monthly_reports' => $monthly_reports,
+            'category_response_time' => $responseTimePerCategory,
+            'total_reports' => $over_all_total_reports,
+        ]);
     }
 }

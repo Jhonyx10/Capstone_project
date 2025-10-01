@@ -1,37 +1,27 @@
 import useAppState from "../../store/useAppState";
-import { useQuery } from "@tanstack/react-query";
-import { ZoneTotalViolators } from "../../functions/Analytics";
 import { motion } from "framer-motion";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, Title } from "chart.js";
 import { Doughnut } from "react-chartjs-2";
 
 ChartJS.register(ArcElement, Tooltip, Legend, Title);
 
-const ZoneTotalViolatorsChart = () => {
-    const { darkMode, token, base_url } = useAppState();
+const ZoneTotalViolatorsChart = ({data, isLoading, isError}) => {
+    const { darkMode } = useAppState();
 
-    const {
-        data: ZoneViolators,
-        isLoading,
-        isError,
-    } = useQuery({
-        queryKey: ["zone_violators_total"],
-        queryFn: () => ZoneTotalViolators({ base_url, token }),
-    });
 
     if (isLoading) {
         return null;
     }
 
-    if (isError || !ZoneViolators) {
+    if (isError || !data?.zone_violators) {
         return null;
     }
 
     // Extract labels and values from API response
-    const labels = ZoneViolators.map((item) => item.zone_name);
-    const values = ZoneViolators.map((item) => item.total);
+    const labels = data?.zone_violators.map((item) => item.zone_name);
+    const values = data?.zone_violators.map((item) => item.total);
 
-    const data = {
+    const chartData = {
         labels,
         datasets: [
             {
@@ -84,7 +74,7 @@ const ZoneTotalViolatorsChart = () => {
                 darkMode ? "bg-slate-900" : "bg-white"
             }`}
         >
-            <Doughnut data={data} options={options} />
+            <Doughnut data={chartData} options={options} />
         </motion.div>
     );
 };

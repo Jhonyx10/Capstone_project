@@ -1,7 +1,5 @@
 import useAppState from "../../store/useAppState";
 import React, { useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { YearLyReportComparison } from "../../functions/Analytics";
 import { motion } from "framer-motion";
 import {
     Chart as ChartJS,
@@ -27,16 +25,11 @@ ChartJS.register(
     Filler
 );
 
-const YearComparisonChart = () => {
-    const { darkMode, token, base_url } = useAppState();
-
-    const { data: reportsData, isLoading } = useQuery({
-        queryKey: ["yearly_comparison"],
-        queryFn: () => YearLyReportComparison({ token, base_url }),
-    });
+const YearComparisonChart = ({data, isLoading}) => {
+    const { darkMode } = useAppState();
 
     const chartData = useMemo(() => {
-        if (!reportsData) return null;
+        if (!data?.reports) return null;
 
         const currentYear = new Date().getFullYear();
         const previousYear = currentYear - 1;
@@ -44,7 +37,7 @@ const YearComparisonChart = () => {
         const currentYearData = new Array(12).fill(0);
         const previousYearData = new Array(12).fill(0);
 
-        reportsData.forEach((r) => {
+        data?.reports?.forEach((r) => {
             if (r.year === currentYear) {
                 currentYearData[r.month - 1] = r.total;
             } else if (r.year === previousYear) {
@@ -86,7 +79,7 @@ const YearComparisonChart = () => {
                 },
             ],
         };
-    }, [reportsData, darkMode]);
+    }, [data, darkMode]);
 
     const options = {
         responsive: true,

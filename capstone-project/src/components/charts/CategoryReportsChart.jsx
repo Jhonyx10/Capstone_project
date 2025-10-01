@@ -1,37 +1,20 @@
 import useAppState from "../../store/useAppState";
-import { useQuery } from "@tanstack/react-query";
-import { TotalReportByCategory } from "../../functions/Analytics";
 import { motion } from "framer-motion";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, Title } from "chart.js";
 import { Doughnut } from "react-chartjs-2";
 
 ChartJS.register(ArcElement, Tooltip, Legend, Title);
 
-const CategoryReportsChart = () => {
-    const { darkMode, token, base_url } = useAppState();
+const CategoryReportsChart = ({ data }) => {
+    const { darkMode } = useAppState();
 
-    const {
-        data: CategoryTotal,
-        isLoading,
-        isError,
-    } = useQuery({
-        queryKey: ["category_total"],
-        queryFn: () => TotalReportByCategory({ base_url, token }),
-    });
+    // Extract labels, values, and percentages
+    const labels = data?.category_reports?.map(
+        (item) => `${item.category} (${item.percentage.toFixed(2)}%)`
+    );
+    const values = data?.category_reports?.map((item) => item.count);
 
-    if (isLoading) {
-        return null;
-    }
-
-    if (isError || !CategoryTotal) {
-        return null;
-    }
-
-    // Extract labels and values from API response
-    const labels = CategoryTotal.map((item) => item.category);
-    const values = CategoryTotal.map((item) => item.total);
-
-    const data = {
+    const chartData = {
         labels,
         datasets: [
             {
@@ -71,6 +54,17 @@ const CategoryReportsChart = () => {
                 text: "Total Incident Reports By Category",
                 color: darkMode ? "#fff" : "#000",
             },
+            tooltip: {
+                callbacks: {
+                    label: function (context) {
+                        const index = context.dataIndex;
+                        const category = data.category_reports[index];
+                        return `${category.category}: ${
+                            category.count
+                        } (${category.percentage.toFixed(2)}%)`;
+                    },
+                },
+            },
         },
     };
 
@@ -84,7 +78,7 @@ const CategoryReportsChart = () => {
                 darkMode ? "bg-slate-900" : "bg-white"
             }`}
         >
-            <Doughnut data={data} options={options} />
+            <Doughnut data={chartData} options={options} />
         </motion.div>
     );
 };

@@ -1,13 +1,13 @@
 import useAppState from "../../store/useAppState";
 import React from "react";
-import { useQuery } from "@tanstack/react-query";
-import { MonthlyReport } from "../../functions/Analytics";
-import { motion } from "framer-motion"
+import { motion } from "framer-motion";
 import {
     Chart as ChartJS,
     CategoryScale,
     LinearScale,
     BarElement,
+    LineElement,
+    PointElement,
     Title,
     Tooltip,
     Legend,
@@ -18,23 +18,19 @@ ChartJS.register(
     CategoryScale,
     LinearScale,
     BarElement,
+    LineElement,
+    PointElement,
     Title,
     Tooltip,
     Legend
 );
 
-const MonthlyReportChart = () => {
-    const { darkMode, token, base_url } = useAppState();
-
-    const { data: reportData } = useQuery({
-        queryKey: ["monthly_reports"],
-        queryFn: () => MonthlyReport({ token, base_url }),
-    });
+const MonthlyReportChart = ({ data, isLoading }) => {
+    const { darkMode } = useAppState();
 
     // Fallback if no data yet
-    const monthlyReports = reportData || {};
+    const monthlyReports = data?.monthly_reports || [];
 
-    // Labels for months
     const labels = [
         "Jan",
         "Feb",
@@ -50,11 +46,17 @@ const MonthlyReportChart = () => {
         "Dec",
     ];
 
-    // Fill chart data: map months 1-12, use value or 0 if missing
-    const values = Array.from(
-        { length: 12 },
-        (_, i) => monthlyReports[i + 1] || 0
-    );
+    // Reports count
+    const values = labels.map((month) => {
+        const found = monthlyReports.find((m) => m.month === month);
+        return found ? found.report_count : 0;
+    });
+
+    // Month-over-Month Change
+    const momValues = labels.map((month) => {
+        const found = monthlyReports.find((m) => m.month === month);
+        return found && found.mom_change !== null ? found.mom_change : null;
+    });
 
     const chartData = {
         labels,
@@ -63,16 +65,30 @@ const MonthlyReportChart = () => {
                 label: "Reports",
                 data: values,
                 backgroundColor: darkMode ? "#4ade80" : "#22c55e",
+                yAxisID: "y",
+                type: "bar",
+            },
+            {
+                label: "MoM Change (%)",
+                data: momValues,
+                borderColor: "#f43f5e",
+                backgroundColor: "rgba(244,63,94,0.3)",
+                yAxisID: "y1",
+                type: "line",
+                tension: 0.3,
+                spanGaps: true, // so null values don’t break the line
             },
         ],
     };
 
     const options = {
         responsive: true,
+        interaction: { mode: "index", intersect: false },
+        stacked: false,
         plugins: {
             title: {
                 display: true,
-                text: "Monthly Reports",
+                text: "Monthly Reports & MoM Change",
                 color: darkMode ? "#fff" : "#000",
             },
             legend: {
@@ -84,15 +100,30 @@ const MonthlyReportChart = () => {
         },
         scales: {
             x: {
-                ticks: {
-                    color: darkMode ? "#fff" : "#000",
-                },
+                ticks: { color: darkMode ? "#fff" : "#000" },
             },
             y: {
-                beginAtZero: true,
-                ticks: {
+                type: "linear",
+                display: true,
+                position: "left",
+                title: {
+                    display: true,
+                    text: "Reports",
                     color: darkMode ? "#fff" : "#000",
                 },
+                ticks: { color: darkMode ? "#fff" : "#000" },
+            },
+            y1: {
+                type: "linear",
+                display: true,
+                position: "right",
+                title: {
+                    display: true,
+                    text: "MoM %",
+                    color: darkMode ? "#fff" : "#000",
+                },
+                grid: { drawOnChartArea: false },
+                ticks: { color: "#f43f5e" },
             },
         },
     };
@@ -108,9 +139,15 @@ const MonthlyReportChart = () => {
                 delay: 0.2,
             }}
             whileHover={{ scale: 1.02 }}
-            className={` p-4 shadow-lg rounded-md w-[510px] ${darkMode ? "bg-slate-900" : "bg-white"}`}
+            className={`p-4 shadow-lg rounded-md w-[510px] ${
+                darkMode ? "bg-slate-900" : "bg-white"
+            }`}
         >
-            <Bar data={chartData} options={options} />
+            {isLoading ? (
+                <p className={darkMode ? "text-white" : ""}>Loading chart...</p>
+            ) : (
+                <Bar data={chartData} options={options} />
+            )}
         </motion.div>
     );
 };

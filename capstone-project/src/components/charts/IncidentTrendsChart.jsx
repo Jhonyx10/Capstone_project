@@ -1,7 +1,5 @@
 import useAppState from "../../store/useAppState";
 import React from "react";
-import { useQuery } from "@tanstack/react-query";
-import { IncidentTrendForTheMonth } from "../../functions/Analytics";
 import { motion } from "framer-motion";
 import {
     Chart as ChartJS,
@@ -23,19 +21,14 @@ ChartJS.register(
     Legend
 );
 
-const IncidentTrendChart = () => {
-    const { darkMode, token, base_url } = useAppState();
-
-    const { data } = useQuery({
-        queryKey: ["incident_trend"],
-        queryFn: () => IncidentTrendForTheMonth({ token, base_url }),
-    });
+const IncidentTrendChart = ({data}) => {
+    const { darkMode } = useAppState();
 
     const currentMonth = new Date().toLocaleString("default", {
         month: "long",
     });
 
-    const incidentTrend = data || [];
+    const incidentTrend = data?.incident_trends || [];
 
     const categories = [...new Set(incidentTrend.map((item) => item.category))];
     const years = [...new Set(incidentTrend.map((item) => item.year))];
@@ -111,7 +104,10 @@ const IncidentTrendChart = () => {
                 darkMode ? "bg-slate-900" : "bg-white"
             }`}
         >
-            <h1 className="text-lg text-white font-bold">{currentMonth}</h1>
+            <h1 className="text-lg text-white font-bold">
+                {currentMonth}{" "}
+                <span className="text-sm">from previous years data.</span>
+            </h1>
             <Bar data={chartData} options={options} />
         </motion.div>
     );

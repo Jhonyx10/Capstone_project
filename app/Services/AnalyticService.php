@@ -57,14 +57,24 @@ class AnalyticService
      */
    public function getReportsByCategory()
     {
-        return IncidentReport::select(
-                    'incident_categories.category_name as category',
-                    \DB::raw('COUNT(incident_reports.id) as total')
-                )
-                ->join('incident_types', 'incident_reports.incident_type_id', '=', 'incident_types.id')
-                ->join('incident_categories', 'incident_types.category_id', '=', 'incident_categories.id')
-                ->groupBy('incident_categories.category_name')
-                ->get();
+        $totalReports = IncidentReport::count();
+
+        $categoryStats = IncidentReport::select(
+                'incident_categories.category_name as category',
+                \DB::raw('COUNT(incident_reports.id) as count')
+            )
+            ->join('incident_types', 'incident_reports.incident_type_id', '=', 'incident_types.id')
+            ->join('incident_categories', 'incident_types.category_id', '=', 'incident_categories.id')
+            ->groupBy('incident_categories.category_name')
+            ->get()
+            ->map(function ($item) use ($totalReports) {
+                $item->percentage = $totalReports > 0 
+                    ? round(($item->count / $totalReports) * 100, 2) 
+                    : 0;
+                return $item;
+            });
+
+        return $categoryStats;
     }
 
     /**
@@ -75,19 +85,33 @@ class AnalyticService
     // this data will be displayed in a graph
     public function getMonthlyReports()
     {
-        $reports = IncidentReport::selectRaw('MONTH(created_at) as month, count(*) as total')
-                                 ->whereYear('created_at', Carbon::now()->year)
-                                 ->groupBy('month')
-                                 ->orderBy('month')
-                                 ->get();
+       $currentYear = Carbon::now()->year;
 
-        // Return an array with month as key and total as value
-        $result = [];
-        foreach ($reports as $report) {
-            $result[$report->month] = $report->total;
+        $months = [];
+        $previousMonthCount = null; 
+        
+        for ($month = 1; $month <= 12; $month++) {
+            $currentMonthCount = IncidentReport::whereYear('created_at', $currentYear)
+                ->whereMonth('created_at', $month) 
+                ->count();
+
+            $momChange = null;
+            if (!is_null($previousMonthCount)) {
+                $momChange = $previousMonthCount > 0
+                    ? round((($currentMonthCount - $previousMonthCount) / $previousMonthCount) * 100, 2)
+                    : null;
+            }
+
+            $months[] = [
+                'month' => Carbon::createFromDate($currentYear, $month, 1)->format('M'),
+                'report_count' => $currentMonthCount,
+                'mom_change' => $momChange !== null ? round($momChange, 2) : null
+            ];
+
+            $previousMonthCount = $currentMonthCount;
         }
 
-        return $result;
+        return $months;
     }
 
     //total incident per categories group by zones.
@@ -167,12 +191,17 @@ class AnalyticService
 
     public function zoneAverageResponseTime()
     {
-        return IncidentResponseRecord::selectRaw('zones.id, zones.zone_name, AVG(incident_response_records.response_time) as average_zone_response')
+        return IncidentResponseRecord::selectRaw('zones.id, zones.zone_name, AVG(incident_response_records.response_time) as average_zone_response, COUNT(DISTINCT incident_response_records.report_id) as reports')
             ->join('incident_reports', 'incident_reports.id', '=', 'incident_response_records.report_id')
             ->join('incident_locations', 'incident_locations.id', '=', 'incident_reports.location_id')
             ->join('zones', 'zones.id', '=', 'incident_locations.zone_id')
             ->groupBy('zones.id', 'zones.zone_name')
             ->get();
+    }
+
+    public function overAllTotalReports()
+    {
+        return IncidentReport::count();
     }
 
     //average response time per incident category
@@ -186,17 +215,26 @@ class AnalyticService
             ->get();
     }
 
-    //top 3 incident prone zones from the previous month.
-    public function incidentProneZones()
+    public function incidentPerZones()
     {
-        return IncidentReport::select('zones.id as zone_id', 'zones.zone_name as zone_name', \DB::raw('COUNT(*) as total_incidents'))
-        ->join('incident_locations', 'incident_reports.location_id', '=', 'incident_locations.id')
-        ->join('zones', 'incident_locations.zone_id', '=', 'zones.id')
-        ->whereBetween('incident_reports.created_at', [now()->subMonth()->startOfMonth(),now()->subMonth()->endOfMonth()])
-        ->groupBy('zones.id', 'zones.zone_name')
-        ->orderByDesc('total_incidents')
-        ->limit(3)
-        ->get();
+         $totalReports = IncidentReport::count();
+
+        return IncidentReport::select(
+                'zones.id as zone_id',
+                'zones.zone_name as zone_name',
+                \DB::raw('COUNT(*) as total_incidents')
+            )
+            ->join('incident_locations', 'incident_reports.location_id', '=', 'incident_locations.id')
+            ->join('zones', 'incident_locations.zone_id', '=', 'zones.id')
+            ->groupBy('zones.id', 'zones.zone_name')
+            ->orderByDesc('total_incidents')
+            ->get()
+            ->map(function ($item) use ($totalReports) {
+                $item->percentage = $totalReports > 0 
+                    ? round(($item->total_incidents / $totalReports) * 100, 2) 
+                    : 0;
+                return $item;
+            });
     }
 
     //comparison of incident occurrence of current and previous month by categories.
@@ -360,6 +398,5 @@ class AnalyticService
             ->orderBy('zones.id')
             ->get();
     }
-
 
 }
