@@ -28,36 +28,37 @@ const IncidentTrendChart = ({data}) => {
         month: "long",
     });
 
-    const incidentTrend = data?.incident_trends || [];
+    const incidentTrend = data?.incident_trend || [];
 
     const categories = [...new Set(incidentTrend.map((item) => item.category))];
-    const years = [...new Set(incidentTrend.map((item) => item.year))];
+    const months = [...new Set(incidentTrend.map((item) => item.month_name))];
 
-   
     const baseColors = darkMode
-        ? ["#22c55e", "#f87171"] 
+        ? ["#22c55e", "#f87171"]
         : ["#22c55e", "#ef4444"];
 
-        const yearColors = {};
-        years.forEach((year, index) => {
-            yearColors[year] = baseColors[index % baseColors.length];
-        });
+    const monthColors = {};
+    months.forEach((month, index) => {
+        monthColors[month] = baseColors[index % baseColors.length];
+    });
 
-    const datasets = years.map((year) => ({
-        label: `${year}`,
+    const datasets = months.map((month) => ({
+        label: month,
         data: categories.map((category) => {
             const entry = incidentTrend.find(
-                (item) => item.category === category && item.year === year
+                (item) =>
+                    item.category === category && item.month_name === month
             );
             return entry ? entry.total : 0;
         }),
-        backgroundColor: yearColors[year] || "#22c55e",
+        backgroundColor: monthColors[month],
     }));
 
     const chartData = {
-        labels: categories, 
+        labels: categories,
         datasets,
     };
+
 
     const options = {
         responsive: true,
@@ -104,9 +105,12 @@ const IncidentTrendChart = ({data}) => {
                 darkMode ? "bg-slate-900" : "bg-white"
             }`}
         >
-            <h1 className="text-lg text-white font-bold">
-                {currentMonth}{" "}
-                <span className="text-sm">from previous years data.</span>
+            <h1
+                className={`text-lg font-bold ${
+                    darkMode ? "text-white" : "text-black"
+                }`}
+            >
+                Incident Trends By Category
             </h1>
             <Bar data={chartData} options={options} />
         </motion.div>

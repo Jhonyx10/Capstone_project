@@ -21,39 +21,35 @@ ChartJS.register(
     Legend
 );
 
-const ZoneIncidentTrendsChart = ({data, isLoading}) => {
+const ZoneIncidentTrendsChart = ({ data, isLoading }) => {
     const { darkMode } = useAppState();
-
-    const currentMonth = new Date().toLocaleString("default", {
-        month: "long",
-    });
 
     const incidentTrend = data?.zone_incident_trends || [];
 
-    // Extract unique zones and years
+    // Unique zones and months
     const zones = [...new Set(incidentTrend.map((item) => item.zone_name))];
-    const years = [...new Set(incidentTrend.map((item) => item.year))];
+    const months = [...new Set(incidentTrend.map((item) => item.month_name))];
 
-    // Assign colors dynamically depending on dark/light mode
+    // Colors per month
     const baseColors = darkMode
-        ? ["#22c55e", "#f87171"] // green / red (dark mode)
-        : ["#22c55e", "#ef4444"]; // green / red (light mode)
+        ? ["#22c55e", "#f87171", "#3b82f6"]
+        : ["#22c55e", "#ef4444", "#3b82f6"];
 
-    const yearColors = {};
-    years.forEach((year, index) => {
-        yearColors[year] = baseColors[index % baseColors.length];
+    const monthColors = {};
+    months.forEach((month, index) => {
+        monthColors[month] = baseColors[index % baseColors.length];
     });
 
-    // Build datasets by year
-    const datasets = years.map((year) => ({
-        label: `${year}`,
+    // Build datasets per month
+    const datasets = months.map((month) => ({
+        label: month,
         data: zones.map((zone) => {
             const entry = incidentTrend.find(
-                (item) => item.zone_name === zone && item.year === year
+                (item) => item.zone_name === zone && item.month_name === month
             );
             return entry ? entry.total : 0;
         }),
-        backgroundColor: yearColors[year],
+        backgroundColor: monthColors[month],
     }));
 
     const chartData = {
@@ -111,7 +107,7 @@ const ZoneIncidentTrendsChart = ({data, isLoading}) => {
                     darkMode ? "text-white" : "text-black"
                 }`}
             >
-                {currentMonth} <span className="text-sm">from previous years data.</span>
+                Incident Trends by Zone
             </h1>
             <Bar data={chartData} options={options} />
         </motion.div>

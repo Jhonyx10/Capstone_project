@@ -8,6 +8,11 @@ import ZoneTotalViolatorsChart from "../components/charts/ZoneTotalViolatorsChar
 import IncidentTrendChart from "../components/charts/IncidentTrendsChart";
 import ZoneIncidentTrendsChart from "../components/charts/ZoneIncidentTrendsChart";
 import CategoryAvgResponseTimeChart from "../components/charts/CategoryAvgResponseTimeChart";
+import IncidentPeakHoursChart from "../components/charts/IncidentPeakHoursChart";
+import TotalReportCard from "../components/charts/TotalReportsCard";
+import LeastReportedCategory from "../components/charts/LeastReportedCategoryCard";
+import MostReportedCategory from "../components/charts/MostReportedCategoryCard";
+import IncidentPeakHoursCard from "../components/charts/IncidentPeakHoursCard";
 import useAppState from "../store/useAppState";
 import { useQuery } from "@tanstack/react-query";
 import { AnalyticalData } from "../functions/Analytics";
@@ -38,38 +43,22 @@ const Analytics = () => {
             >
                 Analytics
             </motion.h1>
-
+            <div className="flex m-2 flex-wrap justify-center gap-4">
+                <TotalReportCard data={data} isLoading={isLoading} />
+                <MostReportedCategory data={data} isLoading={isLoading} />
+                <LeastReportedCategory data={data} isLoading={isLoading} />
+                <IncidentPeakHoursCard data={data} isLoading={isLoading} />
+            </div>
             <div className="flex m-2 flex-wrap justify-center gap-4">
                 <CategoryReportsChart data={data} isLoading={isLoading} />
                 <ZoneReportsChart data={data} isLoading={isLoading} />
                 <ZoneAverageResponseChart data={data} isLoading={isLoading} />
-                <CategoryAvgResponseTimeChart data={data}/>
-            </div>
-            <motion.h1
-                layout
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: 0.5 }}
-                className="dark:text-white text-gray-700 gap-4 font-medium text-2xl m-4"
-            >
-                Incident Reports
-            </motion.h1>
-            <div className="flex flex-wrap gap-4 justify-center">
+                <CategoryAvgResponseTimeChart data={data} />
                 <MonthlyReportChart data={data} isLoading={isLoading} />
+                <IncidentPeakHoursChart data={data} isLoading={isLoading} />
                 <YearComparisonChart data={data} isLoading={isLoading} />
-                <IncidentTrendChart data={data} isLoading={isLoading} />
+                <IncidentTrendChart data={data} />
                 <ZoneIncidentTrendsChart data={data} isLoading={isLoading} />
-            </div>
-            <motion.h1
-                layout
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: 1 }}
-                className="dark:text-white text-gray-700 gap-4 font-medium text-2xl m-4"
-            >
-                Incident Violators
-            </motion.h1>
-            <div className="flex flex-wrap gap-4 justify-center">
                 <MonthlyRecordedViolatorsChart
                     data={data}
                     isLoading={isLoading}

@@ -93,7 +93,7 @@ class AnalyticController extends Controller
         //total violators for each zones.
         $zone_violators = $this->analyticsService->totalViolatorsByZone();
         //incident trend for the current month from the current and previous year.
-        $incident_trend = $this->analyticsService->prevYearMonthIncidentTrend();
+        $incident_trend = $this->analyticsService->prevMonthIncidentTrend();
         //incident trend for zone of the current month from the current and previous year.
         $zones_incident_trends = $this->analyticsService->prevYearZonesIncidentTrend();
         //monthly incident reports.
@@ -101,7 +101,14 @@ class AnalyticController extends Controller
         //average response time per categories.
         $responseTimePerCategory = $this->analyticsService->averageResponseTimePerCategory();
         //over all total reports.
-        $over_all_total_reports = $this->analyticsService->overAllTotalReports();
+        $total_reports = $this->analyticsService->overAllTotalReports();
+        //incident peak hours.
+        $incident_peak_hours = $this->analyticsService->peakReportingHours();
+        $peak_hours = $this->analyticsService->peakHours();
+        //least reported category.
+        $least_reported_category = $this->analyticsService->leastReportedCategory();
+        //most reported category.
+        $most_reported_category = $this->analyticsService->mostReportedCategory();
 
         return response()->json([
 
@@ -115,7 +122,11 @@ class AnalyticController extends Controller
             'zone_incident_trends' => $zones_incident_trends,
             'monthly_reports' => $monthly_reports,
             'category_response_time' => $responseTimePerCategory,
-            'total_reports' => $over_all_total_reports,
+            'total_reports' => $total_reports,
+            'incident_peak_hours' => $incident_peak_hours,
+            'peak_hours' => $peak_hours,
+            'least_reported_category' => $least_reported_category,
+            'most_reported_category' => $most_reported_category
         ]);
     }
 }

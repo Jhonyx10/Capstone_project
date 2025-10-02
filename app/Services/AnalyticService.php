@@ -244,7 +244,6 @@ class AnalyticService
         $previousMonth = Carbon::now()->subMonth()->month;
 
         $year = Carbon::now()->year;
-        $prevYear = Carbon::now()->subMonth()->year;
 
         $current = DB::table('incident_reports')
             ->join('incident_types', 'incident_types.id', '=', 'incident_reports.incident_type_id')
@@ -357,46 +356,94 @@ class AnalyticService
             ->first();
     }
 
-    public function prevYearMonthIncidentTrend()
+    public function prevMonthIncidentTrend()
     {
-        $month = Carbon::now()->month;
-        $currentYear = Carbon::now()->year;
-        $previousYear = Carbon::now()->subYear()->year;
+        $currMonth = Carbon::now()->month;
+        $prevMonth = Carbon::now()->subMonth()->month;
+        $year = Carbon::now()->year;
 
         return IncidentReport::selectRaw('
                 incident_categories.id as category_id,
                 incident_categories.category_name as category,
-                YEAR(incident_reports.created_at) as year,
+                MONTH(incident_reports.created_at) as month,
+                MONTHNAME(incident_reports.created_at) as month_name,
                 COUNT(*) as total
             ')
             ->join('incident_types', 'incident_types.id', '=', 'incident_reports.incident_type_id')
             ->join('incident_categories', 'incident_categories.id', '=', 'incident_types.category_id')
-            ->whereMonth('incident_reports.created_at', $month)
-            ->whereIn(DB::raw('YEAR(incident_reports.created_at)'), [$currentYear, $previousYear])
-            ->groupBy('incident_categories.id', 'incident_categories.category_name', DB::raw('YEAR(incident_reports.created_at)'))
+            ->whereYear('incident_reports.created_at', $year)
+            ->whereIn(DB::raw('MONTH(incident_reports.created_at)'), [$currMonth, $prevMonth])
+            ->groupBy('incident_categories.id', 'incident_categories.category_name', DB::raw('MONTH(incident_reports.created_at)'), DB::raw('MONTHNAME(incident_reports.created_at)'))
             ->orderBy('incident_categories.id')
             ->get();
     }
 
     public function prevYearZonesIncidentTrend()
     {
-        $month = Carbon::now()->month;
-        $currentYear = Carbon::now()->year;
-        $previousYear = Carbon::now()->subYear()->year;
+        $currMonth = Carbon::now()->month;
+        $prevMonth = Carbon::now()->subMonth()->month;
+        $year = Carbon::now()->year;
 
         return IncidentReport::selectRaw('
                 zones.id as zone_id,
                 zones.zone_name as zone_name,
-                YEAR(incident_reports.created_at) as year,
+                MONTH(incident_reports.created_at) as year,
+                MONTHNAME(incident_reports.created_at) as month_name,
                 COUNT(*) as total
             ')
             ->join('incident_locations', 'incident_locations.id', '=', 'incident_reports.location_id')
             ->join('zones', 'zones.id', '=', 'incident_locations.zone_id')
-            ->whereMonth('incident_reports.created_at', $month)
-            ->whereIn(DB::raw('YEAR(incident_reports.created_at)'), [$currentYear, $previousYear])
-            ->groupBy('zones.id', 'zones.zone_name', DB::raw('YEAR(incident_reports.created_at)'))
+            ->whereYear('incident_reports.created_at', $year)
+            ->whereIn(DB::raw('MONTH(incident_reports.created_at)'), [$currMonth, $prevMonth])
+            ->groupBy('zones.id', 'zones.zone_name', DB::raw('MONTH(incident_reports.created_at)'), DB::raw('MONTHNAME(incident_reports.created_at)'))
             ->orderBy('zones.id')
             ->get();
     }
 
+    public function peakReportingHours()
+    {
+        return IncidentReport::select(
+                DB::raw('HOUR(time) as hour'),
+                DB::raw('COUNT(*) as total')
+            )
+            ->groupBy(DB::raw('HOUR(time)'))
+            ->orderBy('hour')
+            ->get();
+    }
+
+    public function peakHours()
+    {
+        return IncidentReport::select(
+                DB::raw('HOUR(time) as hour'),
+                DB::raw('COUNT(*) as total')
+            )
+            ->groupBy(DB::raw('HOUR(time)'))
+            ->orderBy('hour','desc')
+            ->first();
+    }
+    public function leastReportedCategory()
+    {
+        return IncidentReport::select(
+                'incident_categories.category_name as category',
+                DB::raw('COUNT(incident_reports.id) as total')
+            )
+            ->join('incident_types', 'incident_reports.incident_type_id', '=', 'incident_types.id')
+            ->join('incident_categories', 'incident_types.category_id', '=', 'incident_categories.id')
+            ->groupBy('category')
+            ->orderBy('total', 'asc')
+            ->first(); 
+    }
+
+    public function mostReportedCategory()
+    {
+        return IncidentReport::select(
+                'incident_categories.category_name as category',
+                DB::raw('COUNT(incident_reports.id) as total')
+            )
+            ->join('incident_types', 'incident_reports.incident_type_id', '=', 'incident_types.id')
+            ->join('incident_categories', 'incident_types.category_id', '=', 'incident_categories.id')
+            ->groupBy('category')
+            ->orderBy('total', 'desc')
+            ->first(); 
+    }
 }
