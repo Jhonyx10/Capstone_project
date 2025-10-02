@@ -7,7 +7,7 @@ const Option = ({ Icon, title, selected, setSelected, open }) => {
     return (
         <button
             onClick={() => setSelected(title)}
-            className={`relative flex items-center h-10 w-full rounded-md transition-colors ${
+            className={`relative flex items-center h-10 w-full rounded-md transition-colors hover:cursor-pointer ${
                 selected === title
                     ? "bg-slate-100 dark:bg-slate-700"
                     : "hover:bg-slate-50 dark:hover:bg-slate-800"

@@ -44,7 +44,7 @@ const ViolatorsDetails = () => {
                 damping: 20,
                 delay: 0.1,
             }}
-            className={`w-full min-h-screen mx-auto px-6 py-10 space-y-8 ${
+            className={`w-1/2 min-h-screen mx-auto px-6 py-10 space-y-8 ${
                 darkMode ? "bg-slate-900" : "bg-gray-50"
             }`}
         >

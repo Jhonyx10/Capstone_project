@@ -7,12 +7,12 @@ const ToggleClose = ({ open, setOpen }) => {
         <motion.button
             layout
             onClick={() => setOpen(!open)}
-            className="absolute bottom-0 left-0 right-0 border-t dark:border-slate-950 border-slate-300 transition-colors hover:bg-slate-100 dark:hover:bg-slate-500"
+            className="absolute bottom-0 left-0 right-0 border-t dark:border-slate-950 hover:cursor-pointer border-slate-300 transition-colors hover:bg-slate-100 dark:hover:bg-slate-500"
         >
             <div className="flex items-center p-2">
                 <motion.div
                     layout
-                    className="grid size-10 place-content-center text-lg"
+                    className="grid size-10 place-content-center text-lg hover:cursor-pointer"
                 >
                     <FiChevronsRight
                         className={`transition-transform dark:text-white ${

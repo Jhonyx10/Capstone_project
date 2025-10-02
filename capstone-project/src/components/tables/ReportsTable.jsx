@@ -6,6 +6,9 @@ import { motion } from "framer-motion";
 import useZones from "../../hooks/useZones";
 import { useNavigate } from "react-router-dom";
 import { getReports } from "../../functions/ReportsApi";
+import AddCategoryForm from "../../forms/AddCategoryForm";
+import AddIncidentTypeForm from "../../forms/AddIncidentTypeForm";
+import { IoAddCircleOutline } from "react-icons/io5";
 import Search from "../Search";
 
 const ReportTable = () => {
@@ -16,6 +19,10 @@ const ReportTable = () => {
     const [selectedMonth, setSelectedMonth] = useState("all");
     const [selectedTime, setSelectedTime] = useState("all");
     const navigate = useNavigate();
+
+    const [isOpenCategoryForm, setIsOpenCategoryForm] = useState(false);
+    const [isOpenIncidentForm, setIsOpenIncidentForm] = useState(false);
+
     const [search, setSearch] = useState("");
 
       const { data: reports, isLoading } = useQuery({
@@ -26,11 +33,20 @@ const ReportTable = () => {
           },
       });
 
+      const { data: categories } = useQuery({
+          queryKey: ["categories"],
+          queryFn: () => getCategories({ base_url, token }),
+          onSuccess: (data) => {
+              setCategories(data);
+          },
+      });
+
        useEffect(() => {
-           if (reports) {
+           if (reports && categories) {
                setReports(reports);
+               setCategories(categories);
            }
-       }, [reports]);
+       }, [reports, categories]);
 
     // Pagination states
     const [currentPage, setCurrentPage] = useState(1);
@@ -46,14 +62,6 @@ const ReportTable = () => {
     };
 
     const { data: zones } = useZones();
-
-    const categories = useQuery({
-        queryKey: ["categories"],
-        queryFn: () => getCategories({ base_url, token }),
-        onSuccess: (categories) => {
-            setCategories(categories);
-        },
-    });
 
     const handleCategoryChange = (e) => {
         setSelectedCategory(e.target.value);
@@ -129,7 +137,23 @@ const ReportTable = () => {
             }}
             className="p-4"
         >
-            <Search search={search} setSearch={setSearch} />
+            <div className="flex items-center gap-2">
+                <Search search={search} setSearch={setSearch} />
+                <button
+                    onClick={() => setIsOpenIncidentForm(true)}
+                    className="flex bg-green-500 rounded-md h-10 text-center text-sm font-bold text-white items-center hover:bg-green-400 hover:cursor-pointer"
+                >
+                    <IoAddCircleOutline size={30} />
+                    Incident
+                </button>
+                <button
+                    onClick={() => setIsOpenCategoryForm(true)}
+                    className="flex bg-green-500 rounded-md h-10 text-center text-sm font-bold text-white items-center hover:bg-green-400 hover:cursor-pointer"
+                >
+                    <IoAddCircleOutline size={30} />
+                    Category
+                </button>
+            </div>
             <div
                 className={`overflow-x-auto mt-4 rounded-lg shadow ${
                     darkMode ? "bg-slate-900" : "bg-white"
@@ -182,7 +206,7 @@ const ReportTable = () => {
                                             <option value="all">
                                                 Category
                                             </option>
-                                            {categories?.data?.map((cat) => (
+                                            {categories?.map((cat) => (
                                                 <option
                                                     key={cat.id}
                                                     value={cat.id}
@@ -209,7 +233,7 @@ const ReportTable = () => {
                                             <option value="all">
                                                 Incident
                                             </option>
-                                            {categories?.data
+                                            {categories
                                                 ?.find(
                                                     (cat) =>
                                                         selectedCategory ===
@@ -466,7 +490,14 @@ const ReportTable = () => {
                     )}
                 </table>
             </div>
-
+            {isOpenCategoryForm && (
+                <AddCategoryForm onClose={() => setIsOpenCategoryForm(false)} />
+            )}
+            {isOpenIncidentForm && (
+                <AddIncidentTypeForm
+                    onClose={() => setIsOpenIncidentForm(false)}
+                />
+            )}
             {/* --- PAGINATION CONTROLS --- */}
             {totalPages > 1 && (
                 <div className="flex items-center justify-between mt-6">

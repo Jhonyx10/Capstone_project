@@ -1,6 +1,7 @@
 import { useState } from "react";
 import CreateTanodAccount from "../forms/CreateTanodAccount";
 import TanodCard from "../components/TanodCard";
+import { IoAddCircleOutline } from "react-icons/io5";
 
 const Volunteers = () => {
     const [open, setOpen] = useState(false);
@@ -16,9 +17,9 @@ const Volunteers = () => {
                 </h1>
                 <button
                     onClick={toggleForm}
-                    className="px-4 py-2 bg-green-700 text-white rounded hover:bg-green-600 transition"
+                    className="flex px-4 py-2 bg-green-500 text-white rounded hover:bg-green-400 transition hover:cursor-pointer"
                 >
-                    Create Account
+                    <IoAddCircleOutline size={25} /> Account
                 </button>
             </div>
 

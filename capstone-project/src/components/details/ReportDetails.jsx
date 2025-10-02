@@ -51,7 +51,7 @@ const ReportDetails = () => {
                 damping: 20,
                 delay: 0.1,
             }}
-            className={`w-full mx-auto px-6 py-10 space-y-8 ${
+            className={`w-1/2 mx-auto px-6 py-10 space-y-8 ${
                 darkMode ? "bg-slate-900" : "bg-gray-50"
             }`}
         >
