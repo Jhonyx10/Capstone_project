@@ -378,7 +378,7 @@ class AnalyticService
             ->get();
     }
 
-    public function prevYearZonesIncidentTrend()
+    public function prevMonthZonesIncidentTrend()
     {
         $currMonth = Carbon::now()->month;
         $prevMonth = Carbon::now()->subMonth()->month;

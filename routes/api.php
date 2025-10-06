@@ -35,7 +35,6 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 
 Route::middleware('auth:sanctum')->group(function () {
-    //admin only routes, for admins specific job.
     Route::middleware('role:admin')->group(function () {
         Route::post('/add-zone', [GeoLocationController::class, 'addZone']);
         Route::post('/add-category', [IncidentTypesController::class, 'addCategory']);
@@ -65,6 +64,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/violators-violations', [ViolatorController::class, 'violatorsViolationCount']);
         Route::get('/request', [ReportController::class, 'getRequest']);
 
+        Route::get('/location-details/{id}', [GeoLocationController::class, 'locationDetails']);
+
         //analytics reports here.
         Route::get('/total-reports', [AnalyticController::class, 'totalReports']);
         Route::get('/recent-reports', [AnalyticController::class, 'recentReports']);
@@ -86,12 +87,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/add-profile', [UserController::class, 'addProfile']);
     Route::post('/logout', [AuthController::class, 'logout']);
 
-    Route::post('/update-location', function(Request $request) {
-        broadcast(new TanodLocationUpdated(
-            $request->user_id, $request->latitude, $request->longitude
-        ));
-        return response()->json(['status' => 'okay']);
-    });
+    // Route::post('/update-location', function(Request $request) {
+    //     broadcast(new TanodLocationUpdated(
+    //         $request->user_id, $request->latitude, $request->longitude
+    //     ));
+    //     return response()->json(['status' => 'okay']);
+    // });
     
     //resident api request routes
     Route::post('/send-request', [ReportController::class, 'sendRequest']);

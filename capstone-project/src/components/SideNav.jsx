@@ -17,8 +17,9 @@ import TitleSection from "./TittleSection";
 import Option from "./Option";
 
 const SideNav = () => {
-    const { open, setOpen, selected, setSelected } = useAppState();
-    const [mapOpen, setMapOpen] = useState(false);
+    const { open, setOpen, selected, setSelected, mapOpen, setMapOpen } =
+        useAppState();
+    
 
     return (
         <motion.nav
@@ -31,7 +32,7 @@ const SideNav = () => {
             className="sticky top-0 h-screen shrink-0 border-r border-slate-300 
                dark:border-slate-950 dark:bg-slate-900 bg-white p-2 flex flex-col justify-between z-50"
         >
-            <motion.div layout className="mr-1">
+            <div className="mr-1">
                 <TitleSection open={open} />
                 <div className="flex flex-col space-y-1">
                     <Link to="/dashboard">
@@ -55,9 +56,9 @@ const SideNav = () => {
 
                     {/* Dropdown for Map */}
                     <div>
-                        <button
+                        <div
+                            className="mb-1"
                             onClick={() => setMapOpen(!mapOpen)}
-                            className="w-full"
                         >
                             <Option
                                 Icon={FaMapLocationDot}
@@ -66,39 +67,34 @@ const SideNav = () => {
                                 setSelected={setSelected}
                                 open={open}
                             />
-                        </button>
-                        <AnimatePresence>
-                            {mapOpen && (
-                                <motion.div
-                                    initial={{ height: 0, opacity: 0 }}
-                                    animate={{ height: "auto", opacity: 1 }}
-                                    exit={{ height: 0, opacity: 0 }}
-                                    transition={{ duration: 0.2 }}
-                                    className={`flex flex-col space-y-1 overflow-hidden relative ${
-                                        open ? "ml-6" : "ml-0"
-                                    }`} 
-                                >
-                                    <Link to="/map">
-                                        <Option
-                                            Icon={IoLocationSharp}
-                                            title="HeatMap"
-                                            selected={selected}
-                                            setSelected={setSelected}
-                                            open={open}
-                                        />
-                                    </Link>
-                                    <Link to="/incident-request">
-                                        <Option
-                                            Icon={IoAlertSharp}
-                                            title="Incident Request"
-                                            selected={selected}
-                                            setSelected={setSelected}
-                                            open={open}
-                                        />
-                                    </Link>
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
+                        </div>
+
+                        {mapOpen && (
+                            <motion.div
+                                className={`flex flex-col space-y-1 overflow-hidden relative ${
+                                    open ? "ml-6" : "ml-0"
+                                }`}
+                            >
+                                <Link to="/map">
+                                    <Option
+                                        Icon={IoLocationSharp}
+                                        title="HeatMap"
+                                        selected={selected}
+                                        setSelected={setSelected}
+                                        open={open}
+                                    />
+                                </Link>
+                                <Link to="/incident-request">
+                                    <Option
+                                        Icon={IoAlertSharp}
+                                        title="Incident Request"
+                                        selected={selected}
+                                        setSelected={setSelected}
+                                        open={open}
+                                    />
+                                </Link>
+                            </motion.div>
+                        )}
                     </div>
 
                     <Link to="/reports">
@@ -129,7 +125,7 @@ const SideNav = () => {
                         />
                     </Link>
                 </div>
-            </motion.div>
+            </div>
 
             <motion.div layout className="flex flex-col space-y-14 mr-1">
                 <div className="flex flex-col space-y-1 border-t pt-2 border-slate-300 dark:border-slate-950">

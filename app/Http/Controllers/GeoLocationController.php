@@ -65,4 +65,11 @@ class GeoLocationController extends Controller
             'incident_locations' => $locations
         ], 200);
     }
+
+    public function locationDetails($id)
+    {
+        $location = $this->zoneService->locationDetails($id);
+
+        return response()->json(['location' => $location]);
+    }
 }

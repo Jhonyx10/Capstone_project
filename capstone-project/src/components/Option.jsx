@@ -21,28 +21,28 @@ const Option = ({ Icon, title, selected, setSelected, open }) => {
             </div>
 
             {/* Animated label when sidebar is open */}
-            <AnimatePresence>
+            {/* <AnimatePresence> */}
                 {open && (
                     <motion.span
                         key="label"
-                        initial={{ opacity: 0, x: -8 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -8 }}
-                        transition={{ duration: 0.2 }}
+                        // initial={{ opacity: 0, x: -8 }}
+                        // animate={{ opacity: 1, x: 0 }}
+                        // exit={{ opacity: 0, x: -8 }}
+                        // transition={{ duration: 0.2 }}
                         className="text-sm text-slate-700 dark:text-slate-200 whitespace-nowrap"
                     >
                         {title}
                     </motion.span>
                 )}
-            </AnimatePresence>
+            {/* </AnimatePresence> */}
 
             {/* Tooltip when sidebar is closed */}
             {!open && hover && (
                 <motion.div
-                    initial={{ opacity: 0, x: -5 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -5 }}
-                    transition={{ duration: 0.15 }}
+                    // initial={{ opacity: 0, x: -5 }}
+                    // animate={{ opacity: 1, x: 0 }}
+                    // exit={{ opacity: 0, x: -5 }}
+                    // transition={{ duration: 0.15 }}
                     className="absolute left-full top-1/2 -translate-y-1/2 ml-2 px-2 py-1 
                      rounded-md text-sm text-white bg-gray-900 shadow-lg whitespace-nowrap z-9999"
                 >

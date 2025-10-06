@@ -43,7 +43,7 @@ const Analytics = () => {
             >
                 Analytics
             </motion.h1>
-            <div className="flex m-2 flex-wrap justify-center gap-4">
+            <div className="flex m-4 flex-wrap justify-center gap-4">
                 <TotalReportCard data={data} isLoading={isLoading} />
                 <MostReportedCategory data={data} isLoading={isLoading} />
                 <LeastReportedCategory data={data} isLoading={isLoading} />

@@ -14,14 +14,14 @@ class TanodLocationUpdated implements ShouldBroadcast
     use InteractsWithSockets, SerializesModels;
 
     public $requestId;
-    public $userId;
+    public $tanodId;
     public $latitude;
     public $longitude;
 
-    public function __construct($requestId,$userId, $latitude, $longitude)
+    public function __construct($requestId,$tanodId, $latitude, $longitude)
     {
         $this->requestId = $requestId;
-        $this->userId = $userId;
+        $this->$tanodId = $tanodId;
         $this->latitude = $latitude;
         $this->longitude = $longitude;
     }

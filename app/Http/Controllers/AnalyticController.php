@@ -95,7 +95,7 @@ class AnalyticController extends Controller
         //incident trend for the current month from the current and previous year.
         $incident_trend = $this->analyticsService->prevMonthIncidentTrend();
         //incident trend for zone of the current month from the current and previous year.
-        $zones_incident_trends = $this->analyticsService->prevYearZonesIncidentTrend();
+        $zones_incident_trends = $this->analyticsService->prevMonthZonesIncidentTrend();
         //monthly incident reports.
         $monthly_reports = $this->analyticsService->getMonthlyReports();
         //average response time per categories.

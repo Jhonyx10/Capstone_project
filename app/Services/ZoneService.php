@@ -5,6 +5,7 @@ use App\Models\Zone;
 use App\Models\IncidentLocation;
 use App\Models\IncidentReport;
 use App\Http\Requests\IncidentLocationRequest;
+use Illuminate\Support\Facades\DB;
 
 class ZoneService
 {
@@ -57,5 +58,32 @@ class ZoneService
                 return $location;
             });
     }
+
+    public function locationDetails($id)
+    {
+        $locationDetails = IncidentLocation::with('zone')->findOrFail($id);
+        $locationDetails->landmark = asset('storage/' . $locationDetails->landmark);
+
+        $totalReports = IncidentReport::where('location_id', $id)->count();
+
+        $categoryCounts = IncidentReport::where('incident_reports.location_id', $id)
+            ->join('incident_types', 'incident_types.id', '=', 'incident_reports.incident_type_id')
+            ->join('incident_categories', 'incident_categories.id', '=', 'incident_types.category_id')
+            ->select(
+                'incident_categories.id as category_id',
+                'incident_categories.category_name',
+                DB::raw('COUNT(incident_reports.id) as total')
+            )
+            ->groupBy('incident_categories.id', 'incident_categories.category_name')
+            ->get();
+
+        return [
+            'location_id' => $id,
+            'total_reports' => $totalReports,
+            'reports_by_category' => $categoryCounts,
+            'location_details' => $locationDetails,
+        ];
+    }
+
 
 }

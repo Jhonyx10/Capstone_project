@@ -1,23 +1,20 @@
 import { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import useIncidentTypes from "../hooks/useIncidentTypes";
 import useVolunteers from "../hooks/useVolunteers";
 import useAppState from "../store/useAppState";
 
 const Notification = ({ message, onClose, duration = 7000 }) => {
-    const { darkMode } = useAppState(); // ✅ dark mode
+    const { darkMode, categories } = useAppState(); // ✅ dark mode
     const navigate = useNavigate();
 
-    const { data: incidentType = [] } = useIncidentTypes();
-    const incident = incidentType.find(
-        (type) => type.id === message?.incident_type_id
-    );
-
     const { data: volunteers = [] } = useVolunteers();
+
     const reportedBy = volunteers.find(
         (user) => Number(user.id) === Number(message?.report?.user_id)
     );
+    
+    const category = categories.find((cat) => cat.id === message?.category_id);
 
     // Auto close after duration (default 7 seconds)
     useEffect(() => {
@@ -32,17 +29,20 @@ const Notification = ({ message, onClose, duration = 7000 }) => {
     if (!message) return null;
 
     const renderContent = () => {
-        if (message.incident_type_id) {
+        if (message.category_id) {
             return (
                 <>
                     <h2 className="text-lg font-bold mb-2">🚨 Emergency!</h2>
                     <p>
-                        <strong>Incident Type:</strong>{" "}
-                        {incident ? incident.incident_name : "Unknown"}
+                        <strong>Incident Category:</strong>{" "}
+                        {category ? category.category_name : "Unknown"}
                     </p>
                     <div className="text-right mt-4">
                         <button
-                            onClick={onClose}
+                            onClick={() => {
+                                onClose();
+                                navigate("/incident-request");
+                            }}
                             className={`px-4 py-2 rounded text-white transition ${
                                 darkMode
                                     ? "bg-red-500 hover:bg-red-600"

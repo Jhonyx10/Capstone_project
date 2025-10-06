@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 const AddCategoryForm = ({ onClose }) => {
     const queryClient = useQueryClient();
 
-    const { token, base_url } = useAppState();
+    const { token, base_url, darkMode } = useAppState();
     const [categoryName, setCategoryName] = useState("");
 
     const overlayVariants = {
@@ -56,7 +56,9 @@ const AddCategoryForm = ({ onClose }) => {
     return (
         <AnimatePresence>
             <motion.div
-                className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+                className={`fixed inset-0 bg-opacity-50 flex items-center justify-center z-50 ${
+                    darkMode ? "bg-white/40" : "bg-black/40"
+                }`}
                 variants={overlayVariants}
                 initial="hidden"
                 animate="visible"
@@ -98,7 +100,9 @@ const AddCategoryForm = ({ onClose }) => {
                                 type="text"
                                 name="category_name"
                                 value={categoryName}
-                                onChange={(e) => setCategoryName(e.target.value)}
+                                onChange={(e) =>
+                                    setCategoryName(e.target.value)
+                                }
                                 required
                                 className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm p-2 text-gray-800 dark:text-white bg-white dark:bg-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             />

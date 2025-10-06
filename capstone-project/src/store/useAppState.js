@@ -29,6 +29,8 @@ const useAppState = create(
             }, 1000);
 
             return {
+                mapOpen: false,
+                setMapOpen: (mapOpen) => set({ mapOpen }),
                 login: false,
                 setLogin: (login) => set({ login }),
                 token: "",
@@ -97,6 +99,7 @@ const useAppState = create(
                 darkMode: state.darkMode, // ✅ persist dark mode
                 selected: state.selected,
                 map: state.map,
+                mapOpen: state.mapOpen
             }),
             onRehydrateStorage: () => (state) => {
                 // ✅ re-apply dark mode on reload

@@ -19,24 +19,25 @@ class HotlineController extends Controller
     {
         $hotline = $this->hotline->store($request->validated());
 
-        return response()->json($hotline);
+        return response()->json(['hotline' => $hotline]);
     }
 
     public function index()
     {
         $hotlines = $this->hotline->index();
 
-        return response()->json($hotlines);
+        return response()->json(['hotlines' => $hotlines]);
     }
 
     public function update(Request $request, $id)
     {
         $validate = $request->validate([
+            'department_name' => 'string',
             'hotline_number' => 'string'
         ]);
     
         $hotline = $this->hotline->update($validate, $id);
 
-        return response()->json($hotline);
+        return response()->json(['hotline' => $hotline]);
     }
 }

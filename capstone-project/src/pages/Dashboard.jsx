@@ -181,7 +181,7 @@ const Dashboard = () => {
                             {increase}
                         </span>
                         <p className="text-xs leading-tight text-gray-700 dark:text-white">
-                            Incident increase from previous month
+                            Incidents from previous month
                         </p>
                     </motion.div>
                 </motion.div>

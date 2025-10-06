@@ -1,54 +1,59 @@
 import useAppState from "../store/useAppState";
-import { useState } from "react";
-import { createTanodAccount } from "../functions/UsersApi";
+import { useState, useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
+import { updateHotline } from "../functions/HotlineApi";
+import SuccessAlert from "../components/alerts/SuccessAlert";
 
-const CreateTanodAccount = ({ onClose }) => {
+const UpdateHotlineForm = ({ id, onClose }) => {
     const queryClient = useQueryClient();
     const { token, base_url, darkMode } = useAppState();
-    const [accountForm, setAccountForm] = useState({
-        name: "",
-        email: "",
-        password: "",
-        role: "tanod",
+    const [isAlertMessageOpen, setIsAlertMessageOpen] = useState(false);
+
+    const [form, setForm] = useState({
+        department_name: "",
+        hotline_number: "",
     });
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setAccountForm((prevForm) => ({
-            ...prevForm,
-            [name]: value,
-        }));
+        setForm((prev) => ({ ...prev, [name]: value }));
     };
 
-    const accountMutation = useMutation({
-        mutationFn: () => createTanodAccount({ base_url, token, accountForm }),
-        onSuccess: async () => {
-            alert("Account Created!!");
-            queryClient.invalidateQueries(["volunteers"]);
-            setAccountForm({
-                name: "",
-                email: "",
-                password: "",
-                role: "tanod",
-            });
-            onClose();
+    const mutation = useMutation({
+        mutationFn: () => updateHotline({ base_url, token, id, form }),
+        onSuccess: () => {
+            queryClient.invalidateQueries(["hotlines"]);
+            setIsAlertMessageOpen(true); 
+            setTimeout(() => {
+                setIsAlertMessageOpen(false);
+                onClose(); 
+            }, 3000);
         },
         onError: (error) => {
-            alert(error);
-            console.error("BASE_URL:", base_url);
-            console.error("TOKEN:", token);
-            console.error("Account Form:", accountForm);
+            console.error("Error updating hotline:", error);
+            alert("Failed to update hotline. Please try again.");
         },
     });
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        accountMutation.mutate();
+        mutation.mutate(); 
     };
 
-    // Variants for animations
+    useEffect(() => {
+        if (!id) return;
+        const hotlineToEdit = queryClient
+            .getQueryData(["hotlines"])
+            ?.find((h) => h.id === id);
+        if (hotlineToEdit) {
+            setForm({
+                department_name: hotlineToEdit.department_name,
+                hotline_number: hotlineToEdit.hotline_number,
+            });
+        }
+    }, [id, queryClient]);
+
     const overlayVariants = {
         hidden: { opacity: 0 },
         visible: { opacity: 1, transition: { duration: 0.3 } },
@@ -92,14 +97,14 @@ const CreateTanodAccount = ({ onClose }) => {
                     {/* Close Button */}
                     <button
                         onClick={onClose}
-                        className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-2xl"
+                        className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-2xl hover:cursor-pointer"
                     >
                         ×
                     </button>
 
                     {/* Title */}
                     <h2 className="text-2xl font-bold text-center text-gray-800 dark:text-white mb-6">
-                        Create Tanod Account
+                        Update Hotline Number
                     </h2>
 
                     {/* Form */}
@@ -112,62 +117,51 @@ const CreateTanodAccount = ({ onClose }) => {
                     >
                         <div>
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                User Name
+                                Authority Name
                             </label>
                             <input
                                 type="text"
-                                name="name"
-                                value={accountForm.name}
+                                name="department_name"
+                                value={form.department_name}
                                 onChange={handleChange}
                                 required
-                                className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm p-2 text-gray-800 dark:text-white bg-white dark:bg-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                placeholder="e.g., Police Department"
+                                className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm p-2 text-gray-800 dark:text-white bg-white dark:bg-gray-800 focus:ring-2 focus:ring-green-500 focus:border-green-500"
                             />
                         </div>
 
                         <div>
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                Email
+                                Hotline Number
                             </label>
                             <input
-                                type="email"
-                                name="email"
-                                value={accountForm.email}
+                                type="text"
+                                name="hotline_number"
+                                value={form.hotline_number}
                                 onChange={handleChange}
                                 required
-                                className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm p-2 text-gray-800 dark:text-white bg-white dark:bg-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                placeholder="e.g., 911 or (02) 8722-0650"
+                                className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm p-2 text-gray-800 dark:text-white bg-white dark:bg-gray-800 focus:ring-2 focus:ring-green-500 focus:border-green-500"
                             />
                         </div>
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                Password
-                            </label>
-                            <input
-                                type="password"
-                                name="password"
-                                value={accountForm.password}
-                                onChange={handleChange}
-                                required
-                                className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm p-2 text-gray-800 dark:text-white bg-white dark:bg-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            />
-                        </div>
-
+                        {/* Submit Button */}
                         <motion.button
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                             type="submit"
-                            disabled={accountMutation.isLoading}
-                            className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-md shadow transition duration-300 disabled:opacity-50"
+                            className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-md shadow transition duration-300 disabled:opacity-50 hover:cursor-pointer"
                         >
-                            {accountMutation.isLoading
-                                ? "Creating..."
-                                : "Create Account"}
+                            Update
                         </motion.button>
                     </motion.form>
                 </motion.div>
             </motion.div>
+
+            {/* Alert only when success */}
+            {isAlertMessageOpen && <SuccessAlert />}
         </AnimatePresence>
     );
 };
 
-export default CreateTanodAccount;
+export default UpdateHotlineForm;

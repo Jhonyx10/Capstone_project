@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { zoneAverageResponseTimeById } from "../../functions/Analytics";
 import useAppState from "../../store/useAppState";
 
-const ZoneDetails = ({ zone, onClose }) => {
+const ZoneDetails = ({ zone, onClose}) => {
     const { data } = useZoneIncidentDetails();
     const { token, base_url} = useAppState();
 
@@ -17,6 +17,7 @@ const ZoneDetails = ({ zone, onClose }) => {
             zoneAverageResponseTimeById({ base_url, token, zoneId: zone.id }),
         enabled: !!zone?.id,
     });
+
 
     return (
         <motion.div

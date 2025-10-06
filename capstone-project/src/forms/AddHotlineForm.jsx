@@ -1,47 +1,50 @@
 import useAppState from "../store/useAppState";
 import { useState } from "react";
-import { addIncidentType } from "../functions/CategoryApi";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
+import { postHotline } from "../functions/HotlineApi";
+import SuccessAlert from "../components/alerts/SuccessAlert";
 
-const AddIncidentTypeForm = ({ onClose }) => {
+const AddHotlineForm = ({ onClose }) => {
     const queryClient = useQueryClient();
+    const { token, base_url, darkMode } = useAppState();
+    const [isAlertMessageOpen, setIsAlertMessageOpen] = useState(false);
 
-    const { token, base_url, categories, darkMode } = useAppState();
     const [form, setForm] = useState({
-        category_id: "",
-        incident_name: ""
+        department_name: "",
+        hotline_number: "",
     });
 
-    console.log(categories)
-    const overlayVariants = {
-        hidden: { opacity: 0 },
-        visible: { opacity: 1, transition: { duration: 0.3 } },
-        exit: { opacity: 0, transition: { duration: 0.2 } },
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setForm((prev) => ({ ...prev, [name]: value }));
     };
 
     const mutation = useMutation({
-        mutationFn: () => addIncidentType({ base_url, token, form }),
+        mutationFn: () => postHotline({ base_url, token, form }),
         onSuccess: () => {
-            alert("suck-cess!!");
-            setForm({
-                category_id: null,
-                incident_name: ""
-            });
-            queryClient.invalidateQueries(["categories"]);
-            onClose();
+             queryClient.invalidateQueries(["hotlines"]);
+             setIsAlertMessageOpen(true);
+             setTimeout(() => {
+                 setIsAlertMessageOpen(false);
+                 onClose();
+             }, 3000);
         },
-        onError: () => {
-            console.error(
-                "Mutation error:",
-                error.response?.data || error.message
-            );
+        onError: (error) => {
+            console.error("Error adding hotline:", error);
+            alert("Failed to add hotline. Please try again.");
         },
     });
 
     const handleSubmit = (e) => {
         e.preventDefault();
         mutation.mutate();
+    };
+
+    const overlayVariants = {
+        hidden: { opacity: 0 },
+        visible: { opacity: 1, transition: { duration: 0.3 } },
+        exit: { opacity: 0, transition: { duration: 0.2 } },
     };
 
     const modalVariants = {
@@ -88,7 +91,7 @@ const AddIncidentTypeForm = ({ onClose }) => {
 
                     {/* Title */}
                     <h2 className="text-2xl font-bold text-center text-gray-800 dark:text-white mb-6">
-                        Add Incident Type
+                        Add Hotline Number
                     </h2>
 
                     {/* Form */}
@@ -100,51 +103,36 @@ const AddIncidentTypeForm = ({ onClose }) => {
                         transition={{ delay: 0.2, duration: 0.4 }}
                     >
                         <div>
-                            <label className="block text-md font-medium text-gray-700 dark:text-gray-300">
-                                Incident Category
-                            </label>
-                            <select
-                                name="category_id"
-                                value={form.category_id || ""}
-                                onChange={(e) =>
-                                    setForm((prev) => ({
-                                        ...prev,
-                                        category_id: Number(e.target.value),
-                                    }))
-                                }
-                                className="border p-2 rounded text-white  w-full mt-2"
-                            >
-                                <option value="" className="bg-slate-800">
-                                    --Select Category--
-                                </option>
-                                {categories?.map((cat) => (
-                                    <option
-                                        key={cat.id}
-                                        value={cat.id}
-                                        className="bg-slate-800"
-                                    >
-                                        {cat.category_name}
-                                    </option>
-                                ))}
-                            </select>
-                            <label className="block text-md font-medium mt-4 text-gray-700 dark:text-gray-300">
-                                Incident Name
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Authority Name
                             </label>
                             <input
                                 type="text"
-                                name="incident_name"
-                                value={form.incident_name}
-                                onChange={(e) =>
-                                    setForm((prev) => ({
-                                        ...prev,
-                                        incident_name: e.target.value,
-                                    }))
-                                }
+                                name="department_name"
+                                value={form.department_name}
+                                onChange={handleChange}
                                 required
-                                className="block mt-2 w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm p-2 text-gray-800 dark:text-white bg-white dark:bg-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                placeholder="e.g., Police Department"
+                                className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm p-2 text-gray-800 dark:text-white bg-white dark:bg-gray-800 focus:ring-2 focus:ring-green-500 focus:border-green-500"
                             />
                         </div>
 
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Hotline Number
+                            </label>
+                            <input
+                                type="text"
+                                name="hotline_number"
+                                value={form.hotline_number}
+                                onChange={handleChange}
+                                required
+                                placeholder="e.g., 911 or (02) 8722-0650"
+                                className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm p-2 text-gray-800 dark:text-white bg-white dark:bg-gray-800 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                            />
+                        </div>
+
+                        {/* Submit Button */}
                         <motion.button
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
@@ -153,14 +141,15 @@ const AddIncidentTypeForm = ({ onClose }) => {
                             className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-md shadow transition duration-300 disabled:opacity-50 hover:cursor-pointer"
                         >
                             {mutation.isLoading
-                                ? "Adding Incident Type..."
-                                : "Add Incident Type"}
+                                ? "Adding Hotline..."
+                                : "Add Hotline"}
                         </motion.button>
                     </motion.form>
                 </motion.div>
             </motion.div>
+            {isAlertMessageOpen && <SuccessAlert />}
         </AnimatePresence>
     );
 };
 
-export default AddIncidentTypeForm;
+export default AddHotlineForm;

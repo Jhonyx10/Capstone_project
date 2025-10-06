@@ -16,6 +16,7 @@
     "d3-ease": "^3.0.1",
     "laravel-echo": "^2.2.0",
     "lottie-react": "^2.4.1",
+    "lucide-react": "^0.544.0",
     "mapbox-gl": "^3.14.0",
     "motion": "^12.23.12",
     "pusher-js": "^8.4.0",

@@ -165,7 +165,10 @@ class IncidentReportService
 
     public function getRequestResponse()
     {
-        return IncidentRequestResponse::where('status', 0)->get();
+        return IncidentRequestResponse::join('incident_categories', 'incident_request_responses.category_id', '=', 'incident_categories.id')
+            ->where('incident_request_responses.status', 0)
+            ->select('incident_request_responses.*', 'incident_categories.category_name')
+            ->get();
     }
 
     public function getViolators()

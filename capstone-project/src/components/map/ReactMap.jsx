@@ -8,6 +8,7 @@ import ZoneList from "./ZoneList";
 import { motion, AnimatePresence } from "framer-motion";
 import { IoLocationSharp } from "react-icons/io5";
 import ZoneDetails from "./ZoneDetails";
+import LocationDetails from "../details/LocationDetails";
 
 const ReactMap = () => {
     const { map_token, darkMode, map_styles, open } = useAppState();
@@ -17,9 +18,9 @@ const ReactMap = () => {
         longitude: 124.5851259,
         zoom: 14,
     });
+    const [selectedLocation, setSelectedLocation] = useState(null);
 
     const [hoveredZoneId, setHoveredZoneId] = useState(null);
-    const [hoveredLocation, setHoveredLocation] = useState(null);
 
     const { data: zones = [], isLoading, isError } = useZones();
     const { data: locations = [] } = useLocations();
@@ -40,6 +41,18 @@ const ReactMap = () => {
     if (isLoading) return <div>Loading map zones...</div>;
     if (isError) return <div>Failed to load zones.</div>;
 
+    useEffect(() => {
+        if (selectedLocation) {
+            setSelectedZone(null);
+        }
+    }, [selectedLocation]);
+
+    useEffect(() => {
+        if (selectedZone) {
+            setSelectedLocation(null);
+        }
+    }, [selectedZone]);
+
     return (
         <motion.div
             layout
@@ -48,6 +61,8 @@ const ReactMap = () => {
             transition={{ duration: 0.4 }}
             className="w-full h-full flex"
         >
+
+        {/* zone details */}
             <AnimatePresence>
                 {selectedZone && (
                     <motion.div
@@ -66,6 +81,27 @@ const ReactMap = () => {
                     </motion.div>
                 )}
             </AnimatePresence>
+
+            {/* location details */}
+            <AnimatePresence>
+                {selectedLocation && (
+                    <motion.div
+                        initial={{ x: 100, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        exit={{ x: 100, opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className={`absolute z-50 dark:border-slate-700 ${
+                            open ? "top-15 left-60" : "top-15 left-20"
+                        }`}
+                    >
+                    <LocationDetails 
+                        locationId={selectedLocation}
+                        onClose={() => setSelectedLocation(null)}/>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* mapbox incident heatmap */}
             <div className="flex-1 relative">
                 <Map
                     {...viewPort}
@@ -80,26 +116,15 @@ const ReactMap = () => {
                             key={loc.id}
                             longitude={loc.longitude}
                             latitude={loc.latitude}
+                            onClick={() => setSelectedLocation(loc.id)}
                         >
                             <div
-                                onMouseEnter={() => setHoveredLocation(loc.id)}
-                                onMouseLeave={() => setHoveredLocation(null)}
                                 style={{
                                     position: "relative",
                                     cursor: "pointer",
                                 }}
                             >
                                 <IoLocationSharp size={34} color="red" />
-                                {hoveredLocation === loc.id && (
-                                    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-white p-1 rounded shadow text-xs">
-                                        <h5>{loc.location_name}</h5>
-                                        <img
-                                            src={loc.landmark}
-                                            alt={loc.location_name}
-                                            className="w-[300px] h-[100px] object-cover rounded-md shadow"
-                                        />
-                                    </div>
-                                )}
                             </div>
                         </Marker>
                     ))}
@@ -149,6 +174,8 @@ const ReactMap = () => {
                     ))}
                 </Map>
             </div>
+            
+            {/* zone list */}
             <div className="w-[280px] bg-slate-100 dark:bg-slate-900 p-3 overflow-y-auto hide-scrollbar">
                 <ZoneList setSelectedZone={setSelectedZone} />
             </div>

@@ -375,7 +375,9 @@ const ReportTable = () => {
                         </div>
                     ) : (
                         <tbody
-                            className={darkMode ? "bg-slate-900" : "bg-white"}
+                            className={`hide-scrollbar ${
+                                darkMode ? "bg-slate-900" : "bg-white"
+                            }`}
                         >
                             {currentReports.map((report, index) => (
                                 <motion.tr

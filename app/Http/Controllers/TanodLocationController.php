@@ -11,6 +11,9 @@ class TanodLocationController extends Controller
 {
         public function update(Request $request)
     {
+        \Log::info('📍 Mobile request received', $request->all());
+        \Log::info('📱 MOBILE DATA:', $request->all());
+
         $request->validate([
             'request_id' => 'required|integer',
             'tanod_id'   => 'required|integer',
@@ -19,13 +22,12 @@ class TanodLocationController extends Controller
         ]);
 
         TanodLocation::updateOrCreate(
+            ['request_id' => $request->request_id],
             [
-                'tanod_id' => $request->tanod_id],
-            [
-                'latitude' => $request->latitude,
+                'tanod_id'  => $request->tanod_id,
+                'latitude'  => $request->latitude,
                 'longitude' => $request->longitude,
-                'request_id' => $request->request_id,
-             ]
+            ]
         );
 
         event(new TanodLocationUpdated(
