@@ -4,31 +4,42 @@ import { Outlet } from "react-router-dom";
 import { motion } from "framer-motion";
 import useAppState from "../store/useAppState";
 import DropDown from "../components/Dropdown";
+import DropNotifications from "../components/Dropnotifications";
 import { useEffect, useRef } from "react";
 
 const Layout = () => {
-    const { dropdownOpen, setDropdownOpen } = useAppState();
+    const {
+        dropdownOpen,
+        setDropdownOpen,
+        setDropNotificationsOpen,
+        dropNotificationsOpen,
+    } = useAppState();
     const dropdownRef = useRef(null);
+    const dropNotificationsRef = useRef(null);
 
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (
-                dropdownRef &&
-                dropdownRef.current &&
-                !dropdownRef.current.contains(event.target)
+                (dropdownRef &&
+                    dropdownRef.current &&
+                    !dropdownRef.current.contains(event.target)) ||
+                (dropNotificationsRef &&
+                    dropNotificationsRef.current &&
+                    !dropNotificationsRef.current.contains(event.target))
             ) {
                 setDropdownOpen(false);
+                setDropNotificationsOpen(false);
             }
         };
 
-        if (dropdownOpen) {
+        if (dropdownOpen || dropNotificationsOpen) {
             document.addEventListener("click", handleClickOutside);
         }
 
         return () => {
             document.removeEventListener("click", handleClickOutside);
         };
-    }, [dropdownOpen, dropdownRef, setDropdownOpen]);
+    }, [dropdownOpen, dropdownRef, setDropdownOpen, dropNotificationsOpen, dropNotificationsRef, setDropNotificationsOpen]);
 
     return (
         <motion.div
@@ -43,6 +54,10 @@ const Layout = () => {
             >
                 <motion.div className="position">
                     <TopNav />
+                    <DropNotifications
+                        dropdownOpen={dropNotificationsOpen}
+                        dropdownRef={dropNotificationsRef}
+                    />
                     <DropDown
                         dropdownOpen={dropdownOpen}
                         dropdownRef={dropdownRef}

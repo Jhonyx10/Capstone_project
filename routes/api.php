@@ -13,6 +13,7 @@ use App\Http\Controllers\UserDeviceController;
 use App\Http\Controllers\FCMController;
 use App\Http\Controllers\TanodLocationController;
 use App\Http\Controllers\HotlineController;
+use App\Http\Controllers\NotificationController;
 use App\Events\TanodLocationUpdated;
 
 
@@ -50,6 +51,8 @@ Route::middleware('auth:sanctum')->group(function () {
     //admin and tanods shared routes for multi role access.
     Route::middleware('role:admin,tanod')->group(function () {
         Route::apiResource('users', UserController::class);
+        Route::get('/notifications', [NotificationController::class, 'index']);
+        Route::put('/update-notification/{id}',[NotificationController::class, 'update']);
         Route::get('/get-zones', [GeoLocationController::class, 'getZones']);
         Route::get('/get-locations', [GeoLocationController::class, 'getLocations']);
         Route::get('/get-incident-locations', [GeoLocationController::class, 'getIncidentLocations']);

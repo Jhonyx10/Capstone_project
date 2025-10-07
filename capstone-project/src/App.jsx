@@ -37,6 +37,7 @@ function EchoListeners({ setMessage, setShowModal }) {
                 qc.invalidateQueries({ queryKey: ["reports"] });
                 qc.invalidateQueries({ queryKey: ["request"]});
                 qc.invalidateQueries({ queryKey: ["analytics"] });
+                qc.invalidateQueries({ queryKey: ["notifications"] });
             });
         });
 

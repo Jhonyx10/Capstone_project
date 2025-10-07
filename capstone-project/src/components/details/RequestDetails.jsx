@@ -63,7 +63,7 @@ const RequestDetails = ({ requestId, onClose, tanodLocations }) => {
                             darkMode ? "text-white" : "text-gray-800"
                         }`}
                     >
-                        Incident Request
+                        Incident Request {requestDetails.id}
                     </h2>
 
                     <div className="space-y-3">

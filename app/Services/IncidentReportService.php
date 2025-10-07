@@ -124,17 +124,15 @@ class IncidentReportService
         ]);
     }
 
-    public function attachViolatorsRecord(ViolatorsRecordRequest $request, int $reportId): array
+    public function attachViolatorsRecord(array $violatorIds, int $reportId): array
     {
         $records = [];
 
-        if (!empty($request->violator_id)) {
-            foreach ($request->violator_id as $violatorId) {
-                $records[] = ViolatorsRecord::create([
-                    'report_id' => $reportId,
-                    'violator_id' => $violatorId,
-                ]);
-            }
+        foreach ($violatorIds as $violatorId) {
+            $records[] = ViolatorsRecord::create([
+                'report_id' => $reportId,
+                'violator_id' => $violatorId,
+            ]);
         }
 
         return $records;

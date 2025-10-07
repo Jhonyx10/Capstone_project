@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import useAppState from "../../store/useAppState";
-import Map, { Marker } from "react-map-gl";
+import Map, { Marker, Source, Layer } from "react-map-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import useZones from "../../hooks/useZones";
 import useLocations from "../../hooks/useLocations";
@@ -9,9 +9,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import { IoLocationSharp } from "react-icons/io5";
 import ZoneDetails from "./ZoneDetails";
 import LocationDetails from "../details/LocationDetails";
+import IgpitGeoFence from "../../assets/geomap/igpityoungsville.json"
 
 const ReactMap = () => {
     const { map_token, darkMode, map_styles, open } = useAppState();
+    const [mapLoaded, setMapLoaded] = useState(false);
     const [selectedZone, setSelectedZone] = useState(null);
     const [viewPort, setViewPort] = useState({
         latitude: 8.5107242,
@@ -38,9 +40,6 @@ const ReactMap = () => {
         }
     }, [selectedZone]);
 
-    if (isLoading) return <div>Loading map zones...</div>;
-    if (isError) return <div>Failed to load zones.</div>;
-
     useEffect(() => {
         if (selectedLocation) {
             setSelectedZone(null);
@@ -61,8 +60,9 @@ const ReactMap = () => {
             transition={{ duration: 0.4 }}
             className="w-full h-full flex"
         >
-
-        {/* zone details */}
+            {isLoading && <div>Loading map zones...</div>}
+            {isError && <div>Failed to load zones.</div>}
+            {/* zone details */}
             <AnimatePresence>
                 {selectedZone && (
                     <motion.div
@@ -94,9 +94,10 @@ const ReactMap = () => {
                             open ? "top-15 left-60" : "top-15 left-20"
                         }`}
                     >
-                    <LocationDetails 
-                        locationId={selectedLocation}
-                        onClose={() => setSelectedLocation(null)}/>
+                        <LocationDetails
+                            locationId={selectedLocation}
+                            onClose={() => setSelectedLocation(null)}
+                        />
                     </motion.div>
                 )}
             </AnimatePresence>
@@ -109,7 +110,43 @@ const ReactMap = () => {
                     mapboxAccessToken={map_token}
                     mapStyle={darkMode ? map_styles.dark : map_styles.light}
                     style={{ width: "100%", height: "100%" }}
+                    onLoad={(e) => {
+                        const mapInstance = e.target;
+
+                        // Wait until the map style and layers are fully ready
+                        const handleStyleLoad = () => {
+                            console.log("✅ Map style fully loaded!");
+                            setMapLoaded(true);
+                            mapInstance.off("idle", handleStyleLoad); // cleanup listener
+                        };
+
+                        // 'idle' event ensures the style, tiles, and sources are all ready
+                        mapInstance.on("idle", handleStyleLoad);
+                    }}
                 >
+                    {mapLoaded && (
+                        <Source id="igpit" type="geojson" data={IgpitGeoFence}>
+                            <Layer
+                                id="igpit-fill"
+                                source="igpit"
+                                type="fill"
+                                paint={{
+                                    "fill-color": "#f97316",
+                                    "fill-opacity": 0.25,
+                                }}
+                            />
+                            <Layer
+                                id="igpit-outline"
+                                source="igpit"
+                                type="line"
+                                paint={{
+                                    "line-color": "#f97316",
+                                    "line-width": 2,
+                                }}
+                            />
+                        </Source>
+                    )}
+
                     {/* Locations */}
                     {locations.map((loc) => (
                         <Marker
@@ -174,7 +211,7 @@ const ReactMap = () => {
                     ))}
                 </Map>
             </div>
-            
+
             {/* zone list */}
             <div className="w-[280px] bg-slate-100 dark:bg-slate-900 p-3 overflow-y-auto hide-scrollbar">
                 <ZoneList setSelectedZone={setSelectedZone} />

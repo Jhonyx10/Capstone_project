@@ -138,15 +138,6 @@ const SideNav = () => {
                             open={open}
                         />
                     </Link>
-                    <Link to="/hotline">
-                        <Option
-                            Icon={IoBook}
-                            title="Help"
-                            selected={selected}
-                            setSelected={setSelected}
-                            open={open}
-                        />
-                    </Link>
                 </div>
 
                 {/* ToggleClose stays at the very bottom */}

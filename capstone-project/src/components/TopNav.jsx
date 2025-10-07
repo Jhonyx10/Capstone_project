@@ -2,19 +2,18 @@ import { FaMoon } from "react-icons/fa";
 import { CiLight } from "react-icons/ci";
 import Avatar from "../assets/img/Avatar.jpg";
 import { IoIosArrowDown } from "react-icons/io";
-import { FaSearch } from "react-icons/fa";
 import { GoBellFill } from "react-icons/go";
 
 import { motion } from "framer-motion";
-import Bell from "../assets/animation/Bell.json";
-import Search from "../assets/animation/Search.json";
 import useAppState from "../store/useAppState";
 import useWeather from "../hooks/useWeather";
-import Lottie from "lottie-react";
-import React, { useRef } from "react";
+import React, { useRef, useEffect } from "react";
+
+import { useQuery } from "@tanstack/react-query";
+import { notifications } from "../functions/Notification";
 
 const TopNav = () => {
-    const { user } = useAppState();
+    const { user, token, base_url } = useAppState();
     const {
         currentDateTime,
         weather,
@@ -22,14 +21,22 @@ const TopNav = () => {
         toggleDarkMode,
         dropdownOpen,
         setDropdownOpen,
+        dropNotificationsOpen,
+        setDropNotificationsOpen,
         open,
     } = useAppState();
-    const searchRef = useRef(null);
     const dropdownRef = useRef(null);
+    const dropNotificationsRef = useRef(null);
 
+    
     // trigger weather fetch (updates Zustand internally)
     useWeather();
 
+    const { data } = useQuery({
+        queryKey: ["notifications"],
+        queryFn: () => notifications({ base_url, token }),
+    });
+    
     return (
         <motion.nav
             layout
@@ -64,36 +71,6 @@ const TopNav = () => {
                     </motion.p>
                 </motion.div>
 
-                {/* search bar */}
-                {/* <motion.div layout className="relative">
-                    <div>
-                        <FaSearch
-                            className="absolute top-1.5 left-1"
-                            size={20}
-                            color="#22c55e"
-                        />
-                        <Lottie
-                            className="absolute size-8"
-                            animationData={Search}
-                            loop={false}
-                            autoPlay={true}
-                            lottieRef={searchRef}
-                        />
-                    </div>
-                    search bar
-                    <input
-                        type="text"
-                        placeholder="Search"
-                        className={`transition-all duration-300 text-sm text-gray-700 
-        dark:text-gray-300 dark:bg-gray-500 bg-gray-200 
-        dark:border-gray-600 border-2 border-gray-200 
-        rounded-md border-opacity-5 placeholder-gray-500 
-        dark:placeholder-gray-100 placeholder-opacity-50 pl-6 p-1 sm:w-xs
-        
-       `}
-                    />
-                </motion.div>
- */}
                 {/* profile + notifications */}
                 <div>
                     <motion.div
@@ -118,8 +95,24 @@ const TopNav = () => {
                                 <CiLight color="black" />
                             )}
                         </motion.div>
-                        <motion.div style={{ width: 32 }}>
-                            <GoBellFill color="#22c55e" size={20} />
+                        <motion.div
+                            className="hover:cursor-pointer"
+                            style={{ width: 32, position: "relative" }}
+                            ref={dropNotificationsRef}
+                            onClick={(e) => {
+                                e.stopPropagation(); // Prevent click from reaching document
+                                setDropNotificationsOpen(
+                                    !dropNotificationsOpen
+                                );
+                            }}
+                        >
+                            <GoBellFill color="#22c55e" size={24} />
+                            {data?.length > 0 && (
+                                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                                    {data?.length}
+                                </span>
+                            )}
+                            <motion.div layout className="lg:pl-2"></motion.div>
                         </motion.div>
                         <div className="w-px h-6 bg-gray-300 dark:bg-white mr-2"></div>
                         <motion.div layout>

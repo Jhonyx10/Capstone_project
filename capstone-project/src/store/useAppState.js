@@ -60,6 +60,9 @@ const useAppState = create(
                 currentDateTime: formatDateTime(),
                 dropdownOpen: false,
                 setDropdownOpen: (dropdownOpen) => set({ dropdownOpen }),
+                dropNotificationsOpen: false,
+                setDropNotificationsOpen: (dropNotificationsOpen) =>
+                    set({ dropNotificationsOpen }),
                 map_styles: {
                     light: "mapbox://styles/mapbox/streets-v12",
                     dark: "mapbox://styles/joy143/cmeuj7k3i00jl01rk90g792d5",

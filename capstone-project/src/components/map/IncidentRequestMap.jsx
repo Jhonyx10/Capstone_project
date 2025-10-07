@@ -8,7 +8,10 @@ import { useQuery } from "@tanstack/react-query";
 import { incidentRequest } from "../../functions/LocationApi";
 import { IoLocationSharp } from "react-icons/io5";
 import RequestDetails from "../details/RequestDetails";
+import IgpitGeoFence from "../../assets/geomap/igpityoungsville.json";
 import echo from "../../echo";
+import * as turf from "@turf/turf"; 
+import WarningAlert from "../alerts/WarningAlert";
 
 const IncidentRequestMap = () => {
     const [mapLoaded, setMapLoaded] = useState(false);
@@ -18,11 +21,10 @@ const IncidentRequestMap = () => {
         map_styles,
         token,
         base_url,
-        route,
-        setRoute,
     } = useAppState();
-
+    const [isWarningOpen, setIsWarningOpen] = useState(false);
     const [requestId, setRequestId] = useState(null);
+    const [routes, setRoutes] = useState(null);
     const [viewPort, setViewPort] = useState({
         latitude: 8.5107242,
         longitude: 124.5851259,
@@ -36,6 +38,35 @@ const IncidentRequestMap = () => {
         queryKey: ["request"],
         queryFn: () => incidentRequest({ base_url, token }),
     });
+
+    const isInsideGeofence = (longitude, latitude) => {
+        if (!IgpitGeoFence?.features?.length) return false;
+        const polygon = IgpitGeoFence.features[0].geometry;
+        const point = turf.point([longitude, latitude]);
+        const poly = turf.polygon(polygon.coordinates);
+        return turf.booleanPointInPolygon(point, poly);
+    };
+
+    useEffect(() => {
+        if (!requests?.length) return;
+
+        requests.forEach((r) => {
+            if (!isInsideGeofence(r.longitude, r.latitude)) {
+                console.warn(`⚠️ Request ID ${r.id} is outside the geofence!`);
+                // You can replace console.warn with a toast, alert, or API call
+                // alert(`Request ID ${r.id} is outside the geofence!`);
+            }
+        });
+    }, [requests]);
+
+    useEffect(() => {
+        Object.entries(tanodLocations).forEach(([id, loc]) => {
+            if (!loc?.lng || !loc?.lat) return;
+            if (!isInsideGeofence(loc.lng, loc.lat)) {
+                setIsWarningOpen(true)
+            }
+        });
+    }, [tanodLocations]);
 
     // 🔹 Echo listener for tanod location updates
     useEffect(() => {
@@ -79,57 +110,51 @@ const IncidentRequestMap = () => {
     }, []);
 
     // 🔹 Fetch routes only when data + map loaded
-    useEffect(() => {
-        const fetchRoutes = async () => {
-            if (
-                !Object.keys(tanodLocations).length ||
-                !requests.length ||
-                !mapLoaded
-            )
-                return;
+useEffect(() => {
+    const fetchRoutes = async () => {
+        if (!tanodLocations.length || !requests.length || !mapLoaded) return;
 
-            try {
-                const routePromises = Object.entries(tanodLocations).map(
-                    async ([tanodId, loc]) => {
-                        const req = requests.find(
-                            (r) => String(r.id) === String(loc.requestId)
-                        );
-                        if (!req) return null;
+        try {
+            const routePromises = Object.entries(tanodLocations).map(
+                async ([tanodId, loc]) => {
+                    const req = requests.find(
+                        (r) => String(r.id) === String(loc.requestId)
+                    );
+                    if (!req) return null;
 
-                        const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${loc.lng},${loc.lat};${req.longitude},${req.latitude}?geometries=geojson&access_token=${map_token}`;
-                        const res = await fetch(url);
-                        const data = await res.json();
+                    const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${loc.lng},${loc.lat};${req.longitude},${req.latitude}?geometries=geojson&access_token=${map_token}`;
+                    const res = await fetch(url);
+                    const data = await res.json();
 
-                        if (data.routes?.length) {
-                            return {
-                                type: "Feature",
-                                geometry: data.routes[0].geometry,
-                                properties: {
-                                    tanodId: String(tanodId),
-                                    requestId: String(loc.requestId),
-                                },
-                            };
-                        }
-                        return null;
+                    if (data.routes?.length) {
+                        return {
+                            type: "Feature",
+                            geometry: data.routes[0].geometry,
+                            properties: {
+                                tanodId: String(tanodId),
+                                requestId: String(loc.requestId),
+                            },
+                        };
                     }
-                );
+                    return null;
+                }
+            );
 
-                const features = (await Promise.all(routePromises)).filter(
-                    Boolean
-                );
-                console.log("✅ Fetched features:", features);
+            const features = (await Promise.all(routePromises)).filter(Boolean);
+            console.log("✅ Fetched features:", features);
 
-                setRoute({
-                    type: "FeatureCollection",
-                    features,
-                });
-            } catch (err) {
-                console.error("❌ Failed to fetch routes:", err);
-            }
-        };
+            setRoutes({
+                type: "FeatureCollection",
+                features,
+            });
+        } catch (err) {
+            console.error("❌ Failed to fetch routes:", err);
+        }
+    };
 
-        fetchRoutes();
-    }, [tanodLocations, requests, map_token, mapLoaded]);
+    fetchRoutes();
+}, [tanodLocations, requests, map_token, mapLoaded]);
+
 
     if (isLoading) return <div>Loading map zones...</div>;
     if (isError) return <div>Failed to load zones.</div>;
@@ -162,6 +187,22 @@ const IncidentRequestMap = () => {
                 )}
             </AnimatePresence>
 
+            <AnimatePresence>
+                {isWarningOpen && (
+                    <motion.div
+                        initial={{ x: 100, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        exit={{ x: 100, opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className={`absolute z-50 dark:border-slate-700 ${
+                            open ? "top-15 left-60" : "top-15 left-20"
+                        }`}
+                    >
+                        <WarningAlert onClose={() => setIsWarningOpen(false)} />
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
             <div className="flex-1 relative">
                 <Map
                     {...viewPort}
@@ -169,14 +210,46 @@ const IncidentRequestMap = () => {
                     mapboxAccessToken={map_token}
                     mapStyle={darkMode ? map_styles.dark : map_styles.light}
                     style={{ width: "100%", height: "100%" }}
-                    onLoad={() => {
-                        console.log("🗺️ Map fully loaded!");
-                        setMapLoaded(true);
+                    onLoad={(e) => {
+                        const mapInstance = e.target;
+
+                        // Wait until the map style and layers are fully ready
+                        const handleStyleLoad = () => {
+                            console.log("✅ Map style fully loaded!");
+                            setMapLoaded(true);
+                            mapInstance.off("idle", handleStyleLoad); // cleanup listener
+                        };
+
+                        // 'idle' event ensures the style, tiles, and sources are all ready
+                        mapInstance.on("idle", handleStyleLoad);
                     }}
                 >
+                    {mapLoaded && (
+                        <Source id="igpit" type="geojson" data={IgpitGeoFence}>
+                            <Layer
+                                id="igpit-fill"
+                                source="igpit"
+                                type="fill"
+                                paint={{
+                                    "fill-color": "#f97316",
+                                    "fill-opacity": 0.25,
+                                }}
+                            />
+                            <Layer
+                                id="igpit-outline"
+                                source="igpit"
+                                type="line"
+                                paint={{
+                                    "line-color": "#f97316",
+                                    "line-width": 2,
+                                }}
+                            />
+                        </Source>
+                    )}
+
                     {/* ✅ Only render routes when map is fully loaded */}
-                    {mapLoaded && route && route.features?.length > 0 && (
-                        <Source id="routes" type="geojson" data={route}>
+                    {mapLoaded && routes?.features?.length > 0 && (
+                        <Source id="routes" type="geojson" data={routes}>
                             <Layer
                                 id="routes-line"
                                 type="line"

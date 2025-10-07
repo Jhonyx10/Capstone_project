@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use BeyondCode\LaravelWebSockets\Dashboard\Http\Controllers\WebSocketsController;
 use Illuminate\Support\Facades\Broadcast;
+use App\Services\FirebaseService;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -17,6 +18,10 @@ Broadcast::routes(['middleware' => ['web', 'auth']]);
 
 Route::get('/', function () {
     return view('welcome');
+});
+
+Route::get('/test-fcm', function (FirebaseService $firebase) {
+    return $firebase->sendFCMNotification('Test Alert', 'This is a test push!');
 });
 
 Route::get('/send', function () {

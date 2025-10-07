@@ -10,6 +10,7 @@ use App\Http\Requests\ViolatorsProfileRequest;
 use App\Http\Requests\ViolatorsRecordRequest;
 use App\Http\Requests\ResponseRequest;
 use App\Http\Requests\ResponseRecordRequest;
+use App\Http\Requests\NotificationRequest;
 use App\Services\IncidentReportService;
 use App\Services\FirebaseService;
 use App\Events\RequestResponseEvent;
@@ -26,6 +27,7 @@ class ReportController extends Controller
     //
     protected $incidentReport;
     protected $firebase;
+    protected $notificationService;
 
     public function __construct(IncidentReportService $incidentReport, FirebaseService $firebase, NotificationService $notificationService)
     {
@@ -52,7 +54,7 @@ public function fileReport(
         $violatorsRecord = [];
         $recordData = $recordRequest->validated();
         if (!empty($recordData)) {
-            $violatorsRecord = $this->incidentReport->attachViolatorsRecord($recordData, $report->id);
+            $violatorsRecord = $this->incidentReport->attachViolatorsRecord($recordData['violator_id'] ?? [], $report->id);
         }
 
         $response = $responseRequest->validated();
@@ -62,6 +64,8 @@ public function fileReport(
                 $this->incidentReport->statusUpdate((int) $response['request_id']);
             }
         }
+
+        $notification = $this->notificationService->saveReportNotification($report->id);
 
         DB::commit();
 
@@ -102,6 +106,8 @@ public function fileReport(
     {
         $violator = $this->incidentReport->createViolatorsProfile($request);
 
+        $notification = $this->notificationService->saveViolatorsNotification($violator->id);
+
         broadcast(new CreateViolatorEvent($violator));
         
         return response()->json([
@@ -130,10 +136,18 @@ public function fileReport(
     {
             $response = $this->incidentReport->createResponseRequest($responseRequest->validated());
 
+            $notification = $this->notificationService->saveRequestNotification($response->id);
+
+            $firebase = $this->firebase->sendFCMNotification(
+                                    title: 'Incident Request Created',
+                                    body: "A new response was created for request #{$response->id}"
+                                );
+
             broadcast(new RequestResponseEvent($response));
             
             return response()->json([
-                'response' => $response
+                'response' => $response,
+                'firebase' => $firebase,
             ], 201);
     }
 
