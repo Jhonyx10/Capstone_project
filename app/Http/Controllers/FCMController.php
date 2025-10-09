@@ -14,7 +14,7 @@ class FCMController extends Controller
     {   
         // Your FCM token
 
-        $token ='fIo5Db_JSUefugkZ_tXLWP:APA91bGuICA8KyrP_zCk8-Z2U0b5d70jh6RQYw3jBcS4H1Qi7q8mbsSD6vMpYb5IOEJqSpgLZ97ODEi5qjCb82aCHz9hh5-3kvyaXre-Kg38BCLrtM_DRxo';
+        $token ='fQXRJ9y8S-CuVpiy0Xlojy:APA91bFALPXek98N11-ZbY6kXNwtOYMeIVhJXxmHsA0O4zQ1S7aw5bdoG9mwG6-DC96vbEsGY6yqvmTBvrx1s0-8O_TqpOsjTM18q86wNw1skZrKJMXri2E';
         // $token = 'dwf8MB2tTwyDQFuEICwiQa:APA91bGjoLC2etvRUXz7xbaroQIJj8ZyRSDoAiALaS1CumYIutBsSC1paFGTJzu6HRT-M95ZGydiqpV1Wo7hK6TIHanWBydAH79pYJE5Yru5BvQrqAcPpbI';
         // $token = 'einlHj_GRT-9nx081NAzaK:APA91bGnX-hWrnmyWeDQRhyyJLRH5RDHB1H549qfbN16lMvhpuCdJK90Ur57l52X1Y9SoH_Vyy2jmJ2LCcK8fyhipm0i-7d9-PcrZVMSH3dDtwHz_uqkGwg';
        $serviceAccountPath = config('services.firebase.key_path');

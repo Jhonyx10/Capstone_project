@@ -25,7 +25,6 @@ const CreateTanodAccount = ({ onClose }) => {
     const accountMutation = useMutation({
         mutationFn: () => createTanodAccount({ base_url, token, accountForm }),
         onSuccess: async () => {
-            alert("Account Created!!");
             queryClient.invalidateQueries(["volunteers"]);
             setAccountForm({
                 name: "",

@@ -23,7 +23,7 @@ class FirebaseService
             ->createMessaging();
     }
 
-    public function sendFCMNotification($title = 'Community Alert', $body = 'An incident has been reported. Please stay alert.')
+    public function sendFCMNotification($title, $body)
     {
         // Get all device tokens
         $deviceTokens = UserDevice::pluck('device_token')->filter()->toArray();

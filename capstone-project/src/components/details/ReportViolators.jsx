@@ -1,9 +1,10 @@
 import useAppState from "../../store/useAppState";
 import { useQuery } from "@tanstack/react-query";
 import { getReportViolators } from "../../functions/ReportsApi";
+import { motion } from "framer-motion"
 
 const ReportViolators = ({ reportId }) => {
-    const { token, base_url } = useAppState();
+    const { token, base_url, darkMode } = useAppState();
 
     const { data: reportViolators, isLoading } = useQuery({
         queryKey: ["report_violators", reportId],
@@ -15,11 +16,33 @@ const ReportViolators = ({ reportId }) => {
     }
 
     if (!reportViolators || reportViolators.length === 0) {
-        return <p className="italic text-slate-400">No Violators Involved</p>;
+        return null;
     }
 
     return (
-        <div className="space-y-4">
+        <motion.div
+            layout
+            initial={{ y: -20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{
+                type: "spring",
+                stiffness: 200,
+                damping: 20,
+                delay: 0.5,
+            }}
+            className={`shadow-md rounded-2xl p-6 space-y-4 ${
+                darkMode
+                    ? "bg-slate-800 text-slate-200"
+                    : "bg-white text-gray-800"
+            }`}
+        >
+            <h3
+                className={`text-xl font-semibold border-b pb-2 ${
+                    darkMode ? "border-slate-600" : "border-gray-200"
+                }`}
+            >
+                Violators
+            </h3>
             {reportViolators.map((item) => (
                 <div
                     key={item.id}
@@ -43,7 +66,7 @@ const ReportViolators = ({ reportId }) => {
                     </div>
                 </div>
             ))}
-        </div>
+        </motion.div>
     );
 };
 

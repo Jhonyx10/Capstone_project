@@ -139,7 +139,7 @@ public function fileReport(
             $notification = $this->notificationService->saveRequestNotification($response->id);
 
             $firebase = $this->firebase->sendFCMNotification(
-                                    title: 'Incident Request Created',
+                                    title: 'Incident Request has been filed.',
                                     body: "A new response was created for request #{$response->id}"
                                 );
 

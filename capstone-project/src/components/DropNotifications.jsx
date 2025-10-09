@@ -17,7 +17,7 @@ const DropNotifications = ({ dropdownRef, dropdownOpen }) => {
         queryKey: ["notifications"],
         queryFn: () => notifications({ base_url, token }),
     });
-
+    
     const getNotificationLink = (notification) => {
         switch (notification.notification_type) {
             case "violators-notification":
@@ -25,7 +25,7 @@ const DropNotifications = ({ dropdownRef, dropdownOpen }) => {
             case "request-notification":
                 return `/incident-request`;
             case "report-notification":
-                return `/reports/${notification.item_id}`;
+                return `/report-details/${notification.item_id}`;
             default:
                 return "#";
         }
@@ -41,12 +41,17 @@ const DropNotifications = ({ dropdownRef, dropdownOpen }) => {
      const handleNotificationClick = (id) => {
          mutation.mutate({ id });
      };
+     
     return (
         <AnimatePresence>
             {dropdownOpen && (
                 <motion.div
                     ref={dropdownRef}
-                    className="absolute top-10 space-y-1 z-20 right-22 mt-2 w-64 md:px-2 dark:bg-slate-700 bg-white border-t border-gray-200 dark:border-gray-950 rounded-lg shadow-lg py-2 mr-6"
+                    className="absolute top-10 space-y-1 z-20 right-22 mt-2 w-50 md:px-2 
+               dark:bg-slate-700 bg-white border-t border-gray-200 dark:border-gray-950 
+               rounded-lg shadow-lg py-2 mr-6
+               max-h-44 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] 
+               [&::-webkit-scrollbar]:hidden" 
                     initial={{ y: -10, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
                     exit={{ y: -10, opacity: 0 }}

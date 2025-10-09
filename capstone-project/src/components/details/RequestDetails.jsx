@@ -14,17 +14,18 @@ const haversineDistance = (lat1, lon1, lat2, lon2) => {
     return R * c;
 };
 
-const RequestDetails = ({ requestId, onClose, tanodLocations }) => {
+const RequestDetails = ({ requestId, onClose, tanodLocations, geoFence }) => {
     const { darkMode } = useAppState();
     const queryClient = useQueryClient();
     const requests = queryClient.getQueryData(["request"]);
     const requestDetails = requests?.find((r) => r.id === requestId);
 
-    // find tanod currently assigned to this request
+    // Find tanod currently assigned to this request
     const assignedTanod = Object.values(tanodLocations).find(
         (loc) => String(loc.requestId) === String(requestId)
     );
 
+    // Calculate distance
     const distance =
         assignedTanod && requestDetails
             ? haversineDistance(
@@ -34,6 +35,11 @@ const RequestDetails = ({ requestId, onClose, tanodLocations }) => {
                   Number(assignedTanod.lng)
               ).toFixed(2)
             : null;
+
+    // ✅ Check if request is inside geofence
+    const isOutsideJurisdiction =
+        requestDetails &&
+        !geoFence(requestDetails.longitude, requestDetails.latitude);
 
     return (
         <motion.div
@@ -108,6 +114,20 @@ const RequestDetails = ({ requestId, onClose, tanodLocations }) => {
                                 }`}
                             >
                                 No active tanod assigned.
+                            </p>
+                        )}
+
+                        {/* ✅ Out of Jurisdiction Warning */}
+                        {isOutsideJurisdiction && (
+                            <p
+                                className={`text-sm font-semibold mt-3 px-3 py-2 rounded-md ${
+                                    darkMode
+                                        ? "bg-red-900/30 text-red-400 border border-red-800"
+                                        : "bg-red-100 text-red-600 border border-red-300"
+                                }`}
+                            >
+                                🚫 Out of Jurisdiction — this request is outside
+                                Barangay Igpit Jurisdiction area.
                             </p>
                         )}
                     </div>

@@ -15,6 +15,7 @@ use App\Http\Controllers\TanodLocationController;
 use App\Http\Controllers\HotlineController;
 use App\Http\Controllers\NotificationController;
 use App\Events\TanodLocationUpdated;
+use App\Http\Controllers\PDFController;
 
 
 /*
@@ -36,6 +37,7 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 
 Route::middleware('auth:sanctum')->group(function () {
+    Route::apiResource('users', UserController::class);
     Route::middleware('role:admin')->group(function () {
         Route::post('/add-zone', [GeoLocationController::class, 'addZone']);
         Route::post('/add-category', [IncidentTypesController::class, 'addCategory']);
@@ -50,12 +52,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
     //admin and tanods shared routes for multi role access.
     Route::middleware('role:admin,tanod')->group(function () {
-        Route::apiResource('users', UserController::class);
+        // Route::apiResource('users', UserController::class);
         Route::get('/notifications', [NotificationController::class, 'index']);
         Route::put('/update-notification/{id}',[NotificationController::class, 'update']);
         Route::get('/get-zones', [GeoLocationController::class, 'getZones']);
         Route::get('/get-locations', [GeoLocationController::class, 'getLocations']);
-        Route::get('/get-incident-locations', [GeoLocationController::class, 'getIncidentLocations']);
         Route::post('/add-incident-type', [IncidentTypesController::class, 'addIncidentType']);
         Route::get('/get-incident-types', [IncidentTypesController::class, 'getIncidentTypes']);
         Route::get('/reports', [ReportController::class, 'getIncidentReports']);
@@ -63,7 +64,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/report-violators/{id}', [ReportController::class, 'getReportViolators']);
         Route::get('/get-violators', [ReportController::class, 'getViolators']);
         Route::get('/violator-details/{id}', [ViolatorController::class, 'getViolatorsDetails']);
-        Route::get('/violators-record/{id}', [ViolatorController::class, 'violatorsRecords']);
         Route::get('/violators-violations', [ViolatorController::class, 'violatorsViolationCount']);
         Route::get('/request', [ReportController::class, 'getRequest']);
 
@@ -89,13 +89,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/get-categories', [IncidentTypesController::class, 'getIncidentCategories']);
     Route::post('/add-profile', [UserController::class, 'addProfile']);
     Route::post('/logout', [AuthController::class, 'logout']);
-
-    // Route::post('/update-location', function(Request $request) {
-    //     broadcast(new TanodLocationUpdated(
-    //         $request->user_id, $request->latitude, $request->longitude
-    //     ));
-    //     return response()->json(['status' => 'okay']);
-    // });
     
     //resident api request routes
     Route::post('/send-request', [ReportController::class, 'sendRequest']);

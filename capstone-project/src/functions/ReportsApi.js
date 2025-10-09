@@ -91,16 +91,3 @@ export const violatorsDetails = async ({base_url, token, id}) => {
         console.log(error);
     }
 }
-
-export const violatorsRecords = async ({base_url, token, id}) => {
-    try {
-        const response = await axios.get(`${base_url}violators-record/${id}`, {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        });
-        return response.data.records;
-    } catch (error) {
-        console.log(error);
-    }
-}

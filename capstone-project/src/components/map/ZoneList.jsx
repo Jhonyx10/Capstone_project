@@ -6,7 +6,7 @@ const ZoneList = ({ setSelectedZone }) => {
     const { data: zones } = useZones();
 
     return (
-        <motion.div className="max-h-screen overflow-y-auto hide-scrollbar space-y-3 pr-2">
+        <motion.div className="max-h-full overflow-y-auto hide-scrollbar space-y-3 pr-2">
             {zones?.map((zoneData, index) => (
                 <motion.div
                     key={index}

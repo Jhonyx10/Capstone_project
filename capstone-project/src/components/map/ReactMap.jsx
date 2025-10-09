@@ -20,6 +20,7 @@ const ReactMap = () => {
         longitude: 124.5851259,
         zoom: 14,
     });
+    
     const [selectedLocation, setSelectedLocation] = useState(null);
 
     const [hoveredZoneId, setHoveredZoneId] = useState(null);
@@ -58,7 +59,7 @@ const ReactMap = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.4 }}
-            className="w-full h-full flex"
+            className="w-full max-h-full flex"
         >
             {isLoading && <div>Loading map zones...</div>}
             {isError && <div>Failed to load zones.</div>}
@@ -161,7 +162,7 @@ const ReactMap = () => {
                                     cursor: "pointer",
                                 }}
                             >
-                                <IoLocationSharp size={34} color="red" />
+                                <IoLocationSharp size={24} color="red" />
                             </div>
                         </Marker>
                     ))}

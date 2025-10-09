@@ -30,6 +30,7 @@ class UserController extends Controller
             'users' => $users,
         ], 200);
     }
+    
     /**
      * Store a newly created resource in storage.
      */

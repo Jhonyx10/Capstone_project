@@ -3,9 +3,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import useVolunteers from "../hooks/useVolunteers";
 import useAppState from "../store/useAppState";
+import { useMutation } from "@tanstack/react-query";
+import { updateNotification } from "../functions/Notification";
 
 const Notification = ({ message, onClose, duration = 7000 }) => {
-    const { darkMode, categories } = useAppState(); // ✅ dark mode
+    const { darkMode, categories, base_url, token } = useAppState(); // ✅ dark mode
     const navigate = useNavigate();
 
     const { data: volunteers = [] } = useVolunteers();
@@ -28,6 +30,17 @@ const Notification = ({ message, onClose, duration = 7000 }) => {
 
     if (!message) return null;
 
+    const mutation = useMutation({
+        mutationFn: ({ id }) => updateNotification({ base_url, token, id }),
+        onSuccess: () => {
+            queryClient.invalidateQueries(["notifications"]);
+        },
+    });
+
+    const handleNotificationClick = (id) => {
+        mutation.mutate({ id });
+    };
+
     const renderContent = () => {
         if (message.category_id) {
             return (
@@ -41,6 +54,7 @@ const Notification = ({ message, onClose, duration = 7000 }) => {
                         <button
                             onClick={() => {
                                 onClose();
+                                handleNotificationClick(message?.request?.id);
                                 navigate("/incident-request");
                             }}
                             className={`px-4 py-2 rounded text-white transition ${
@@ -75,6 +89,7 @@ const Notification = ({ message, onClose, duration = 7000 }) => {
                         <button
                             onClick={() => {
                                 onClose();
+                                handleNotificationClick(violator.id);
                                 navigate(`/violators-details/${violator.id}`);
                             }}
                             className={`px-4 py-2 rounded text-white transition ${
@@ -100,6 +115,7 @@ const Notification = ({ message, onClose, duration = 7000 }) => {
                         <button
                             onClick={() => {
                                 onClose();
+                                handleNotificationClick(message?.report?.id);
                                 navigate(
                                     `/report-details/${message?.report?.id}`
                                 );

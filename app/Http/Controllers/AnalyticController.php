@@ -104,7 +104,7 @@ class AnalyticController extends Controller
         $total_reports = $this->analyticsService->overAllTotalReports();
         //incident peak hours.
         $incident_peak_hours = $this->analyticsService->peakReportingHours();
-        $peak_hours = $this->analyticsService->peakHours();
+        $peak_hours = $this->analyticsService->peakHour();
         //least reported category.
         $least_reported_category = $this->analyticsService->leastReportedCategory();
         //most reported category.

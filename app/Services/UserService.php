@@ -46,7 +46,19 @@ class UserService
 
     public function getUsers()
     {
-        return $user = User::with('profile')->where('role', 'tanod')->get();
+        return User::with('profile.zone')->where('role', 'tanod')
+            ->get()
+            ->map(function ($user) {
+                if ($user->profile && $user->profile->photo) {
+                    $user->profile->photo = asset('storage/' . $user->profile->photo);
+                }
+                 if (!$user->zone) {
+                $user->zone_name = 'No Zone Assigned';
+                } else {
+                    $user->zone_name = $user->zone->name;
+                }
+                return $user;
+            });
     }
 
     public function showUser(int $id):User

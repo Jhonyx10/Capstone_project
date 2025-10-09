@@ -3,10 +3,11 @@ import { useState } from "react";
 import { addIncidentType } from "../functions/CategoryApi";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
+import SuccessAlert from "../components/alerts/SuccessAlert";
 
 const AddIncidentTypeForm = ({ onClose }) => {
     const queryClient = useQueryClient();
-
+    const [isAlertMessageOpen, setIsAlertMessageOpen] = useState(false);
     const { token, base_url, categories, darkMode } = useAppState();
     const [form, setForm] = useState({
         category_id: "",
@@ -23,13 +24,16 @@ const AddIncidentTypeForm = ({ onClose }) => {
     const mutation = useMutation({
         mutationFn: () => addIncidentType({ base_url, token, form }),
         onSuccess: () => {
-            alert("suck-cess!!");
             setForm({
                 category_id: null,
                 incident_name: ""
             });
             queryClient.invalidateQueries(["categories"]);
-            onClose();
+             setIsAlertMessageOpen(true);
+             setTimeout(() => {
+                  setIsAlertMessageOpen(false);
+                  onClose();
+              }, 3000);
         },
         onError: () => {
             console.error(
@@ -159,6 +163,7 @@ const AddIncidentTypeForm = ({ onClose }) => {
                     </motion.form>
                 </motion.div>
             </motion.div>
+            {isAlertMessageOpen && <SuccessAlert />}
         </AnimatePresence>
     );
 };

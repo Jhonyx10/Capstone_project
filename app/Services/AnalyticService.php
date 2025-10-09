@@ -411,16 +411,15 @@ class AnalyticService
             ->get();
     }
 
-    public function peakHours()
+    public function peakHour()
     {
-        return IncidentReport::select(
-                DB::raw('HOUR(time) as hour'),
-                DB::raw('COUNT(*) as total')
-            )
-            ->groupBy(DB::raw('HOUR(time)'))
-            ->orderBy('hour','desc')
+        return IncidentReport::select(DB::raw('HOUR(time) as hour'), DB::raw('COUNT(*) as total'))
+            ->groupBy('hour')
+            ->orderByDesc('total')
+            ->limit(1)
             ->first();
     }
+
     public function leastReportedCategory()
     {
         return IncidentReport::select(

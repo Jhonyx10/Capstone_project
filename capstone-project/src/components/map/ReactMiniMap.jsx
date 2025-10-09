@@ -1,14 +1,16 @@
 import { useState, useEffect } from "react";
 import useAppState from "../../store/useAppState";
-import Map, { Marker } from "react-map-gl";
+import Map, { Marker, Source, Layer } from "react-map-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import useZones from "../../hooks/useZones";
 import useLocations from "../../hooks/useLocations";
 import { motion } from "framer-motion";
+import { IoLocationSharp } from "react-icons/io5";
+import IgpitGeoFence from "../../assets/geomap/igpityoungsville.json";
 
 const ReactMiniMap = () => {
     const { map_token, darkMode, map_styles } = useAppState();
-
+    const [mapLoaded, setMapLoaded] = useState(false);
     const [viewPort, setViewPort] = useState({
         latitude: 8.50742219620983,
         longitude: 124.5894592178347,
@@ -50,13 +52,57 @@ const ReactMiniMap = () => {
                         borderRadius: "8px",
                     }}
                     onMove={(evt) => setViewPort(evt.viewState)}
+                    onLoad={(e) => {
+                        const mapInstance = e.target;
+
+                        // Wait until the map style and layers are fully ready
+                        const handleStyleLoad = () => {
+                            console.log("✅ Map style fully loaded!");
+                            setMapLoaded(true);
+                            mapInstance.off("idle", handleStyleLoad); // cleanup listener
+                        };
+
+                        // 'idle' event ensures the style, tiles, and sources are all ready
+                        mapInstance.on("idle", handleStyleLoad);
+                    }}
                 >
+                    {mapLoaded && (
+                        <Source id="igpit" type="geojson" data={IgpitGeoFence}>
+                            <Layer
+                                id="igpit-fill"
+                                source="igpit"
+                                type="fill"
+                                paint={{
+                                    "fill-color": "#f97316",
+                                    "fill-opacity": 0.25,
+                                }}
+                            />
+                            <Layer
+                                id="igpit-outline"
+                                source="igpit"
+                                type="line"
+                                paint={{
+                                    "line-color": "#f97316",
+                                    "line-width": 2,
+                                }}
+                            />
+                        </Source>
+                    )}
                     {locations.map((loc) => (
                         <Marker
                             key={loc.id}
                             longitude={loc.longitude}
                             latitude={loc.latitude}
-                        />
+                        >
+                            <div
+                                style={{
+                                    position: "relative",
+                                    cursor: "pointer",
+                                }}
+                            >
+                                <IoLocationSharp size={24} color="red" />
+                            </div>
+                        </Marker>
                     ))}
 
                     {zones.map((zone) => (

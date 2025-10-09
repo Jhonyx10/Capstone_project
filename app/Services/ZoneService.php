@@ -41,11 +41,6 @@ class ZoneService
         return Zone::get();
     }
 
-    public function getIncidentLocations()
-    {
-        return IncidentReport::with('location')->get();
-    }
-
     public function getLocations()
     {
         return IncidentLocation::with('reports.incidentType')->get()

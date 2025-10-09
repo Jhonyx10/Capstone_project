@@ -27,4 +27,9 @@ class Zone extends Model
     {
         return $this->hasMany(ViolatorsProfile::class, 'zone_id');
     }
+
+    public function profile()
+    {
+        return $this->hasMany(UserProfile::class, 'zone_id');
+    }
 }

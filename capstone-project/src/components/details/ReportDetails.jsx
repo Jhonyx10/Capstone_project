@@ -62,7 +62,7 @@ const ReportDetails = () => {
                         darkMode ? "text-slate-100" : "text-gray-800"
                     }`}
                 >
-                    Report Details {id}
+                    Report Details
                 </h2>
                 <button
                     onClick={() => navigation(-1)}
@@ -305,33 +305,8 @@ const ReportDetails = () => {
                     )}
                 </motion.div>
             </motion.div>
-            {/* report violators */}
-            <motion.div
-                layout
-                initial={{ y: -20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{
-                    type: "spring",
-                    stiffness: 200,
-                    damping: 20,
-                    delay: 0.5,
-                }}
-                className={`shadow-md rounded-2xl p-6 space-y-4 ${
-                    darkMode
-                        ? "bg-slate-800 text-slate-200"
-                        : "bg-white text-gray-800"
-                }`}
-            >
-                <h3
-                    className={`text-xl font-semibold border-b pb-2 ${
-                        darkMode ? "border-slate-600" : "border-gray-200"
-                    }`}
-                >
-                    Violators
-                </h3>
+            {/* report violators */}  
                 <ReportViolators reportId={id} />
-            </motion.div>
-
             <motion.div
                 layout
                 initial={{ y: -20, opacity: 0 }}

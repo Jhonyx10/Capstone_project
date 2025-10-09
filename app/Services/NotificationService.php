@@ -28,7 +28,7 @@ class NotificationService
 
     public function getNotifications()
     {
-        return NotificationModel::where('status', false)->limit(5)->get();
+        return NotificationModel::where('status', false)->get();
     }
 
     public function saveRequestNotification(int $id): NotificationModel

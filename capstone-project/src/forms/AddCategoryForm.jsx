@@ -3,12 +3,14 @@ import { useState } from "react";
 import { addCategory } from "../functions/CategoryApi";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
+import SuccessAlert from "../components/alerts/SuccessAlert";
 
 const AddCategoryForm = ({ onClose }) => {
     const queryClient = useQueryClient();
 
     const { token, base_url, darkMode } = useAppState();
     const [categoryName, setCategoryName] = useState("");
+    const [isAlertMessageOpen, setIsAlertMessageOpen] = useState(false);
 
     const overlayVariants = {
         hidden: { opacity: 0 },
@@ -19,10 +21,13 @@ const AddCategoryForm = ({ onClose }) => {
     const mutation = useMutation({
         mutationFn: () => addCategory({base_url, token, categoryName}),
         onSuccess: () => {
-            alert("suck-cess!!");
             setCategoryName("")
             queryClient.invalidateQueries(["categories"]);
-            onClose();
+              setIsAlertMessageOpen(true);
+              setTimeout(() => {
+                  setIsAlertMessageOpen(false);
+                  onClose();
+              }, 3000);
         },
         onError: () => {
              console.error(
@@ -122,6 +127,7 @@ const AddCategoryForm = ({ onClose }) => {
                     </motion.form>
                 </motion.div>
             </motion.div>
+            {isAlertMessageOpen && <SuccessAlert />}
         </AnimatePresence>
     );
 };

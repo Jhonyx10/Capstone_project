@@ -181,6 +181,7 @@ useEffect(() => {
                         <RequestDetails
                             requestId={requestId}
                             tanodLocations={tanodLocations}
+                            geoFence={isInsideGeofence}
                             onClose={() => setRequestId(null)}
                         />
                     </motion.div>

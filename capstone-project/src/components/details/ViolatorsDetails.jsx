@@ -1,6 +1,6 @@
 import useAppState from "../../store/useAppState";
 import { useQuery } from "@tanstack/react-query";
-import { violatorsDetails, violatorsRecords } from "../../functions/ReportsApi";
+import { violatorsDetails } from "../../functions/ReportsApi";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useParams } from "react-router-dom";
@@ -17,11 +17,6 @@ const ViolatorsDetails = () => {
     } = useQuery({
         queryKey: ["violator_details", id],
         queryFn: () => violatorsDetails({ base_url, token, id }),
-    });
-
-    const { data: records, isLoading: isRecordsLoading } = useQuery({
-        queryKey: ["records", id],
-        queryFn: () => violatorsRecords({ base_url, token, id }),
     });
 
     if (isViolatorLoading)
@@ -102,11 +97,10 @@ const ViolatorsDetails = () => {
                     </div>
                 </div>
             </motion.div>
-
             {/* Records */}
             <motion.div
                 layout
-                className={`shadow-md rounded-2xl p-6 ${
+                className={`shadow-md rounded-2xl p-6 space-y-4 ${
                     darkMode
                         ? "bg-slate-800 text-slate-200"
                         : "bg-white text-gray-800"
@@ -115,21 +109,16 @@ const ViolatorsDetails = () => {
                 <h3 className="text-xl font-semibold border-b pb-2 mb-4">
                     Violator Records
                 </h3>
-                {isRecordsLoading ? (
+                {isViolatorLoading ? (
                     <p>Loading records...</p>
-                ) : records && records.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <table
-                            className={`min-w-full divide-y text-sm ${
-                                darkMode
-                                    ? "divide-slate-700"
-                                    : "divide-gray-200"
-                            }`}
-                        >
-                            <motion.thead
+                ) : violator?.reports && violator.reports.length > 0 ? (
+                    <div className="w-full">
+                        {violator.reports.map((record) => (
+                            <motion.div
+                                key={record.id}
                                 layout
-                                initial={{ y: -20, opacity: 0 }}
-                                animate={{ y: 0, opacity: 1 }}
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: -10 }}
                                 transition={{
                                     type: "spring",
@@ -137,108 +126,44 @@ const ViolatorsDetails = () => {
                                     damping: 20,
                                     delay: 0.1,
                                 }}
-                                className={
-                                    darkMode ? "bg-slate-800" : "bg-gray-50"
-                                }
+                                className={`rounded-lg shadow-md p-4 mt-2 border ${
+                                    darkMode
+                                        ? "bg-slate-900 border-slate-700"
+                                        : "bg-gray-50 border-gray-200"
+                                }`}
                             >
-                                <tr>
-                                    {[
-                                        "Category",
-                                        "Incident",
-                                        "Date",
-                                        "Time",
-                                        "Zone",
-                                        "Location",
-                                        "Filed By",
-                                        "Action",
-                                    ].map((header, idx) => (
-                                        <th
-                                            key={idx}
-                                            className={`px-4 py-3 w-40 text-center text-xs font-medium uppercase tracking-wider ${
-                                                darkMode
-                                                    ? "text-gray-200"
-                                                    : "text-gray-600"
-                                            }`}
-                                        >
-                                            {header}
-                                        </th>
-                                    ))}
-                                </tr>
-                            </motion.thead>
-                            {isRecordsLoading ? (
-                                <div className="text-center text-white font-bold m-2">
-                                    <h1>Loading..</h1>
-                                </div>
-                            ) : (
-                                <tbody
-                                    className={
-                                        darkMode ? "bg-slate-900" : "bg-white"
-                                    }
-                                >
-                                    {records.map((record, index) => (
-                                        <motion.tr
-                                            key={violator.id}
-                                            layout
-                                            initial={{ opacity: 0, y: 10 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            exit={{ opacity: 0, y: -10 }}
-                                            transition={{
-                                                type: "spring",
-                                                stiffness: 200,
-                                                damping: 20,
-                                                delay: 0.2,
-                                            }}
-                                            className={
-                                                index % 2 === 0
-                                                    ? darkMode
-                                                        ? "bg-slate-800"
-                                                        : "bg-white"
-                                                    : darkMode
-                                                    ? "bg-slate-900"
-                                                    : "bg-gray-50"
-                                            }
-                                        >
-                                            <td
-                                                className={
-                                                    darkMode
-                                                        ? "px-4 py-3 text-gray-200 text-center"
-                                                        : "px-4 py-3 text-gray-700 text-center"
-                                                }
-                                            >
+                                <div className="flex justify-between">
+                                    <div>
+                                        <p className="font-semibold text-sm">
+                                            Incident:{" "}
+                                            <span className="text-green-500">
                                                 {
                                                     record?.incident_type
                                                         ?.category
                                                         ?.category_name
                                                 }
-                                            </td>
-                                            <td
-                                                className={
-                                                    darkMode
-                                                        ? "px-4 py-3 text-gray-200 text-center"
-                                                        : "px-4 py-3 text-gray-700 text-center"
-                                                }
-                                            >
+                                            </span>
+                                        </p>
+                                        <p className="font-semibold text-sm">
+                                            Incident:{" "}
+                                            <span className="text-green-500">
                                                 {
                                                     record?.incident_type
                                                         ?.incident_name
                                                 }
-                                            </td>
-                                            <td
-                                                className={
-                                                    darkMode
-                                                        ? "px-4 py-3 text-gray-200 text-center"
-                                                        : "px-4 py-3 text-gray-700 text-center"
-                                                }
-                                            >
+                                            </span>
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p className="text-sm">
+                                            Date:{" "}
+                                            <span className="font-medium">
                                                 {record?.date}
-                                            </td>
-                                            <td
-                                                className={
-                                                    darkMode
-                                                        ? "px-4 py-3 text-gray-200 text-center"
-                                                        : "px-4 py-3 text-gray-700 text-center"
-                                                }
-                                            >
+                                            </span>
+                                        </p>
+                                        <p className="text-sm">
+                                            Time:{" "}
+                                            <span className="font-medium">
                                                 {new Date(
                                                     `1970-01-01T${record?.time}`
                                                 ).toLocaleTimeString("en-US", {
@@ -246,57 +171,40 @@ const ViolatorsDetails = () => {
                                                     minute: "2-digit",
                                                     hour12: true,
                                                 })}
-                                            </td>
-                                            <td
-                                                className={
-                                                    darkMode
-                                                        ? "px-4 py-3 text-gray-200 text-center"
-                                                        : "px-4 py-3 text-gray-700 text-center"
-                                                }
-                                            >
+                                            </span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="mt-2 flex justify-between items-center">
+                                    <div>
+                                        <p className="text-sm">
+                                            Address:{" "}
+                                            <span className="font-medium">
                                                 {
                                                     record?.location?.zone
                                                         ?.zone_name
                                                 }
-                                            </td>
-                                            <td
-                                                className={
-                                                    darkMode
-                                                        ? "px-4 py-3 text-gray-200 text-center"
-                                                        : "px-4 py-3 text-gray-700 text-center"
-                                                }
-                                            >
+                                                ,{" "}
                                                 {
                                                     record?.location
                                                         ?.location_name
                                                 }
-                                            </td>
-                                            <td
-                                                className={
-                                                    darkMode
-                                                        ? "px-4 py-3 text-gray-200 text-center"
-                                                        : "px-4 py-3 text-gray-700 text-center"
-                                                }
-                                            >
-                                                {record?.user?.name}
-                                            </td>
-                                            <td className="px-4 py-3 text-center">
-                                                <button
-                                                    onClick={() =>
-                                                        navigate(
-                                                            `/report-details/${report.id}`
-                                                        )
-                                                    }
-                                                    className="px-3 py-1 text-xs font-medium bg-green-400 text-white rounded hover:bg-green-500 transition hover:cursor-pointer"
-                                                >
-                                                    View
-                                                </button>
-                                            </td>
-                                        </motion.tr>
-                                    ))}
-                                </tbody>
-                            )}
-                        </table>
+                                            </span>
+                                        </p>
+                                    </div>
+                                    <button
+                                        onClick={() =>
+                                            navigate(
+                                                `/report-details/${record.id}`
+                                            )
+                                        }
+                                        className="bg-green-600 w-14 rounded hover:bg-green-500 hover:cursor-pointer"
+                                    >
+                                        <p className="text-white">View</p>
+                                    </button>
+                                </div>
+                            </motion.div>
+                        ))}
                     </div>
                 ) : (
                     <p>No records available.</p>

@@ -67,21 +67,9 @@ class IncidentReportService
 
     public function getIncidentReports()
     {
-        return IncidentReport::with('incidentType.category','location.zone', 'user', 'evidences',)
-                                ->orderByDesc('created_at')
-                                ->get()
-                                ->map(function ($report) {                                 
-                                if ($report->location && $report->location->landmark) {
-                                    if (!str_starts_with($report->location->landmark, 'http')) {
-                                            $report->location->landmark = asset('storage/' . $report->location->landmark);
-                                        }
-                                }
-                                $report->evidences->map(function ($evidence) {
-                                    $evidence->file_url = asset('storage/' . $evidence->incident_evidence);
-                                    return $evidence;
-                                });
-                                return $report;
-                                });
+        return IncidentReport::with('incidentType.category','location.zone', 'user')
+                ->orderByDesc('created_at')
+                ->get();
     }
 
     public function reportDetails(int $id)
@@ -163,7 +151,8 @@ class IncidentReportService
 
     public function getRequestResponse()
     {
-        return IncidentRequestResponse::join('incident_categories', 'incident_request_responses.category_id', '=', 'incident_categories.id')
+        return IncidentRequestResponse::
+            join('incident_categories', 'incident_request_responses.category_id', '=', 'incident_categories.id')
             ->where('incident_request_responses.status', 0)
             ->select('incident_request_responses.*', 'incident_categories.category_name')
             ->get();
@@ -171,10 +160,13 @@ class IncidentReportService
 
     public function getViolators()
     {
-        return ViolatorsProfile::with('zone')->orderByDesc('created_at')->get()->map(function ($violator) {
-            $violator->photo = asset('storage/' . $violator->photo);
-            return $violator;
-        });
+        return ViolatorsProfile::with('zone')
+                        ->orderByDesc('created_at')
+                        ->get()
+                        ->map(function ($violator) {
+                            $violator->photo = asset('storage/' . $violator->photo);
+                            return $violator;
+                        });
     }
 
     

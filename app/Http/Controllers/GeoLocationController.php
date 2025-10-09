@@ -56,16 +56,6 @@ class GeoLocationController extends Controller
         ], 200);
     }
 
-    public function getIncidentLocations()
-    {
-        $locations = $this->zoneService->getIncidentLocations();
-
-        return response()->json([
-            'message' => 'Locations Fetch Successful',
-            'incident_locations' => $locations
-        ], 200);
-    }
-
     public function locationDetails($id)
     {
         $location = $this->zoneService->locationDetails($id);
