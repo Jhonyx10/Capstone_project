@@ -83,6 +83,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/average-response-time-by-zone/{id}', [AnalyticController::class, 'averageResponseTimeByZone']);
         Route::get('/months-current-previous', [AnalyticController::class, 'currentPreviousChanges']);
         Route::get('/registered-users', [AnalyticController::class, 'registeredResidents']);
+        Route::get('/total-requests', [AnalyticController::class, 'totalRequest']);
     });
     
     Route::apiResource('/hotline', HotlineController::class);

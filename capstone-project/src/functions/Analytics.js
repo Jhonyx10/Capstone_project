@@ -94,3 +94,16 @@ export const AnalyticalData = async ({base_url, token}) => {
         console.log(error)
     }
 }
+
+export const totalRequest = async ({base_url, token}) => {
+    try {
+        const response = await axios.get(`${base_url}total-requests`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+        return response.data.total_request;
+    } catch (error) {
+        console.log(error)
+    }
+}

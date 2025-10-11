@@ -74,7 +74,7 @@ class IncidentReportService
 
     public function reportDetails(int $id)
     {
-        $report = IncidentReport::with('incidentType.category','location.zone', 'user', 'evidences')
+        $report = IncidentReport::with('incidentType.category','location.zone', 'user', 'evidences', 'responseRecord.request.user')
             ->where('id', $id)
             ->first(); 
 

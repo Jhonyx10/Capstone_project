@@ -3,12 +3,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import useVolunteers from "../hooks/useVolunteers";
 import useAppState from "../store/useAppState";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateNotification } from "../functions/Notification";
 
 const Notification = ({ message, onClose, duration = 7000 }) => {
-    const { darkMode, categories, base_url, token } = useAppState(); // ✅ dark mode
+    const { darkMode, categories, base_url, token } = useAppState();
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
 
     const { data: volunteers = [] } = useVolunteers();
 

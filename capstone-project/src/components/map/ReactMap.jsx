@@ -149,7 +149,7 @@ const ReactMap = () => {
                     )}
 
                     {/* Locations */}
-                    {locations.map((loc) => (
+                    {Array.isArray(locations) && locations.length > 0 ? locations.map((loc) => (
                         <Marker
                             key={loc.id}
                             longitude={loc.longitude}
@@ -164,8 +164,7 @@ const ReactMap = () => {
                             >
                                 <IoLocationSharp size={24} color="red" />
                             </div>
-                        </Marker>
-                    ))}
+                        </Marker>)) : null}
 
                     {/* Zones */}
                     {zones.map((zone) => (

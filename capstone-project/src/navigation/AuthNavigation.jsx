@@ -18,6 +18,7 @@ import Layout from "../pages/Layout";
 import ReportDetails from "../components/details/ReportDetails";
 import ViolatorsDetails from "../components/details/ViolatorsDetails";
 import IncidentRequest from "../pages/IncidentRequest";
+import Categories from "../pages/Categories";
 import { AnimatePresence } from "framer-motion";
 
 const ProtectedRoute = ({ children }) => {
@@ -60,6 +61,7 @@ const AnimatedRoutes = () => {
                     <Route path="/reports" element={<Reports />} />
                     <Route path="/analytics" element={<Analytics/>} />
                     <Route path="/hotline" element={<Hotline />} />
+                    <Route path="/category" element={<Categories/>} />
                     <Route path="/report-details/:id" element={<ReportDetails/>}/>
                     <Route path="/violators-details/:id" element={<ViolatorsDetails/>}/>
                 </Route>

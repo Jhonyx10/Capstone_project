@@ -14,6 +14,13 @@ class AnalyticController extends Controller
         $this->analyticsService = $analyticsService;
     }
 
+    public function totalRequest()
+    {
+        $request = $this->analyticsService->totalRequest();
+
+        return response()->json(['total_request' => $request]);
+    }
+
     public function registeredResidents()
     {
         $users = $this->analyticsService->registeredUsers();

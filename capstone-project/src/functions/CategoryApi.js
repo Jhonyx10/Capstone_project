@@ -1,5 +1,20 @@
 import axios from "axios";
 
+
+export const getCategories = async ({base_url, token}) => {
+    try {
+        const response = await axios.get(`${base_url}get-categories`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+        return response.data.categories;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+
 export const addCategory = async ({base_url, token, categoryName}) => {
     try {
         const response = await axios.post(

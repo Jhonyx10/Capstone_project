@@ -12,7 +12,6 @@ import { motion } from "framer-motion";
 import ViolatorsList from "../components/ViolatorsList";
 import ReactMiniMap from "../components/map/ReactMiniMap";
 import ZonalIncidentCard from "../components/ZonalIncidentCard";
-import ZoneReportTotal from "../components/ZoneReportTotal";
 import useAppState from "../store/useAppState";
 import { useQuery } from "@tanstack/react-query";
 import { getReports } from "../functions/ReportsApi";
@@ -22,6 +21,7 @@ import { useEffect } from "react";
 import useMonthsCurPrev from "../hooks/useMonthsCurPrev";
 import useCurPrevResponseTime from "../hooks/useCurPrevResponseTime";
 import useRegisteredUsers from "../hooks/useRegisteredUsers";
+import useRequest from "../hooks/useTotalRequest";
 
 const Dashboard = () => {
   const { base_url, token, setReports } = useAppState();
@@ -29,6 +29,7 @@ const Dashboard = () => {
     const { data: curPrev } = useMonthsCurPrev();
     const { data: responseTime} = useCurPrevResponseTime();
     const { data: registeredUsers } = useRegisteredUsers();
+    const { data: request } = useRequest();
 
     const current = curPrev?.current_total ?? 0;
     const previous = curPrev?.previous_total ?? 0;
@@ -52,6 +53,8 @@ const Dashboard = () => {
     const registered_users = 
         (registeredUsers?.current_month_registered ?? 0) -
         (registeredUsers?.previous_month_registered ?? 0)
+
+    const total_request = (request?.current_month_total ?? 0) - (request?.previous_month_total ?? 0)
 
     const response_time =
         (responseTime?.current_response ?? 0) -
@@ -438,7 +441,7 @@ const Dashboard = () => {
                         <motion.div className="flex items-center space-x-2">
                             {" "}
                             <p className="text-3xl text-gray-700 dark:text-white">
-                                25
+                               {request?.current_month_total}
                             </p>
                             <p className="text-xs leading-tight text-gray-700 dark:text-white">
                                 people report
@@ -449,7 +452,9 @@ const Dashboard = () => {
                         </motion.div>
 
                         <motion.div className="p-0.5 rounded-md bg-green-500">
-                            <p className="text-xs leading-tight">0.2%</p>
+                            <p className="text-xs leading-tight">
+                                {total_request}%
+                            </p>
                         </motion.div>
                     </motion.div>
                     <motion.div
@@ -463,7 +468,7 @@ const Dashboard = () => {
                         }}
                         className="flex items-center mt-4"
                     >
-                        <span className="text-xl mr-1 text-green-700">15</span>
+                        <span className="text-xl mr-1 text-green-700">{request?.previous_month_total}</span>
                         <p className="text-xs leading-tight text-gray-700 dark:text-white">
                             increase from last month
                         </p>

@@ -49,8 +49,11 @@ public function fileReport(
 
         $report = $this->incidentReport->createIncidentReport($reportRequest->validated());
 
-        $this->incidentReport->attachEvidence($evidenceRequest, $report->id);
-
+        $evidence = [];
+       if ($evidenceRequest->hasFile('incident_evidence')) {
+            $this->incidentReport->attachEvidence($evidenceRequest, $report->id);
+        }
+     
         $violatorsRecord = [];
         $recordData = $recordRequest->validated();
         if (!empty($recordData)) {
@@ -74,7 +77,6 @@ public function fileReport(
             } catch (\Throwable $e) {
                 \Log::warning('Broadcast failed', ['e' => $e->getMessage()]);
             }
-    //    $firebase = $this->firebase->sendNotificationByRole('admin', 'New Report', 'A report was filed.', ['report_id' => 123]);
 
         return response()->json([
             'message' => 'Report successfully created.',
@@ -153,10 +155,10 @@ public function fileReport(
 
     public function getRequest()
     {
-        $request = $this->incidentReport->getRequestResponse();
+        $requests = $this->incidentReport->getRequestResponse();
 
         return response()->json([
-            'request' => $request,
+            'request' => $requests,
         ], 201);
     }
 

@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\IncidentReport;
 use App\Models\ViolatorsRecord;
 use App\Models\ViolatorsProfile;
+use App\Models\IncidentRequestResponse;
 use App\Models\Zone;
 use App\Models\IncidentResponseRecord;
 use Carbon\Carbon;
@@ -324,6 +325,32 @@ class AnalyticService
                 'current.cur_response_time as current_response,
                 COALESCE(previous.prev_response_time, 0) as previous_response,
                 ((current.cur_response_time - COALESCE(previous.prev_response_time, 0)) / NULLIF(previous.prev_response_time, 0)) * 100 as percent_change'
+            )
+            ->first();
+    }
+
+    public function totalRequest()
+    {
+        $currentMonth = Carbon::now()->month;
+        $previousMonth = Carbon::now()->subMonth()->month;
+        $year = Carbon::now()->year;
+
+         $cur = IncidentRequestResponse::selectRaw('COUNT(*) as cnt')
+                ->whereMonth('created_at', $currentMonth)
+                ->whereYear('created_at', $year);
+        
+        $prev = IncidentRequestResponse::selectRaw('COUNT(*) as cnt')
+                ->whereMonth('created_at', $previousMonth)
+                ->whereYear('created_at', $year);
+        
+         return DB::table(DB::raw("({$cur->toSql()}) as cur"))
+            ->mergeBindings($cur->getQuery())
+            ->leftJoin(DB::raw("({$prev->toSql()}) as prev"), DB::raw("1"), "=", DB::raw("1"))
+            ->mergeBindings($prev->getQuery())
+            ->selectRaw(
+                'cur.cnt as current_month_total, 
+                COALESCE(prev.cnt, 0) as previous_month_total,
+                ((cur.cnt - COALESCE(prev.cnt, 0)) / NULLIF(prev.cnt, 0)) * 100 as monthly_request'
             )
             ->first();
     }

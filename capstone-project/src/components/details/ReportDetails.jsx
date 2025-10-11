@@ -139,6 +139,82 @@ const ReportDetails = () => {
                 </motion.div>
             </motion.div>
 
+            {report?.response_record ? (
+                <motion.div
+                    layout
+                    initial={{ y: -20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{
+                        type: "spring",
+                        stiffness: 200,
+                        damping: 20,
+                        delay: 0.2,
+                    }}
+                    className={`flex justify-between shadow-md rounded-2xl p-6 space-y-3 ${
+                        darkMode
+                            ? "bg-slate-800 text-slate-200"
+                            : "bg-white text-gray-800"
+                    }`}
+                >
+                    <motion.div
+                        layout
+                        initial={{ y: -20, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{
+                            type: "spring",
+                            stiffness: 200,
+                            damping: 20,
+                            delay: 0.3,
+                        }}
+                    >
+                        <p className="text-lg">
+                            <span className="font-semibold">Requested By:</span>{" "}
+                            {report?.response_record?.request?.user?.name}
+                        </p>
+                        <p>
+                            <span className="font-semibold">Distance:</span>{" "}
+                            {report?.response_record?.distance}km
+                        </p>
+                        <p>
+                            <span className="font-semibold">Response Time:</span>{" "}
+                            {report?.response_record?.response_time}{" "}
+                            {report?.response_record?.response_time > 59 ? "hours" : "minutes"}
+                        </p>
+                    </motion.div>
+                    <motion.div
+                        layout
+                        initial={{ y: -20, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{
+                            type: "spring",
+                            stiffness: 200,
+                            damping: 20,
+                            delay: 0.3,
+                        }}
+                    >
+                        <p>
+                            <span className="font-semibold">Request Date:</span>{" "}
+                            {new Date(
+                                report?.response_record?.created_at
+                            ).toLocaleDateString("en-US", {
+                                month: "short",
+                                day: "numeric",
+                                year: "numeric",
+                            })}
+                        </p>
+                        <p>
+                            <span className="font-semibold">Request Time:</span>{" "}
+                            {new Date(
+                                report?.response_record?.created_at
+                            ).toLocaleTimeString("en-US", {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                                hour12: true,
+                            })}
+                        </p>
+                    </motion.div>
+                </motion.div>
+            ) : null}
             {/* Incident Info */}
             <motion.div
                 layout
@@ -305,8 +381,8 @@ const ReportDetails = () => {
                     )}
                 </motion.div>
             </motion.div>
-            {/* report violators */}  
-                <ReportViolators reportId={id} />
+            {/* report violators */}
+            <ReportViolators reportId={id} />
             <motion.div
                 layout
                 initial={{ y: -20, opacity: 0 }}

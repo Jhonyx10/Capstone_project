@@ -44,7 +44,8 @@ const IncidentRequestMap = () => {
         const polygon = IgpitGeoFence.features[0].geometry;
         const point = turf.point([longitude, latitude]);
         const poly = turf.polygon(polygon.coordinates);
-        return turf.booleanPointInPolygon(point, poly);
+        const buffered = turf.buffer(poly, 0.02, { units: "kilometers" });
+        return turf.booleanPointInPolygon(point, buffered);
     };
 
     useEffect(() => {
@@ -53,8 +54,6 @@ const IncidentRequestMap = () => {
         requests.forEach((r) => {
             if (!isInsideGeofence(r.longitude, r.latitude)) {
                 console.warn(`⚠️ Request ID ${r.id} is outside the geofence!`);
-                // You can replace console.warn with a toast, alert, or API call
-                // alert(`Request ID ${r.id} is outside the geofence!`);
             }
         });
     }, [requests]);
@@ -264,18 +263,24 @@ useEffect(() => {
                     )}
 
                     {/* Incident Requests */}
-                    {requests?.map((r) => (
-                        <Marker
-                            key={r.id}
-                            longitude={r.longitude}
-                            latitude={r.latitude}
-                            onClick={() => setRequestId(r.id)}
-                        >
-                            <div className="text-red-600 hover:cursor-pointer">
-                                <IoLocationSharp size={34} color="#ef4444" />
-                            </div>
-                        </Marker>
-                    ))}
+                    {Array.isArray(requests) && requests.length > 0
+                        ? requests.map((r) => (
+                              <Marker
+                                  key={r.id}
+                                  longitude={r.longitude}
+                                  latitude={r.latitude}
+                                  onClick={() => setRequestId(r.id)}
+                              >
+                                  <div className="text-red-600 hover:cursor-pointer">
+                                      <IoLocationSharp
+                                          size={34}
+                                          color="#ef4444"
+                                      />
+                                  </div>
+                              </Marker>
+                          ))
+                        : // optional placeholder
+                          null}
 
                     {/* Zones */}
                     {zones.map((zone) => (

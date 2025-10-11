@@ -25,7 +25,7 @@ class EvidenceRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'incident_evidence' => 'required|array',
+            'incident_evidence' => 'array',
             'incident_evidence.*' => 'file|mimes:jpg,png,webp|max:5120',
             'remarks' => 'nullable|string',
         ];
@@ -42,7 +42,6 @@ class EvidenceRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'incident_evidence.required' => 'evidence is required.',
             'incident_evidence.file' => 'evidence must be a file type.',
             'incident_evidence.mimes' => 'evidence must be in jpg, png and webp.',
         ];

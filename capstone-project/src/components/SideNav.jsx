@@ -8,6 +8,7 @@ import { IoCall, IoBook, IoAnalytics } from "react-icons/io5";
 import { FaMapLocationDot } from "react-icons/fa6";
 import { IoLocationSharp } from "react-icons/io5";
 import { IoAlertSharp } from "react-icons/io5";
+import { IoFilterSharp } from "react-icons/io5";
 // components and hooks
 import useAppState from "../store/useAppState";
 import { Link } from "react-router-dom";
@@ -96,7 +97,15 @@ const SideNav = () => {
                             </motion.div>
                         )}
                     </div>
-
+                    <Link to="/category">
+                        <Option
+                            Icon={IoFilterSharp}
+                            title="Categories"
+                            selected={selected}
+                            setSelected={setSelected}
+                            open={open}
+                        />
+                    </Link>
                     <Link to="/reports">
                         <Option
                             Icon={BiSolidReport}
