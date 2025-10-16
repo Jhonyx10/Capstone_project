@@ -20,11 +20,16 @@ class IncidentRequestResponse extends Model
 
     public function category()
     {
-        return $this->belongsTo(IncidentRequestResponse::class, 'category_id');
+        return $this->belongsTo(IncidentCategory::class, 'category_id');
     }
 
     public function responseRecord()
     {
         return $this->hasOne(IncidentResponseRecord::class, 'request_id');
+    }
+
+    public function chatBox()
+    {
+        return $this->belongsTo(ChatBoxModel::class, 'request_id');
     }
 }

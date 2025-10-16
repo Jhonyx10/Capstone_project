@@ -69,4 +69,9 @@ class User extends Authenticatable
         // return all tokens linked to this user
         return $this->devices()->pluck('fcm_token')->toArray();
     }
+
+    public function chatBoxes()
+    {
+        return $this->hasMany(ChatBoxModel::class, 'user_id');
+    }
 }

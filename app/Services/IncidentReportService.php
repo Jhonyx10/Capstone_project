@@ -50,18 +50,19 @@ class IncidentReportService
 
     public function attachResponseRecord(array $data, int $reportId): IncidentResponseRecord
     {
-        return IncidentResponseRecord::create([
+        $responseRecord = IncidentResponseRecord::create([
             'request_id'    => $data['request_id'] ?? null,
             'report_id'     => $reportId,
             'distance'      => $data['distance'] ?? null,
             'response_time' => $data['response_time'] ?? null,
         ]);
+        return $responseRecord;
     }
 
     public function statusUpdate(int $responseId)
     {
         $request = IncidentRequestResponse::findOrFail($responseId);
-        $request->status = 1;
+        $request->status = "done";
         $request->save();
     }
 
@@ -151,11 +152,11 @@ class IncidentReportService
 
     public function getRequestResponse()
     {
-        return IncidentRequestResponse::
-            join('incident_categories', 'incident_request_responses.category_id', '=', 'incident_categories.id')
-            ->where('incident_request_responses.status', 0)
-            ->select('incident_request_responses.*', 'incident_categories.category_name')
-            ->get();
+        return IncidentRequestResponse::join('incident_categories', 'incident_request_responses.category_id', '=', 'incident_categories.id')
+                ->whereNotIn('incident_request_responses.status', ['cancel', 'done'])
+                ->select('incident_request_responses.*', 'incident_categories.category_name')
+                ->get();
+
     }
 
     public function getViolators()
@@ -169,5 +170,25 @@ class IncidentReportService
                         });
     }
 
+    public function getTodaysNews()
+    {
+        return IncidentRequestResponse::with('category','responseRecord.report')
+                        ->whereDate('created_at', now()->toDateString())
+                        ->orderByDesc('created_at')
+                        ->get();
+    }
+
+    public function rejectRequest(int $id)
+    {
+        $reject = IncidentRequestResponse::findOrFail($id);
+        $reject->status = 'cancel';
+        $reject->save();
+    }
     
+    public function getRequestRecords()
+    {
+        return IncidentRequestResponse::with('user')
+                                    ->orderByDesc('created_at')
+                                    ->get();
+    }
 }

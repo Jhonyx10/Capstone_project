@@ -14,6 +14,7 @@ use App\Http\Controllers\FCMController;
 use App\Http\Controllers\TanodLocationController;
 use App\Http\Controllers\HotlineController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\ChatBoxController;
 use App\Events\TanodLocationUpdated;
 use App\Http\Controllers\PDFController;
 
@@ -34,6 +35,7 @@ use App\Http\Controllers\PDFController;
 Route::get('/send-notification', [FCMController::class, 'sendFCMNotification']);
 
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/resident-login', [AuthController::class, 'residentLogin']);
 Route::post('/register', [AuthController::class, 'register']);
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -41,6 +43,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('role:admin')->group(function () {
         Route::post('/add-zone', [GeoLocationController::class, 'addZone']);
         Route::post('/add-category', [IncidentTypesController::class, 'addCategory']);
+        Route::get('/request/records', [ReportController::class,'getRequestRecords']);
     });
 
     //tanod only routes, for brgy tanods specific functions.
@@ -48,6 +51,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/add-location', [GeoLocationController::class, 'addIncidentLocation']);
         Route::post('/file-report', [ReportController::class, 'fileReport']);
         Route::post('/create-violators-profile', [ReportController::class, 'createViolatorsProfile']);
+        Route::put('/reject/request/{id}',[ReportController::class, 'rejectRequest']);
     });
 
     //admin and tanods shared routes for multi role access.
@@ -65,7 +69,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/get-violators', [ReportController::class, 'getViolators']);
         Route::get('/violator-details/{id}', [ViolatorController::class, 'getViolatorsDetails']);
         Route::get('/violators-violations', [ViolatorController::class, 'violatorsViolationCount']);
-        Route::get('/request', [ReportController::class, 'getRequest']);
 
         Route::get('/location-details/{id}', [GeoLocationController::class, 'locationDetails']);
 
@@ -90,12 +93,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/get-categories', [IncidentTypesController::class, 'getIncidentCategories']);
     Route::post('/add-profile', [UserController::class, 'addProfile']);
     Route::post('/logout', [AuthController::class, 'logout']);
-    
+    Route::get('/todays-news', [ReportController::class, 'getTodaysNews']);
     //resident api request routes
     Route::post('/send-request', [ReportController::class, 'sendRequest']);
     Route::get('/user-request/{id}',[TanodLocationController::class, 'userRequest']);
-
-
+    Route::get('/request', [ReportController::class, 'getRequest']);
+    Route::get('/messages/{id}', [ChatBoxController::class, 'getMessages']);
+    Route::post('/send-message', [ChatBoxController::class, 'sendMessage']);
 
     Route::post('/tanod/location', [TanodLocationController::class, 'update']);// might remove this route.
     Route::apiResource('/user-device', UserDeviceController::class); //might remove this route also.

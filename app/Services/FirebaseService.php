@@ -26,7 +26,9 @@ class FirebaseService
     public function sendFCMNotification($title, $body)
     {
         // Get all device tokens
-        $deviceTokens = UserDevice::pluck('device_token')->filter()->toArray();
+         $deviceTokens = UserDevice::whereHas('user', function ($q) {
+                                    $q->where('role', 'tanod');
+        })->pluck('device_token')->filter()->toArray();
 
         if (empty($deviceTokens)) {
             return ['error' => 'No device tokens found'];

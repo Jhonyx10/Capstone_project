@@ -29,5 +29,19 @@ class AuthService
         return $user;
     }
 
+    public function residentLogin(array $data): User
+    {
+        $user = User::with('profile')->where('email', $data['email'])->first();
 
+        if(!$user) {
+            $user = User::create([
+                'name' => 'anonymous',
+                'email' => $data['email'],
+                'password' => Hash::make($data['password']),
+                'role' => 'resident',
+            ]);
+        }
+
+        return $user;
+    }
 }

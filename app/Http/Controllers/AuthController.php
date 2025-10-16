@@ -35,6 +35,24 @@ class AuthController extends Controller
         ]);
     }
 
+   public function residentLogin(Request $request)
+    {
+        $validated = $request->validate([
+                'email' => 'required',
+                'password' => 'required',
+            ]);
+
+        $user = $this->authService->residentLogin($validated);
+
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'message' => 'Login successful.',
+            'user' => $user,
+            'token' => $token,
+        ]);
+    }
+
     public function register(CreateAccountRequest $request)
     {
         $registerUser = $this->userService->createUser($request->validated());

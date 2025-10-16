@@ -250,7 +250,9 @@ const Dashboard = () => {
                         <motion.div className="flex items-center space-x-2">
                             {" "}
                             <p className="text-3xl text-gray-700 dark:text-white">
-                                {responseTime?.current_response ?? 0}
+                                {(responseTime?.current_response ?? 0).toFixed(
+                                    1
+                                )}
                             </p>
                             <p className="text-xs leading-tight text-gray-700 dark:text-white">
                                 mins response
@@ -262,7 +264,7 @@ const Dashboard = () => {
 
                         <motion.div className="p-0.5 rounded-md bg-green-500">
                             <p className="text-xs leading-tight">
-                                {responseTime?.percent_change ?? 0}%
+                                {(responseTime?.percent_change ?? 0).toFixed(1)}%
                             </p>
                         </motion.div>
                     </motion.div>
@@ -278,7 +280,7 @@ const Dashboard = () => {
                         className="flex items-center mt-4"
                     >
                         <span className="text-xl mr-1 text-green-700">
-                            {response_time}
+                            {(response_time).toFixed(1)}
                         </span>
                         <p className="text-xs leading-tight text-gray-700 dark:text-white">
                             increase from last month
@@ -441,7 +443,7 @@ const Dashboard = () => {
                         <motion.div className="flex items-center space-x-2">
                             {" "}
                             <p className="text-3xl text-gray-700 dark:text-white">
-                               {request?.current_month_total}
+                                {request?.current_month_total}
                             </p>
                             <p className="text-xs leading-tight text-gray-700 dark:text-white">
                                 people report
@@ -468,7 +470,9 @@ const Dashboard = () => {
                         }}
                         className="flex items-center mt-4"
                     >
-                        <span className="text-xl mr-1 text-green-700">{request?.previous_month_total}</span>
+                        <span className="text-xl mr-1 text-green-700">
+                            {request?.previous_month_total}
+                        </span>
                         <p className="text-xs leading-tight text-gray-700 dark:text-white">
                             increase from last month
                         </p>

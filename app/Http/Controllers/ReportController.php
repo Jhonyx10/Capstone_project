@@ -8,6 +8,7 @@ use App\Http\Requests\IncidentReportRequest;
 use App\Http\Requests\EvidenceRequest;
 use App\Http\Requests\ViolatorsProfileRequest;
 use App\Http\Requests\ViolatorsRecordRequest;
+use App\Http\Requests\ChatRequest;
 use App\Http\Requests\ResponseRequest;
 use App\Http\Requests\ResponseRecordRequest;
 use App\Http\Requests\NotificationRequest;
@@ -19,6 +20,7 @@ use App\Events\CreateViolatorEvent;
 use Illuminate\Support\Facades\DB;
 use App\Notifications\TestNotification;
 use App\Services\NotificationService;
+use App\Services\ChatBoxService;
 use App\Models\User;
 use Exception;
 
@@ -28,12 +30,14 @@ class ReportController extends Controller
     protected $incidentReport;
     protected $firebase;
     protected $notificationService;
+    protected $chatBox;
 
-    public function __construct(IncidentReportService $incidentReport, FirebaseService $firebase, NotificationService $notificationService)
+    public function __construct(IncidentReportService $incidentReport, FirebaseService $firebase, NotificationService $notificationService, ChatBoxService $chatBox)
     {
         $this->incidentReport = $incidentReport;
         $this->firebase = $firebase;
         $this->notificationService = $notificationService;
+        $this->chatBox = $chatBox;
     }
 
 
@@ -60,11 +64,16 @@ public function fileReport(
             $violatorsRecord = $this->incidentReport->attachViolatorsRecord($recordData['violator_id'] ?? [], $report->id);
         }
 
-        $response = $responseRequest->validated();
-        if (!empty($response) && isset($response['request_id'])) {
-            $responseRecord = $this->incidentReport->attachResponseRecord($response, $report->id);
-            if (array_key_exists('request_id', $response) && !is_null($response['request_id'])) {
-                $this->incidentReport->statusUpdate((int) $response['request_id']);
+        $responseData = $responseRequest->validated();
+        $responseRecord = null;
+
+        if (!empty($responseData) && !empty($responseData['request_id'])) {
+            // Save response record
+            $responseRecord = $this->incidentReport->attachResponseRecord($responseData, $report->id);
+
+            // Update request status if request_id is valid
+            if (!is_null($responseData['request_id'])) {
+                $this->incidentReport->statusUpdate((int) $responseData['request_id']);
             }
         }
 
@@ -81,7 +90,8 @@ public function fileReport(
         return response()->json([
             'message' => 'Report successfully created.',
             'report' => $report,
-            'record' => $violatorsRecord
+            'record' => $violatorsRecord,
+            'response' => $responseRecord,
         ], 201);
 
     } catch (\Exception $e) {
@@ -138,6 +148,8 @@ public function fileReport(
     {
             $response = $this->incidentReport->createResponseRequest($responseRequest->validated());
 
+            $chatBox = $this->chatBox->messages($response->id);
+
             $notification = $this->notificationService->saveRequestNotification($response->id);
 
             $firebase = $this->firebase->sendFCMNotification(
@@ -170,4 +182,28 @@ public function fileReport(
             'violators' => $violators,
         ], 200);
     }
+
+    public function getTodaysNews()
+    {
+        $news = $this->incidentReport->getTodaysNews();
+
+        return response()->json([
+            'news' => $news,
+        ], 200);
+    }
+
+    public function rejectRequest($id)
+    {
+        $status = $this->incidentReport->rejectRequest($id);
+
+        return response()->json($status);
+    }
+
+    public function getRequestRecords()
+    {
+        $records = $this->incidentReport->getRequestRecords();
+
+        return response()->json($records);
+    }
 }
+
