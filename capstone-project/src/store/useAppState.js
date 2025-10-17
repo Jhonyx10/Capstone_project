@@ -29,6 +29,8 @@ const useAppState = create(
             }, 1000);
 
             return {
+                reportOpen: false,
+                setReportOpen: (reportOpen) => set({reportOpen}),
                 mapOpen: false,
                 setMapOpen: (mapOpen) => set({ mapOpen }),
                 login: false,

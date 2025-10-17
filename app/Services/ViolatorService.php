@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\ViolatorsProfile;
 use App\Models\ViolatorsRecord;
+use App\Models\User;
 
 class ViolatorService
 {
@@ -32,5 +33,17 @@ class ViolatorService
                                 }
                             return $violator;
                             });
+    }
+
+    public function getResidents()
+    {
+        return User::with('requests')->where('role','=','resident')->get();
+    }
+
+    public function blockUser(int $id)
+    {
+        $user = User::findOrFail($id);
+        $user->status = 'block';
+        $user->save();
     }
 }

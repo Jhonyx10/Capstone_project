@@ -187,7 +187,7 @@ class IncidentReportService
     
     public function getRequestRecords()
     {
-        return IncidentRequestResponse::with('user')
+        return IncidentRequestResponse::with('user','category')
                                     ->orderByDesc('created_at')
                                     ->get();
     }

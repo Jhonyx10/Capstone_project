@@ -44,6 +44,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/add-zone', [GeoLocationController::class, 'addZone']);
         Route::post('/add-category', [IncidentTypesController::class, 'addCategory']);
         Route::get('/request/records', [ReportController::class,'getRequestRecords']);
+        Route::get('/residents', [ViolatorController::class, 'getResidents']);
+        Route::put('/block/user/{id}', [ViolatorController::class, 'blockUser']);
     });
 
     //tanod only routes, for brgy tanods specific functions.

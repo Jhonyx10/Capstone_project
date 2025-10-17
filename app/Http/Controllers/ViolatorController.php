@@ -37,4 +37,18 @@ class ViolatorController extends Controller
 
         return response()->json(['violations' => $violations]);
     }
+
+    public function getResidents()
+    {
+        $residents = $this->violator->getResidents();
+
+        return response()->json($residents);
+    }
+
+    public function blockUser($id)
+    {
+        $user - $this->violator->blockUser($id);
+
+        return response()->json($user);
+    }
 }

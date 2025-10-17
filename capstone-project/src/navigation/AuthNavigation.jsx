@@ -18,6 +18,8 @@ import Layout from "../pages/Layout";
 import ReportDetails from "../components/details/ReportDetails";
 import ViolatorsDetails from "../components/details/ViolatorsDetails";
 import IncidentRequest from "../pages/IncidentRequest";
+import Request from "../pages/Request";
+import Residents from "../pages/Residents";
 import Categories from "../pages/Categories";
 import { AnimatePresence } from "framer-motion";
 
@@ -56,14 +58,25 @@ const AnimatedRoutes = () => {
                     <Route path="/dashboard" element={<Dashboard />} />
                     <Route path="/volunteers" element={<Volunteers />} />
                     <Route path="/map" element={<Map />} />
-                    <Route path="/incident-request" element={<IncidentRequest/>}/>
+                    <Route
+                        path="/incident-request"
+                        element={<IncidentRequest />}
+                    />
                     <Route path="/violators" element={<Violators />} />
                     <Route path="/reports" element={<Reports />} />
-                    <Route path="/analytics" element={<Analytics/>} />
+                    <Route path="/request" element={<Request />} />
+                    <Route path="/residents" element={<Residents />} />
+                    <Route path="/analytics" element={<Analytics />} />
                     <Route path="/hotline" element={<Hotline />} />
-                    <Route path="/category" element={<Categories/>} />
-                    <Route path="/report-details/:id" element={<ReportDetails/>}/>
-                    <Route path="/violators-details/:id" element={<ViolatorsDetails/>}/>
+                    <Route path="/category" element={<Categories />} />
+                    <Route
+                        path="/report-details/:id"
+                        element={<ReportDetails />}
+                    />
+                    <Route
+                        path="/violators-details/:id"
+                        element={<ViolatorsDetails />}
+                    />
                 </Route>
             </Routes>
         </AnimatePresence>

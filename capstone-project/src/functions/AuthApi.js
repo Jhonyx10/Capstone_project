@@ -23,3 +23,18 @@ export const UserLogout = async ({base_url, token}) => {
         console.log(error);
     }
 }
+
+export const blockUser = async ({base_url, token, userId}) => {
+    try {
+        const response = await axios.put(`${base_url}block/user/${userId}`,
+        {},
+        {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
+        return response.data
+    } catch (error) {
+        console.log(error);
+    }
+}

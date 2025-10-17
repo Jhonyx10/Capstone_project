@@ -8,7 +8,10 @@ import { IoCall, IoBook, IoAnalytics } from "react-icons/io5";
 import { FaMapLocationDot } from "react-icons/fa6";
 import { IoLocationSharp } from "react-icons/io5";
 import { IoAlertSharp } from "react-icons/io5";
-import { IoFilterSharp } from "react-icons/io5";
+import { IoPeopleCircleSharp } from "react-icons/io5";
+import { IoFileTrayStacked } from "react-icons/io5";
+import { IoFolderOpenSharp } from "react-icons/io5";
+import { IoApps } from "react-icons/io5";
 // components and hooks
 import useAppState from "../store/useAppState";
 import { Link } from "react-router-dom";
@@ -18,7 +21,7 @@ import TitleSection from "./TittleSection";
 import Option from "./Option";
 
 const SideNav = () => {
-    const { open, setOpen, selected, setSelected, mapOpen, setMapOpen } =
+    const { open, setOpen, selected, setSelected, mapOpen, setMapOpen, reportOpen, setReportOpen } =
         useAppState();
     
 
@@ -54,7 +57,15 @@ const SideNav = () => {
                             open={open}
                         />
                     </Link>
-
+                    <Link to="/category">
+                        <Option
+                            Icon={IoApps}
+                            title="Categories"
+                            selected={selected}
+                            setSelected={setSelected}
+                            open={open}
+                        />
+                    </Link>
                     {/* Dropdown for Map */}
                     <div>
                         <div
@@ -97,24 +108,56 @@ const SideNav = () => {
                             </motion.div>
                         )}
                     </div>
-                    <Link to="/category">
-                        <Option
-                            Icon={IoFilterSharp}
-                            title="Categories"
-                            selected={selected}
-                            setSelected={setSelected}
-                            open={open}
-                        />
-                    </Link>
-                    <Link to="/reports">
-                        <Option
-                            Icon={BiSolidReport}
-                            title="Reports"
-                            selected={selected}
-                            setSelected={setSelected}
-                            open={open}
-                        />
-                    </Link>
+                    <div>
+                        <div
+                            className="mb-1"
+                            onClick={() => setReportOpen(!reportOpen)}
+                        >
+                            <Option
+                                Icon={IoFileTrayStacked}
+                                title="Records"
+                                selected={selected}
+                                setSelected={setSelected}
+                                open={open}
+                            />
+                        </div>
+
+                        {reportOpen && (
+                            <motion.div
+                                className={`flex flex-col space-y-1 overflow-hidden relative ${
+                                    open ? "ml-6" : "ml-0"
+                                }`}
+                            >
+                                <Link to="/reports">
+                                    <Option
+                                        Icon={IoFolderOpenSharp}
+                                        title="Reports Records"
+                                        selected={selected}
+                                        setSelected={setSelected}
+                                        open={open}
+                                    />
+                                </Link>
+                                <Link to="/request">
+                                    <Option
+                                        Icon={BiSolidReport}
+                                        title="Request Records"
+                                        selected={selected}
+                                        setSelected={setSelected}
+                                        open={open}
+                                    />
+                                </Link>
+                                <Link to="/residents">
+                                    <Option
+                                        Icon={IoPeopleCircleSharp}
+                                        title="Resident Records"
+                                        selected={selected}
+                                        setSelected={setSelected}
+                                        open={open}
+                                    />
+                                </Link>
+                            </motion.div>
+                        )}
+                    </div>
                     <Link to="/violators">
                         <Option
                             Icon={MdReport}

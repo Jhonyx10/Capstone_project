@@ -28,12 +28,6 @@ class DatabaseSeeder extends Seeder
             'password' => Hash::make('password'),
             'role' => 'tanod',
             ],
-            [
-            'name' => 'guest',
-            'email' => 'guest@example.com',
-            'password' => Hash::make('password'),
-            'role' => 'resident',
-            ]
         ]);
 
         \App\Models\IncidentCategory::insert([
