@@ -21,11 +21,31 @@ const OperationMap = ({
     pinning = false, // when true, a map click drops the pin
     focus = null, // { latitude, longitude, zoom }
 }) => {
-    const { map_token, darkMode, map_styles } = useAppState();
+    const { map_token, map_styles } = useAppState();
     const mapRef = useRef(null);
     const drawRef = useRef(null);
     const [mapLoaded, setMapLoaded] = useState(false);
     const [hoveredZoneId, setHoveredZoneId] = useState(null);
+    // true while the polygon tool is active, so pins don't swallow the clicks
+    const [drawing, setDrawing] = useState(false);
+
+    // The draw tool is mounted the first time it's needed and then KEPT
+    // mounted. Unmounting/re-mounting it on every "Add area" is what broke
+    // closing the polygon on the second drawing.
+    const drawEnabled = Boolean(onDraftGeofenceChange);
+    const [drawMounted, setDrawMounted] = useState(false);
+    useEffect(() => {
+        if (drawEnabled) {
+            setDrawMounted(true);
+        } else {
+            try {
+                // leave any half-finished drawing
+                drawRef.current?.changeMode("simple_select");
+            } catch {
+                /* draw control not ready */
+            }
+        }
+    }, [drawEnabled]);
 
     // fit the camera to the operation's geofence once it is available
     const fenceKey = JSON.stringify(operationGeofence?.coordinates ?? null);
@@ -90,23 +110,34 @@ const OperationMap = ({
                 zoom: 14,
             }}
             mapboxAccessToken={map_token}
-            mapStyle={darkMode ? map_styles.dark : map_styles.light}
+            // realistic satellite imagery with street/place labels
+            mapStyle={map_styles.realistic}
+            maxZoom={20}
             style={{ width: "100%", height: "100%" }}
             cursor={pinning ? "crosshair" : undefined}
             onClick={handleClick}
             onLoad={(e) => {
+                const m = e.target;
+                // track whether the polygon tool is in a drawing mode
+                m.on("draw.modechange", (ev) =>
+                    setDrawing(String(ev.mode).startsWith("draw_"))
+                );
                 // same "wait for idle" approach as ReactMap
-                e.target.once("idle", () => setMapLoaded(true));
+                m.once("idle", () => setMapLoaded(true));
             }}
         >
             <NavigationControl position="top-right" showCompass={false} />
 
-            {onDraftGeofenceChange && (
+            {drawMounted && (
                 <DrawControl
                     drawRef={drawRef}
                     onChange={onDraftGeofenceChange}
                     resetKey={resetKey}
                 />
+            )}
+            {/* hide the draw toolbar (top-left) while not adding an area */}
+            {!drawEnabled && (
+                <style>{`.mapboxgl-ctrl-top-left { display: none; }`}</style>
             )}
 
             {mapLoaded && operationFeature && (
@@ -115,14 +146,14 @@ const OperationMap = ({
                         id="op-fence-fill"
                         type="fill"
                         paint={{
-                            "fill-color": "#f97316",
+                            "fill-color": "#22c55e",
                             "fill-opacity": 0.15,
                         }}
                     />
                     <Layer
                         id="op-fence-line"
                         type="line"
-                        paint={{ "line-color": "#f97316", "line-width": 2 }}
+                        paint={{ "line-color": "#4ade80", "line-width": 3 }}
                     />
                 </Source>
             )}
@@ -145,7 +176,7 @@ const OperationMap = ({
                     <Layer
                         id="areas-line"
                         type="line"
-                        paint={{ "line-color": "#2563eb", "line-width": 2 }}
+                        paint={{ "line-color": "#60a5fa", "line-width": 2.5 }}
                     />
                 </Source>
             )}
@@ -162,6 +193,7 @@ const OperationMap = ({
                     return (
                         <Marker
                             key={`zone-${zone.id}`}
+                            style={{ pointerEvents: drawing ? "none" : "auto" }}
                             longitude={Number(zone.longitude)}
                             latitude={Number(zone.latitude)}
                             anchor="center"
@@ -208,6 +240,7 @@ const OperationMap = ({
                 .map((area) => (
                     <Marker
                         key={area.id}
+                        style={{ pointerEvents: drawing ? "none" : "auto" }}
                         longitude={area.longitude}
                         latitude={area.latitude}
                         anchor="bottom"
@@ -224,9 +257,13 @@ const OperationMap = ({
                                 size={area.id === selectedAreaId ? 32 : 26}
                                 color={
                                     area.id === selectedAreaId
-                                        ? "#dc2626"
-                                        : "#2563eb"
+                                        ? "#1d4ed8"
+                                        : "#3b82f6"
                                 }
+                                // dark outline keeps the green pin visible on satellite imagery
+                                style={{
+                                    filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.85))",
+                                }}
                             />
                         </div>
                     </Marker>
@@ -246,7 +283,13 @@ const OperationMap = ({
                         })
                     }
                 >
-                    <IoLocationSharp size={34} color="#f97316" />
+                    <IoLocationSharp
+                        size={34}
+                        color="#3b82f6"
+                        style={{
+                            filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.85))",
+                        }}
+                    />
                 </Marker>
             )}
         </Map>

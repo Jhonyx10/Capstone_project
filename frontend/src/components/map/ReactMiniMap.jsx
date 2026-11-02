@@ -10,7 +10,14 @@ import IgpitGeoFence from "../../assets/geomap/igpityoungsville.json";
 
 const ReactMiniMap = () => {
     const { map_token, darkMode, map_styles } = useAppState();
-    const [mapLoaded, setMapLoaded] = useState(false);
+    const mapStyle = darkMode ? map_styles.dark : map_styles.light;
+
+    // remember WHICH style finished loading, so the map counts as "loaded"
+    // only while the current style is the one that finished. When the style
+    // changes, this is false again until the new style is ready.
+    const [loadedStyle, setLoadedStyle] = useState(null);
+    const mapLoaded = loadedStyle === mapStyle;
+
     const [viewPort, setViewPort] = useState({
         latitude: 8.50742219620983,
         longitude: 124.5894592178347,
@@ -23,7 +30,7 @@ const ReactMiniMap = () => {
     const { data: zones = [], isLoading, isError } = useZones();
     const { data: locations = [] } = useLocations();
 
-    // ⏳ Add 1-second timeout before showing the map
+    // ⏳ Add a short timeout before showing the map
     useEffect(() => {
         const timer = setTimeout(() => setShowMap(true), 1200);
         return () => clearTimeout(timer);
@@ -34,7 +41,6 @@ const ReactMiniMap = () => {
 
     return (
         <motion.div
-            key={darkMode ? "dark" : "light"} // remount on mode change
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -43,9 +49,10 @@ const ReactMiniMap = () => {
         >
             {showMap && (
                 <Map
-                    initialViewState={viewPort}
+                    key={mapStyle} // fresh map whenever the style changes
+                    initialViewState={viewPort} // keeps the camera after a remount
                     mapboxAccessToken={map_token}
-                    mapStyle={darkMode ? map_styles.dark : map_styles.light}
+                    mapStyle={mapStyle}
                     style={{
                         width: "100%",
                         height: "100%",
@@ -53,17 +60,8 @@ const ReactMiniMap = () => {
                     }}
                     onMove={(evt) => setViewPort(evt.viewState)}
                     onLoad={(e) => {
-                        const mapInstance = e.target;
-
-                        // Wait until the map style and layers are fully ready
-                        const handleStyleLoad = () => {
-                            console.log("✅ Map style fully loaded!");
-                            setMapLoaded(true);
-                            mapInstance.off("idle", handleStyleLoad); // cleanup listener
-                        };
-
-                        // 'idle' event ensures the style, tiles, and sources are all ready
-                        mapInstance.on("idle", handleStyleLoad);
+                        // 'idle' means style, tiles and sources are all ready
+                        e.target.once("idle", () => setLoadedStyle(mapStyle));
                     }}
                 >
                     {mapLoaded && (

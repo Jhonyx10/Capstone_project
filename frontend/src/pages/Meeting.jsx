@@ -11,7 +11,9 @@ import {
 } from "react-icons/io5";
 import useAppState from "../store/useAppState";
 import useZones from "../hooks/useZones";
+import useLocations from "../hooks/useLocations";
 import useUnansweredRequests from "../hooks/useUnAnsweredRequests";
+import LocationDetails from "../components/details/LocationDetails";
 import IgpitGeoFence from "../assets/geomap/igpityoungsville.json";
 
 /* ------------------------------------------------------------------ */
@@ -276,8 +278,11 @@ const UnansweredMap = ({ points, view, selectedId, onSelect }) => {
     const [showZones, setShowZones] = useState(true);
     const [hoveredZoneId, setHoveredZoneId] = useState(null);
     const [searchPin, setSearchPin] = useState(null);
+    const [selectedLocation, setSelectedLocation] = useState(null);
 
     const { data: zones = [] } = useZones();
+    // incident report pins (same data as the Map page)
+    const { data: locations = [] } = useLocations();
 
     const geojson = useMemo(() => toGeoJSON(points), [points]);
     const selected = points.find((p) => p.id === selectedId);
@@ -292,6 +297,11 @@ const UnansweredMap = ({ points, view, selectedId, onSelect }) => {
             duration: 600,
         });
         // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [selectedId]);
+
+    // only one detail panel at a time
+    useEffect(() => {
+        if (selectedId) setSelectedLocation(null);
     }, [selectedId]);
 
     const handlePick = (item) => {
@@ -395,7 +405,29 @@ const UnansweredMap = ({ points, view, selectedId, onSelect }) => {
                         </Marker>
                     ))}
 
-                {/* Pins */}
+                {/* Incident report pins (shown in both heatmap and pins view) */}
+                {Array.isArray(locations) &&
+                    locations.map((loc) => (
+                        <Marker
+                            key={`loc-${loc.id}`}
+                            longitude={loc.longitude}
+                            latitude={loc.latitude}
+                            anchor="bottom"
+                            onClick={(e) => {
+                                e.originalEvent.stopPropagation();
+                                onSelect(null);
+                                setSelectedLocation(loc.id);
+                            }}
+                        >
+                            <IoLocationSharp
+                                size={24}
+                                color="red"
+                                className="cursor-pointer drop-shadow"
+                            />
+                        </Marker>
+                    ))}
+
+                {/* Unanswered request pins */}
                 {view === "pins" &&
                     points.map((p) => (
                         <Marker
@@ -410,7 +442,7 @@ const UnansweredMap = ({ points, view, selectedId, onSelect }) => {
                         >
                             <IoLocationSharp
                                 size={28}
-                                color="#ef4444"
+                                color="#f59e0b"
                                 className="cursor-pointer drop-shadow"
                             />
                         </Marker>
@@ -452,6 +484,16 @@ const UnansweredMap = ({ points, view, selectedId, onSelect }) => {
                     </Popup>
                 )}
             </Map>
+
+            {/* incident report details (opens when an incident pin is clicked) */}
+            {selectedLocation && (
+                <div className="absolute left-3 top-14 z-20 max-h-[calc(100%-4.5rem)] overflow-y-auto">
+                    <LocationDetails
+                        locationId={selectedLocation}
+                        onClose={() => setSelectedLocation(null)}
+                    />
+                </div>
+            )}
 
             <LocationSearch
                 token={map_token}

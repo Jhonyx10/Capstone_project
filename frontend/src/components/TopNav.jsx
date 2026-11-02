@@ -33,6 +33,19 @@ const TopNav = () => {
     // trigger weather fetch (updates Zustand internally)
     useWeather();
 
+    // When the sidebar opens/closes, the page area changes width while it
+    // animates. Mapbox maps (and charts) only re-measure on a window "resize"
+    // event, so fire it throughout the animation. This fixes every map at once.
+    useEffect(() => {
+        let elapsed = 0;
+        const id = setInterval(() => {
+            window.dispatchEvent(new Event("resize"));
+            elapsed += 50;
+            if (elapsed >= 800) clearInterval(id);
+        }, 50);
+        return () => clearInterval(id);
+    }, [open]);
+
     const { data } = useQuery({
         queryKey: ["notifications"],
         queryFn: () => notifications({ base_url, token }),

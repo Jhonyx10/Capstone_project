@@ -349,7 +349,7 @@ const OperationDetailsPage = () => {
                                                             <span
                                                                 className={`text-xs ${
                                                                     full
-                                                                        ? "text-amber-600 dark:text-amber-400"
+                                                                        ? "text-green-600 dark:text-green-400"
                                                                         : "text-gray-500 dark:text-gray-400"
                                                                 }`}
                                                             >
@@ -362,11 +362,7 @@ const OperationDetailsPage = () => {
                                                         {hasLimit && (
                                                             <div className="mt-2 h-1.5 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
                                                                 <div
-                                                                    className={`h-full rounded-full transition-all ${
-                                                                        full
-                                                                            ? "bg-amber-500"
-                                                                            : "bg-green-500"
-                                                                    }`}
+                                                                    className="h-full rounded-full transition-all bg-green-500"
                                                                     style={{
                                                                         width: `${pct}%`,
                                                                     }}

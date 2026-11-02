@@ -30,7 +30,7 @@ const useAppState = create(
 
             return {
                 reportOpen: false,
-                setReportOpen: (reportOpen) => set({reportOpen}),
+                setReportOpen: (reportOpen) => set({ reportOpen }),
                 mapOpen: false,
                 setMapOpen: (mapOpen) => set({ mapOpen }),
                 login: false,
@@ -68,6 +68,7 @@ const useAppState = create(
                 map_styles: {
                     light: "mapbox://styles/mapbox/streets-v12",
                     dark: "mapbox://styles/joy143/cmeuj7k3i00jl01rk90g792d5",
+                    realistic: "mapbox://styles/mapbox/satellite-streets-v12",
                 },
                 // ✅ Dark Mode
                 darkMode: false,
