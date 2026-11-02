@@ -205,5 +205,14 @@ public function fileReport(
 
         return response()->json($records);
     }
+
+    public function getUnansweredRequests()
+    {
+        $requests = $this->incidentReport->getUnansweredRequests();
+
+        return response()->json([
+            'requests' => $requests,
+        ], 200);
+    }
 }
 

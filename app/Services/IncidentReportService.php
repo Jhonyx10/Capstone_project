@@ -191,4 +191,14 @@ class IncidentReportService
                                     ->orderByDesc('created_at')
                                     ->get();
     }
+
+    public function getUnansweredRequests()
+    {
+        return IncidentRequestResponse::with('category:id,category_name')
+            ->where('status', 'no_response')
+            ->whereNotNull('latitude')
+            ->whereNotNull('longitude')
+            ->orderByDesc('created_at')
+            ->get(['id', 'category_id', 'latitude', 'longitude', 'status', 'created_at']);
+    }
 }

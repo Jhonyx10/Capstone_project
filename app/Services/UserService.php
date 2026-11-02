@@ -46,17 +46,29 @@ class UserService
 
     public function getUsers()
     {
-        return User::with('profile.zone')->where('role', 'tanod')
+        return User::with('profile.zone', 'currentAssignment.group:id,name')
+            ->where('role', 'tanod')
             ->get()
             ->map(function ($user) {
                 if ($user->profile && $user->profile->photo) {
                     $user->profile->photo = asset('storage/' . $user->profile->photo);
                 }
-                 if (!$user->zone) {
-                $user->zone_name = 'No Zone Assigned';
+
+                if (!$user->zone) {
+                    $user->zone_name = 'No Zone Assigned';
                 } else {
                     $user->zone_name = $user->zone->name;
                 }
+
+                // current group, or null if the tanod isn't in one
+                $group = $user->currentAssignment?->group;
+                $user->current_group = $group
+                    ? ['id' => $group->id, 'name' => $group->name]
+                    : null;
+
+                // the raw assignment row isn't needed in the response
+                $user->makeHidden('currentAssignment');
+
                 return $user;
             });
     }

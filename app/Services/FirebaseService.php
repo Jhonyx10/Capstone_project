@@ -3,31 +3,49 @@ namespace App\Services;
 
 use Kreait\Firebase\Factory;
 use Kreait\Firebase\Messaging\CloudMessage;
-use Kreait\Firebase\Messaging\MulticastMessage;
+use Illuminate\Support\Facades\Log;
 use App\Models\UserDevice;
 
 class FirebaseService
 {
-    protected $messaging;
+    protected $messaging = null;
 
+    // No work in the constructor, so a missing credentials file
+    // no longer crashes every controller that injects this service.
     public function __construct()
     {
-        $credentialsPath = config('services.firebase.key_path');
+    }
 
-        if (!file_exists($credentialsPath) || !is_file($credentialsPath) || !is_readable($credentialsPath)) {
-            throw new \Exception('Firebase credentials file not found or not readable at: ' . $credentialsPath);
+    // Builds the Firebase client the first time it is needed.
+    protected function messaging()
+    {
+        if ($this->messaging) {
+            return $this->messaging;
         }
 
-        $this->messaging = (new Factory())
+        $credentialsPath = config('services.firebase.key_path');
+
+        if (!$credentialsPath || !is_file($credentialsPath) || !is_readable($credentialsPath)) {
+            Log::warning('Firebase credentials file not found or not readable at: ' . $credentialsPath);
+            return null;
+        }
+
+        return $this->messaging = (new Factory())
             ->withServiceAccount($credentialsPath)
             ->createMessaging();
     }
 
     public function sendFCMNotification($title, $body)
     {
+        $messaging = $this->messaging();
+
+        if (!$messaging) {
+            return ['error' => 'Firebase is not configured'];
+        }
+
         // Get all device tokens
-         $deviceTokens = UserDevice::whereHas('user', function ($q) {
-                                    $q->where('role', 'tanod');
+        $deviceTokens = UserDevice::whereHas('user', function ($q) {
+            $q->where('role', 'tanod');
         })->pluck('device_token')->filter()->toArray();
 
         if (empty($deviceTokens)) {
@@ -41,11 +59,11 @@ class FirebaseService
                 'body' => $body,
             ])
             ->withAndroidConfig([
-                'priority' => 'high', 
+                'priority' => 'high',
             ]);
 
         try {
-            $report = $this->messaging->sendMulticast($message, $deviceTokens);
+            $report = $messaging->sendMulticast($message, $deviceTokens);
             return [
                 'success' => $report->successes()->count(),
                 'failed' => $report->failures()->count(),

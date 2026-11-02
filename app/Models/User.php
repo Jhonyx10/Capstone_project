@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class User extends Authenticatable
 {
@@ -73,5 +75,35 @@ class User extends Authenticatable
     public function chatBoxes()
     {
         return $this->hasMany(ChatBoxModel::class, 'user_id');
+    }
+
+    public function groups()
+    {
+        return $this->belongsToMany(Group::class)->withTimestamps();
+    }
+
+    public function assignments()
+    {
+        return $this->hasMany(GroupAssignment::class);
+    }
+
+    public function currentAssignment()
+    {
+        return $this->hasOne(GroupAssignment::class)->whereNull('ended_at');
+    }
+
+    public function assignedAreas(): BelongsToMany
+    {
+        return $this->belongsToMany(Area::class, 'area_personnel')
+                    ->withPivot('status')
+                    ->withTimestamps();
+    }
+
+    /**
+     * Direct access to the assignment pivot records.
+     */
+    public function areaAssignments(): HasMany
+    {
+        return $this->hasMany(AreaPersonnel::class);
     }
 }

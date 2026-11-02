@@ -17,6 +17,10 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ChatBoxController;
 use App\Events\TanodLocationUpdated;
 use App\Http\Controllers\PDFController;
+use App\Http\Controllers\GroupController;
+use App\Http\Controllers\AreaController;
+use App\Http\Controllers\AreaPersonnelController;
+use App\Http\Controllers\OperationController;
 
 
 /*
@@ -39,13 +43,35 @@ Route::post('/resident-login', [AuthController::class, 'residentLogin']);
 Route::post('/register', [AuthController::class, 'register']);
 
 Route::middleware('auth:sanctum')->group(function () {
+
     Route::apiResource('users', UserController::class);
+
     Route::middleware('role:admin')->group(function () {
         Route::post('/add-zone', [GeoLocationController::class, 'addZone']);
         Route::post('/add-category', [IncidentTypesController::class, 'addCategory']);
         Route::get('/request/records', [ReportController::class,'getRequestRecords']);
         Route::get('/residents', [ViolatorController::class, 'getResidents']);
         Route::put('/block/user/{id}', [ViolatorController::class, 'blockUser']);
+        Route::get('/unanswered-requests', [ReportController::class, 'getUnansweredRequests']);
+        Route::get('/groups', [GroupController::class, 'index']);
+        Route::post('/groups', [GroupController::class, 'store']);
+        Route::post('/groups/{id}/members', [GroupController::class, 'assign']);
+        Route::delete('/users/{id}/group', [GroupController::class, 'unassign']);
+        Route::get('/users/{id}/group-history', [GroupController::class, 'history']);
+        //operations
+        Route::apiResource('operations', OperationController::class)->except(['index', 'show']);
+        Route::put('/operations/{operation}/geofence', [OperationController::class, 'updateGeofence']);
+        Route::patch('/operations/{operation}/status', [OperationController::class, 'updateStatus']);
+        //area of operation routes
+        Route::post('/operations/{operation}/areas', [AreaController::class, 'store']);
+        Route::put('/areas/{area}', [AreaController::class, 'update']);
+        Route::delete('/areas/{area}', [AreaController::class, 'destroy']);
+        //personnel for operations
+         Route::post('/areas/{area}/personnel', [AreaPersonnelController::class, 'store']);
+        Route::post('/areas/{area}/personnel/bulk', [AreaPersonnelController::class, 'storeMany']);
+        Route::patch('/areas/{area}/personnel/{userId}', [AreaPersonnelController::class, 'update']);
+        Route::delete('/areas/{area}/personnel/{userId}', [AreaPersonnelController::class, 'destroy']);
+        Route::post('/areas/{area}/personnel/{userId}/transfer', [AreaPersonnelController::class, 'transfer']);
     });
 
     //tanod only routes, for brgy tanods specific functions.
@@ -71,7 +97,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/get-violators', [ReportController::class, 'getViolators']);
         Route::get('/violator-details/{id}', [ViolatorController::class, 'getViolatorsDetails']);
         Route::get('/violators-violations', [ViolatorController::class, 'violatorsViolationCount']);
-
+        
         Route::get('/location-details/{id}', [GeoLocationController::class, 'locationDetails']);
 
         //analytics reports here.
@@ -89,6 +115,15 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/months-current-previous', [AnalyticController::class, 'currentPreviousChanges']);
         Route::get('/registered-users', [AnalyticController::class, 'registeredResidents']);
         Route::get('/total-requests', [AnalyticController::class, 'totalRequest']);
+        //group details
+        Route::get('/groups/{id}', [GroupController::class, 'show']);
+        Route::get('/my-group', [GroupController::class, 'myGroup']);
+        //operations
+        Route::apiResource('operations', OperationController::class)->only(['index', 'show']);
+        Route::get('/operations/{operation}/personnel', [OperationController::class, 'personnel']);
+        Route::get('/operations/{operation}/areas', [AreaController::class, 'index']);
+        Route::get('/areas/{area}', [AreaController::class, 'show']);
+        Route::get('/areas/{area}/personnel', [AreaPersonnelController::class, 'index']);
     });
     
     Route::apiResource('/hotline', HotlineController::class);
