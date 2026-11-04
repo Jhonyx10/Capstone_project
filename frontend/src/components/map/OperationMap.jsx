@@ -5,6 +5,7 @@ import { IoLocationSharp } from "react-icons/io5";
 import useAppState from "../../store/useAppState";
 import DrawControl from "./DrawControl";
 import { getBounds } from "../../functions/geo";
+import IgpitGeoFence from "../../assets/geomap/igpityoungsville.json";
 
 const OperationMap = ({
     operationGeofence = null,
@@ -58,9 +59,12 @@ const OperationMap = ({
 
     useEffect(() => {
         if (!mapLoaded || !focus?.latitude || !focus?.longitude) return;
-        mapRef.current?.flyTo({
-            center: [focus.longitude, focus.latitude],
-            zoom: focus.zoom ?? 17,
+        const map = mapRef.current;
+        if (!map) return;
+        map.flyTo({
+            center: [Number(focus.longitude), Number(focus.latitude)],
+            // never zoom OUT: if you're already closer than the target, keep your zoom
+            zoom: Math.max(map.getZoom(), focus.zoom ?? 17),
             duration: 800,
         });
     }, [mapLoaded, focus?.latitude, focus?.longitude]);
@@ -138,6 +142,29 @@ const OperationMap = ({
             {/* hide the draw toolbar (top-left) while not adding an area */}
             {!drawEnabled && (
                 <style>{`.mapboxgl-ctrl-top-left { display: none; }`}</style>
+            )}
+
+            {/* Igpit barangay boundary (same file as the Map page), drawn first so it sits underneath */}
+            {mapLoaded && (
+                <Source id="igpit" type="geojson" data={IgpitGeoFence}>
+                    <Layer
+                        id="igpit-fill"
+                        type="fill"
+                        paint={{
+                            "fill-color": "#f97316",
+                            "fill-opacity": 0.06,
+                        }}
+                    />
+                    <Layer
+                        id="igpit-outline"
+                        type="line"
+                        paint={{
+                            "line-color": "#f97316",
+                            "line-width": 2,
+                            "line-dasharray": [3, 2],
+                        }}
+                    />
+                </Source>
             )}
 
             {mapLoaded && operationFeature && (
@@ -260,7 +287,7 @@ const OperationMap = ({
                                         ? "#1d4ed8"
                                         : "#3b82f6"
                                 }
-                                // dark outline keeps the green pin visible on satellite imagery
+                                // dark outline keeps the blue pin visible on satellite imagery
                                 style={{
                                     filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.85))",
                                 }}

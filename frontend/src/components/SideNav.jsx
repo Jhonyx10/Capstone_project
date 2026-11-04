@@ -65,11 +65,7 @@ const NAV_GROUPS = [
                         title: "Request Records",
                         Icon: BiSolidReport,
                     },
-                    {
-                        to: "/residents",
-                        title: "Resident Records",
-                        Icon: IoPeopleCircleSharp,
-                    },
+                    { to: "/violators", title: "Violators", Icon: MdReport },
                 ],
             },
             { to: "/category", title: "Categories", Icon: IoApps },
@@ -79,7 +75,11 @@ const NAV_GROUPS = [
         label: "Community",
         items: [
             { to: "/volunteers", title: "Volunteers", Icon: MdPeopleAlt },
-            { to: "/violators", title: "Violators", Icon: MdReport },
+            {
+                to: "/residents",
+                title: "Registered Residents",
+                Icon: IoPeopleCircleSharp,
+            },
             { to: "/hotline", title: "Hotline", Icon: IoCall },
         ],
     },

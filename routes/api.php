@@ -21,6 +21,8 @@ use App\Http\Controllers\GroupController;
 use App\Http\Controllers\AreaController;
 use App\Http\Controllers\AreaPersonnelController;
 use App\Http\Controllers\OperationController;
+use App\Http\Controllers\WatchListController;
+use App\Http\Controllers\SightingReportController;
 
 
 /*
@@ -124,6 +126,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/operations/{operation}/areas', [AreaController::class, 'index']);
         Route::get('/areas/{area}', [AreaController::class, 'show']);
         Route::get('/areas/{area}/personnel', [AreaPersonnelController::class, 'index']);
+
+        Route::post('watch-lists/{id}/restore', [WatchListController::class, 'restore']);
+        Route::apiResource('watch-lists', WatchListController::class)
+            ->except(['index', 'show']);
     });
     
     Route::apiResource('/hotline', HotlineController::class);
@@ -141,5 +147,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/tanod/location', [TanodLocationController::class, 'update']);// might remove this route.
     Route::apiResource('/user-device', UserDeviceController::class); //might remove this route also.
 
+     Route::get('watch-lists', [WatchListController::class, 'index']);
+    Route::get('watch-lists/{watch_list}', [WatchListController::class, 'show']);
+
+    Route::post('sighting-reports', [SightingReportController::class, 'store'])
+        ->middleware('throttle:20,1'); // max 20 sightings per minute per user
+    Route::apiResource('sighting-reports', SightingReportController::class)
+        ->except(['store']);
 });
 
