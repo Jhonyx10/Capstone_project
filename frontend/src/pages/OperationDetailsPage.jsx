@@ -12,6 +12,10 @@ import AreaPersonnelPanel from "../components/operations/AreaPersonnelPanel";
 import StatusBadge, {
     OPERATION_STATUSES,
 } from "../components/operations/StatusBadge";
+import OperationDetailsSkeleton, {
+    Bone,
+    AreaRowSkeleton,
+} from "../components/operations/OperationDetailsSkeleton";
 import useOperations from "../hooks/useOperations";
 import useAreas from "../hooks/useAreas";
 import useVolunteers from "../hooks/useVolunteers"; // <-- swap for your tanod roster hook
@@ -121,18 +125,16 @@ const OperationDetailsPage = () => {
         setSelectedAreaId(null);
     };
 
-    if (details.isLoading)
-        return (
-            <div className="p-6 text-sm text-gray-500 dark:text-gray-400">
-                Loading operation...
-            </div>
-        );
+    if (details.isLoading) return <OperationDetailsSkeleton />;
+
     if (details.isError || !operation)
         return (
             <div className="p-6 text-sm text-red-500">
                 Failed to load this operation.
             </div>
         );
+
+    const statsLoading = areas.isLoading || operationPersonnel.isLoading;
 
     const stats = [
         { label: "Areas", value: areaList.length },
@@ -221,9 +223,13 @@ const OperationDetailsPage = () => {
                         <p className="text-xs text-gray-500 dark:text-gray-400">
                             {label}
                         </p>
-                        <p className="text-2xl font-semibold text-gray-800 dark:text-white">
-                            {value}
-                        </p>
+                        <div className="text-2xl font-semibold text-gray-800 dark:text-white">
+                            {statsLoading ? (
+                                <Bone className="mt-1 h-7 w-10" />
+                            ) : (
+                                value
+                            )}
+                        </div>
                     </motion.div>
                 ))}
             </div>
@@ -273,7 +279,9 @@ const OperationDetailsPage = () => {
                                     <h2 className="font-semibold text-gray-800 dark:text-white">
                                         Areas
                                         <span className="ml-2 text-sm font-normal text-gray-500 dark:text-gray-400">
-                                            {areaList.length}
+                                            {areas.isLoading
+                                                ? "…"
+                                                : areaList.length}
                                         </span>
                                     </h2>
                                     <button
@@ -285,7 +293,16 @@ const OperationDetailsPage = () => {
                                     </button>
                                 </div>
 
-                                {areaList.length === 0 ? (
+                                {areas.isLoading ? (
+                                    <ul
+                                        className="flex flex-col gap-2"
+                                        aria-busy="true"
+                                    >
+                                        {[0, 1, 2].map((i) => (
+                                            <AreaRowSkeleton key={i} />
+                                        ))}
+                                    </ul>
+                                ) : areaList.length === 0 ? (
                                     <div className="flex flex-col items-center gap-1 rounded-lg border border-dashed border-gray-300 dark:border-gray-700 px-4 py-8 text-center">
                                         <IoLocationOutline
                                             size={24}

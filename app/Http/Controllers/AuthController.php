@@ -35,34 +35,37 @@ class AuthController extends Controller
         ]);
     }
 
-   public function residentLogin(Request $request)
+    public function register(Request $request, AuthService $auth)
     {
-        $validated = $request->validate([
-                'email' => 'required',
-                'password' => 'required',
-            ]);
+        $data = $request->validate([
+            'name'      => 'required|string|max:100',
+            'phone'     => 'required|string',
+            'device_id' => 'required|string|max:255',
+            'id_photo'  => 'required|image|max:4096',
+        ]);
 
-        $user = $this->authService->residentLogin($validated);
-
-        $token = $user->createToken('auth_token')->plainTextToken;
+        [$user, $secret] = $auth->register($data, $request->file('id_photo'));
 
         return response()->json([
-            'message' => 'Login successful.',
-            'user' => $user,
-            'token' => $token,
-        ]);
+            'message' => 'Registration submitted. Please wait for approval.',
+            'secret'  => $secret,
+        ], 201);
     }
 
-    public function register(CreateAccountRequest $request)
+    public function residentLogin(Request $request, AuthService $auth)
     {
-        $registerUser = $this->userService->createUser($request->validated());
+        $data = $request->validate([
+            'phone'  => 'required|string',
+            'secret' => 'nullable|string',
+        ]);
 
-        $token = $registerUser->createToken('auth_token')->plainTextToken;
+        $user = $auth->residentLogin($data);
 
-           return response([
-            'message' => 'Login successful.',
-            'user' => $registerUser,
-            'token' => $token,
+        return response()->json([
+            'token'         => $user->createToken('resident')->plainTextToken,
+            'user'          => $user,
+            'status'        => $user->status,
+            'reject_reason' => $user->status === 'rejected' ? $user->reject_reason : null,
         ]);
     }
 

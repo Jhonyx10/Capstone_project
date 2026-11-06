@@ -170,12 +170,19 @@ class IncidentReportService
                         });
     }
 
-    public function getTodaysNews()
+   public function getNews(int $perPage = 10)
     {
-        return IncidentRequestResponse::with('category','responseRecord.report')
-                        ->whereDate('created_at', now()->toDateString())
-                        ->orderByDesc('created_at')
-                        ->get();
+        return IncidentReport::with('incidentType.category')
+            ->where('is_public', 1)
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')                    // stable order across pages
+            ->paginate($perPage)
+            ->through(fn ($report) => [
+                'id'           => $report->id,
+                'category'     => $report->incidentType?->category?->name,
+                'summary'      => $report->report_description,
+                'published_at' => $report->created_at,
+            ]);
     }
 
     public function rejectRequest(int $id)

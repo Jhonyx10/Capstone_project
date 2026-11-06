@@ -136,4 +136,9 @@ class AnalyticController extends Controller
             'most_reported_category' => $most_reported_category
         ]);
     }
+
+    public function tanodHome(Request $request, AnalyticService $analytics)
+    {
+        return response()->json(['data' => $analytics->tanodHomeAnalytics($request->user())]);
+    }
 }

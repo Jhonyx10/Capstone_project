@@ -41,8 +41,8 @@ class WatchList extends Model
     public function getImageUrlAttribute(): ?string
     {
         return $this->image
-            ? Storage::disk('public')->url($this->image)
-            : null;
+        ? asset('storage/' . $this->image)
+        : null;
     }
 
     public function scopeActive(Builder $query): Builder

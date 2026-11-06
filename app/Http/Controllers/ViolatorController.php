@@ -45,6 +45,29 @@ class ViolatorController extends Controller
         return response()->json($residents);
     }
 
+    public function residentDetails(int $id, ViolatorService $service)
+    {
+        return response()->json($service->getResidentDetails($id));
+    }
+
+    public function residentPhoto(int $id, ViolatorService $service)
+    {
+        return $service->residentPhoto($id);
+    }
+
+    public function approveResident(Request $request, int $id, ViolatorService $service)
+    {
+        $service->approveResident($id, $request->user()->id);
+        return response()->json(['message' => 'Resident approved.']);
+    }
+
+    public function rejectResident(Request $request, int $id, ViolatorService $service)
+    {
+        $data = $request->validate(['reason' => 'required|string|max:255']);
+        $service->rejectResident($id, $request->user()->id, $data['reason']);
+        return response()->json(['message' => 'Resident rejected.']);
+    }
+
     public function blockUser($id)
     {
         $user - $this->violator->blockUser($id);

@@ -8,7 +8,7 @@ import { fadeIn, rowFade } from "../../utils/motion"; // <-- adjust path
 const STATUSES = ["active", "standby", "inactive"];
 
 const SELECT =
-    "rounded-md border border-gray-300 bg-white px-2 py-1 text-xs capitalize text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400 cursor-pointer";
+    "rounded-md border border-gray-300 bg-white px-2 py-1 text-xs capitalize text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400 cursor-pointer disabled:cursor-wait disabled:opacity-60";
 
 export const displayName = (u) =>
     u?.name ??
@@ -22,6 +22,13 @@ const Avatar = ({ user }) => (
     >
         {displayName(user).charAt(0).toUpperCase()}
     </span>
+);
+
+const Spinner = () => (
+    <span
+        aria-hidden="true"
+        className="inline-block size-4 shrink-0 animate-spin rounded-full border-2 border-green-600 border-t-transparent"
+    />
 );
 
 // render with key={area.id} so state resets when another area is selected
@@ -45,6 +52,8 @@ const AreaPersonnelPanel = ({
     const [status, setStatus] = useState("active");
     const [failed, setFailed] = useState([]);
     const [error, setError] = useState("");
+    // which row is changing status, and to what: { userId, status } | null
+    const [updating, setUpdating] = useState(null);
 
     const rows = personnel.data ?? [];
     const assignedIds = new Set(assignedUserIds);
@@ -82,6 +91,21 @@ const AreaPersonnelPanel = ({
 
     const handleRowError = (err) =>
         setError(getApiError(err, "Something went wrong."));
+
+    const handleStatusChange = async (p, nextStatus) => {
+        setError("");
+        setUpdating({ userId: p.user_id, status: nextStatus });
+        try {
+            await changeStatus.mutateAsync({
+                userId: p.user_id,
+                status: nextStatus,
+            });
+        } catch (err) {
+            handleRowError(err);
+        } finally {
+            setUpdating(null);
+        }
+    };
 
     return (
         <motion.section
@@ -121,48 +145,67 @@ const AreaPersonnelPanel = ({
             )}
 
             <ul className="flex flex-col gap-2">
-                {rows.map((p, i) => (
-                    <motion.li
-                        key={p.id}
-                        {...rowFade(i)}
-                        className="flex items-center gap-2 rounded-lg border border-gray-200 px-2.5 py-2 dark:border-gray-700"
-                    >
-                        <Avatar user={p.user} />
-                        <span className="flex-1 truncate text-sm text-gray-800 dark:text-white">
-                            {displayName(p.user)}
-                        </span>
-                        <select
-                            value={p.status}
-                            onChange={(e) =>
-                                changeStatus
-                                    .mutateAsync({
-                                        userId: p.user_id,
-                                        status: e.target.value,
-                                    })
-                                    .catch(handleRowError)
-                            }
-                            className={SELECT}
+                {rows.map((p, i) => {
+                    const isUpdating = updating?.userId === p.user_id;
+
+                    return (
+                        <motion.li
+                            key={p.id}
+                            {...rowFade(i)}
+                            aria-busy={isUpdating}
+                            className={`flex items-center gap-2 rounded-lg border px-2.5 py-2 transition-colors ${
+                                isUpdating
+                                    ? "border-green-300 bg-green-50/60 dark:border-green-700 dark:bg-green-900/10"
+                                    : "border-gray-200 dark:border-gray-700"
+                            }`}
                         >
-                            {STATUSES.map((s) => (
-                                <option key={s} value={s}>
-                                    {s}
-                                </option>
-                            ))}
-                        </select>
-                        <button
-                            onClick={() =>
-                                remove
-                                    .mutateAsync({ userId: p.user_id })
-                                    .catch(handleRowError)
-                            }
-                            aria-label="Remove from area"
-                            title="Remove from area"
-                            className="rounded-md p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-gray-800 transition cursor-pointer"
-                        >
-                            <IoTrashOutline size={16} />
-                        </button>
-                    </motion.li>
-                ))}
+                            <Avatar user={p.user} />
+                            <span className="flex-1 truncate text-sm text-gray-800 dark:text-white">
+                                {displayName(p.user)}
+                            </span>
+
+                            {isUpdating && (
+                                <span
+                                    role="status"
+                                    className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400"
+                                >
+                                    <Spinner />
+                                    <span className="sr-only">
+                                        Updating status
+                                    </span>
+                                </span>
+                            )}
+
+                            <select
+                                value={isUpdating ? updating.status : p.status}
+                                disabled={isUpdating}
+                                onChange={(e) =>
+                                    handleStatusChange(p, e.target.value)
+                                }
+                                className={SELECT}
+                            >
+                                {STATUSES.map((s) => (
+                                    <option key={s} value={s}>
+                                        {s}
+                                    </option>
+                                ))}
+                            </select>
+                            <button
+                                onClick={() =>
+                                    remove
+                                        .mutateAsync({ userId: p.user_id })
+                                        .catch(handleRowError)
+                                }
+                                disabled={isUpdating}
+                                aria-label="Remove from area"
+                                title="Remove from area"
+                                className="rounded-md p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition cursor-pointer"
+                            >
+                                <IoTrashOutline size={16} />
+                            </button>
+                        </motion.li>
+                    );
+                })}
             </ul>
 
             {!assigning ? (
@@ -242,8 +285,14 @@ const AreaPersonnelPanel = ({
                         <button
                             onClick={handleAssign}
                             disabled={selected.length === 0 || assign.isPending}
-                            className="flex-1 rounded-lg bg-green-600 px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-green-500 disabled:opacity-50 transition cursor-pointer"
+                            className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-green-600 px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-green-500 disabled:opacity-50 transition cursor-pointer"
                         >
+                            {assign.isPending && (
+                                <span
+                                    aria-hidden="true"
+                                    className="inline-block size-4 animate-spin rounded-full border-2 border-white border-t-transparent"
+                                />
+                            )}
                             {assign.isPending
                                 ? "Assigning..."
                                 : `Assign (${selected.length})`}

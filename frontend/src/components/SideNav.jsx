@@ -15,6 +15,7 @@ import {
     IoApps,
     IoChevronDown,
     IoShieldCheckmark,
+    IoEye,
 } from "react-icons/io5";
 // components and hooks
 import useAppState from "../store/useAppState";
@@ -66,6 +67,7 @@ const NAV_GROUPS = [
                         Icon: BiSolidReport,
                     },
                     { to: "/violators", title: "Violators", Icon: MdReport },
+                    { to: "/watchlists", title: "Watch List", Icon: IoEye },
                 ],
             },
             { to: "/category", title: "Categories", Icon: IoApps },
@@ -77,7 +79,7 @@ const NAV_GROUPS = [
             { to: "/volunteers", title: "Volunteers", Icon: MdPeopleAlt },
             {
                 to: "/residents",
-                title: "Registered Residents",
+                title: "Residents",
                 Icon: IoPeopleCircleSharp,
             },
             { to: "/hotline", title: "Hotline", Icon: IoCall },

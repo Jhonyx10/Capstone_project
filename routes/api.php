@@ -74,6 +74,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::patch('/areas/{area}/personnel/{userId}', [AreaPersonnelController::class, 'update']);
         Route::delete('/areas/{area}/personnel/{userId}', [AreaPersonnelController::class, 'destroy']);
         Route::post('/areas/{area}/personnel/{userId}/transfer', [AreaPersonnelController::class, 'transfer']);
+        //resident
+        Route::get('residents/{id}', [ViolatorController::class, 'residentDetails']);
+        Route::get('residents/{id}/photo', [ViolatorController::class, 'residentPhoto']);
+        Route::post('residents/{id}/approve', [ViolatorController::class, 'approveResident']);
+        Route::post('residents/{id}/reject', [ViolatorController::class, 'rejectResident']);
     });
 
     //tanod only routes, for brgy tanods specific functions.
@@ -86,6 +91,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     //admin and tanods shared routes for multi role access.
     Route::middleware('role:admin,tanod')->group(function () {
+        Route::get('tanod/analytics', [AnalyticController::class, 'tanodHome']);
         // Route::apiResource('users', UserController::class);
         Route::get('/notifications', [NotificationController::class, 'index']);
         Route::put('/update-notification/{id}',[NotificationController::class, 'update']);
@@ -136,7 +142,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/get-categories', [IncidentTypesController::class, 'getIncidentCategories']);
     Route::post('/add-profile', [UserController::class, 'addProfile']);
     Route::post('/logout', [AuthController::class, 'logout']);
-    Route::get('/todays-news', [ReportController::class, 'getTodaysNews']);
+    Route::get('/news', [ReportController::class, 'news']);
     //resident api request routes
     Route::post('/send-request', [ReportController::class, 'sendRequest']);
     Route::get('/user-request/{id}',[TanodLocationController::class, 'userRequest']);
@@ -147,7 +153,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/tanod/location', [TanodLocationController::class, 'update']);// might remove this route.
     Route::apiResource('/user-device', UserDeviceController::class); //might remove this route also.
 
-     Route::get('watch-lists', [WatchListController::class, 'index']);
+    Route::get('watch-lists', [WatchListController::class, 'index']);
     Route::get('watch-lists/{watch_list}', [WatchListController::class, 'show']);
 
     Route::post('sighting-reports', [SightingReportController::class, 'store'])

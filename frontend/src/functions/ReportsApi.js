@@ -117,3 +117,42 @@ export const getResidents = async ({base_url, token}) => {
         console.log(error);
     }
 }
+
+export const getResidentDetails = async ({ base_url, token, id }) => {
+    const response = await axios.get(`${base_url}residents/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+};
+
+// The ID photo is private, so it's fetched with the token and shown as a blob
+export const getResidentPhoto = async ({ base_url, token, id }) => {
+    try {
+        const response = await axios.get(`${base_url}residents/${id}/photo`, {
+            headers: { Authorization: `Bearer ${token}` },
+            responseType: "blob",
+        });
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
+};
+
+export const approveResident = async ({ base_url, token, id }) => {
+    const response = await axios.post(
+        `${base_url}residents/${id}/approve`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+    );
+    return response.data;
+};
+
+export const rejectResident = async ({ base_url, token, id, reason }) => {
+    const response = await axios.post(
+        `${base_url}residents/${id}/reject`,
+        { reason },
+        { headers: { Authorization: `Bearer ${token}` } }
+    );
+    return response.data;
+};

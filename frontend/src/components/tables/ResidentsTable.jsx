@@ -1,14 +1,20 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { FaSearch, FaExclamationTriangle } from "react-icons/fa";
 import useAppState from "../../store/useAppState";
 import { getResidents } from "../../functions/ReportsApi";
 import { blockUser } from "../../functions/AuthApi";
 import { fadeIn, rowFade } from "../../utils/motion";
+import {
+    cap,
+    STATUS_STYLE,
+    statusLabel,
+    formatDate,
+} from "../../utils/residentStatus";
+import ResidentDetailsModal from "./ResidentDetailsModal";
 
 const RESIDENTS_PER_PAGE = 10;
-const cap = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : "—");
 
 const FilterSelect = ({ label, value, onChange, children }) => (
     <select
@@ -30,6 +36,7 @@ const ResidentsTable = () => {
     const [selectedStatus, setSelectedStatus] = useState("all");
     const [currentPage, setCurrentPage] = useState(1);
     const [confirmId, setConfirmId] = useState(null);
+    const [selectedId, setSelectedId] = useState(null); // details modal
 
     const {
         data: residents,
@@ -56,6 +63,8 @@ const ResidentsTable = () => {
     const statuses = [
         ...new Set((residents ?? []).map((u) => u.status).filter(Boolean)),
     ];
+    const pendingCount =
+        residents?.filter((u) => u.status === "pending").length ?? 0;
 
     const q = search.trim().toLowerCase();
     const filtered =
@@ -91,6 +100,8 @@ const ResidentsTable = () => {
     const td = "px-4 py-3 text-slate-700 dark:text-slate-200";
     const btn =
         "rounded-lg px-3 py-1.5 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50";
+    const outlineBtn =
+        "border border-slate-300 text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800";
 
     return (
         <div className="space-y-4">
@@ -113,6 +124,21 @@ const ResidentsTable = () => {
                 </div>
             )}
 
+            {/* Pending approvals banner */}
+            {pendingCount > 0 && selectedStatus !== "pending" && (
+                <motion.button
+                    {...fadeIn(0)}
+                    onClick={() => setSelectedStatus("pending")}
+                    className="flex w-full items-center justify-between rounded-xl border border-amber-300 bg-amber-50 p-4 text-left text-sm text-amber-800 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-300"
+                >
+                    <span>
+                        <strong>{pendingCount}</strong> resident
+                        {pendingCount > 1 ? "s" : ""} waiting for approval
+                    </span>
+                    <span className="font-medium underline">Show</span>
+                </motion.button>
+            )}
+
             {/* Toolbar */}
             <motion.div
                 {...fadeIn(0)}
@@ -126,7 +152,7 @@ const ResidentsTable = () => {
                     <input
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        placeholder="Search by name or email"
+                        placeholder="Search by name or mobile number"
                         className="w-full rounded-lg border border-slate-300 bg-white py-2 pl-9 pr-3 text-sm text-slate-800 outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/30 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
                     />
                 </div>
@@ -151,7 +177,7 @@ const ResidentsTable = () => {
                         <option value="all">All statuses</option>
                         {statuses.map((s) => (
                             <option key={s} value={s}>
-                                {s === "block" ? "Blocked" : cap(s)}
+                                {statusLabel(s)}
                             </option>
                         ))}
                     </FilterSelect>
@@ -178,6 +204,7 @@ const ResidentsTable = () => {
                                 <th className={th}>Resident</th>
                                 <th className={th}>Role</th>
                                 <th className={th}>Status</th>
+                                <th className={th}>Registered</th>
                                 <th className={th}>Requests</th>
                                 <th className={th}>Canceled</th>
                                 <th className={`${th} text-right`}>
@@ -189,7 +216,7 @@ const ResidentsTable = () => {
                             {isLoading ? (
                                 [0, 1, 2, 3, 4].map((i) => (
                                     <tr key={i}>
-                                        <td colSpan={6} className="px-4 py-3">
+                                        <td colSpan={7} className="px-4 py-3">
                                             <div className="h-8 animate-pulse rounded bg-slate-100 dark:bg-slate-800" />
                                         </td>
                                     </tr>
@@ -197,7 +224,7 @@ const ResidentsTable = () => {
                             ) : pageRows.length === 0 ? (
                                 <tr>
                                     <td
-                                        colSpan={6}
+                                        colSpan={7}
                                         className="px-4 py-12 text-center text-slate-500 dark:text-slate-400"
                                     >
                                         {hasFilters
@@ -221,6 +248,8 @@ const ResidentsTable = () => {
                                             (r) => r.status === "cancel"
                                         ).length || 0;
                                     const blocked = user.status === "block";
+                                    const pending = user.status === "pending";
+                                    const active = user.status === "active";
                                     const working =
                                         userMutation.isPending &&
                                         userMutation.variables?.userId ===
@@ -245,15 +274,16 @@ const ResidentsTable = () => {
                                             <td className={td}>
                                                 <span
                                                     className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                                                        blocked
-                                                            ? "bg-rose-500/10 text-rose-600 dark:text-rose-400"
-                                                            : "bg-green-500/10 text-green-600 dark:text-green-400"
+                                                        STATUS_STYLE[
+                                                            user.status
+                                                        ] ?? ""
                                                     }`}
                                                 >
-                                                    {blocked
-                                                        ? "Blocked"
-                                                        : cap(user.status)}
+                                                    {statusLabel(user.status)}
                                                 </span>
+                                            </td>
+                                            <td className={td}>
+                                                {formatDate(user.created_at)}
                                             </td>
                                             <td className={td}>{requests}</td>
                                             <td className={td}>
@@ -274,24 +304,25 @@ const ResidentsTable = () => {
                                                 )}
                                             </td>
                                             <td className="px-4 py-3 text-right">
-                                                {blocked ? (
+                                                <span className="inline-flex items-center justify-end gap-2">
                                                     <button
-                                                        disabled={working}
                                                         onClick={() =>
-                                                            userMutation.mutate(
-                                                                {
-                                                                    userId: user.id,
-                                                                }
+                                                            setSelectedId(
+                                                                user.id
                                                             )
                                                         }
-                                                        className={`${btn} border border-slate-300 text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800`}
+                                                        className={`${btn} ${
+                                                            pending
+                                                                ? "bg-amber-500 text-white hover:bg-amber-400"
+                                                                : outlineBtn
+                                                        }`}
                                                     >
-                                                        {working
-                                                            ? "Working..."
-                                                            : "Unblock"}
+                                                        {pending
+                                                            ? "Review"
+                                                            : "Details"}
                                                     </button>
-                                                ) : confirmId === user.id ? (
-                                                    <span className="inline-flex gap-2">
+
+                                                    {blocked && (
                                                         <button
                                                             disabled={working}
                                                             onClick={() =>
@@ -301,35 +332,59 @@ const ResidentsTable = () => {
                                                                     }
                                                                 )
                                                             }
-                                                            className={`${btn} bg-rose-600 text-white hover:bg-rose-500`}
+                                                            className={`${btn} ${outlineBtn}`}
                                                         >
                                                             {working
                                                                 ? "Working..."
-                                                                : "Confirm block"}
+                                                                : "Unblock"}
                                                         </button>
-                                                        <button
-                                                            onClick={() =>
-                                                                setConfirmId(
-                                                                    null
-                                                                )
-                                                            }
-                                                            className={`${btn} text-slate-600 hover:underline dark:text-slate-300`}
-                                                        >
-                                                            Cancel
-                                                        </button>
-                                                    </span>
-                                                ) : (
-                                                    <button
-                                                        onClick={() =>
-                                                            setConfirmId(
-                                                                user.id
-                                                            )
-                                                        }
-                                                        className={`${btn} border border-rose-300 text-rose-600 hover:bg-rose-600 hover:text-white dark:border-rose-900 dark:text-rose-400`}
-                                                    >
-                                                        Block
-                                                    </button>
-                                                )}
+                                                    )}
+
+                                                    {active &&
+                                                        (confirmId ===
+                                                        user.id ? (
+                                                            <>
+                                                                <button
+                                                                    disabled={
+                                                                        working
+                                                                    }
+                                                                    onClick={() =>
+                                                                        userMutation.mutate(
+                                                                            {
+                                                                                userId: user.id,
+                                                                            }
+                                                                        )
+                                                                    }
+                                                                    className={`${btn} bg-rose-600 text-white hover:bg-rose-500`}
+                                                                >
+                                                                    {working
+                                                                        ? "Working..."
+                                                                        : "Confirm block"}
+                                                                </button>
+                                                                <button
+                                                                    onClick={() =>
+                                                                        setConfirmId(
+                                                                            null
+                                                                        )
+                                                                    }
+                                                                    className={`${btn} text-slate-600 hover:underline dark:text-slate-300`}
+                                                                >
+                                                                    Cancel
+                                                                </button>
+                                                            </>
+                                                        ) : (
+                                                            <button
+                                                                onClick={() =>
+                                                                    setConfirmId(
+                                                                        user.id
+                                                                    )
+                                                                }
+                                                                className={`${btn} border border-rose-300 text-rose-600 hover:bg-rose-600 hover:text-white dark:border-rose-900 dark:text-rose-400`}
+                                                            >
+                                                                Block
+                                                            </button>
+                                                        ))}
+                                                </span>
                                             </td>
                                         </motion.tr>
                                     );
@@ -369,6 +424,17 @@ const ResidentsTable = () => {
                     </div>
                 </div>
             )}
+
+            {/* Details / review modal */}
+            <AnimatePresence>
+                {selectedId && (
+                    <ResidentDetailsModal
+                        key={selectedId}
+                        id={selectedId}
+                        onClose={() => setSelectedId(null)}
+                    />
+                )}
+            </AnimatePresence>
         </div>
     );
 };

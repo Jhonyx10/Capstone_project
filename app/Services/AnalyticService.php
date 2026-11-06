@@ -9,11 +9,13 @@ use App\Models\ViolatorsProfile;
 use App\Models\IncidentRequestResponse;
 use App\Models\Zone;
 use App\Models\IncidentResponseRecord;
+use \App\Services\Concerns\TanodAnalytics;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class AnalyticService
 {
+    use TanodAnalytics;
     /**
      * Get total number of incident reports.
      *

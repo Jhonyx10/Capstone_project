@@ -183,13 +183,11 @@ public function fileReport(
         ], 200);
     }
 
-    public function getTodaysNews()
+    public function news(Request $request)
     {
-        $news = $this->incidentReport->getTodaysNews();
+        $perPage = min((int) $request->query('per_page', 10), 30);
 
-        return response()->json([
-            'news' => $news,
-        ], 200);
+        return response()->json($this->incidentReport->getNews($perPage));
     }
 
     public function rejectRequest($id)

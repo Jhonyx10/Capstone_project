@@ -501,7 +501,6 @@ const Dashboard = () => {
                         </p>
                     </div>
 
-                    {/* <BarChart labels={labels} data={data} /> */}
                     <div className="flex flex-row justify-between gap-2">
                         {/* Left side map */}
                         <ReactMiniMap />

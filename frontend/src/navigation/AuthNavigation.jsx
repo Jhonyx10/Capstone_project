@@ -25,6 +25,8 @@ import Meetings from "../pages/Meeting";
 import Operation from "../pages/Operation";
 import OperationDetailsPage from "../pages/OperationDetailsPage";
 import CreateOperationPage from "../pages/CreateOperationPage";
+import WatchList from "../pages/WatchList";
+import WatchListDetails from "../components/details/WatchListDetails";
 import { AnimatePresence } from "framer-motion";
 
 const ProtectedRoute = ({ children }) => {
@@ -75,6 +77,11 @@ const AnimatedRoutes = () => {
                     <Route path="/category" element={<Categories />} />
                     <Route path="/meetings" element={<Meetings />} />
                     <Route path="/operations" element={<Operation />} />
+                    <Route path="/watchlists" element={<WatchList />} />
+                    <Route
+                        path="/watch-list-details/:id"
+                        element={<WatchListDetails />}
+                    />
                     <Route
                         path="/operations/new"
                         element={<CreateOperationPage />}
