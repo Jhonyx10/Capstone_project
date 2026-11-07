@@ -179,7 +179,7 @@ class IncidentReportService
             ->paginate($perPage)
             ->through(fn ($report) => [
                 'id'           => $report->id,
-                'category'     => $report->incidentType?->category?->name,
+                'category'     => $report->incidentType?->category?->category_name,
                 'summary'      => $report->report_description,
                 'published_at' => $report->created_at,
             ]);
