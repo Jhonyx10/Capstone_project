@@ -1,10 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FaSearch } from "react-icons/fa";
 import useAppState from "../../store/useAppState";
 import useZones from "../../hooks/useZones";
+import useNotifications from "../../hooks/useNotifications";
 import { getCategories, getReports } from "../../functions/ReportsApi";
 import { fadeIn, rowFade } from "../../utils/motion";
 
@@ -90,6 +91,23 @@ const ReportTable = () => {
     });
 
     const { data: zones } = useZones();
+    const { data: notifications = [] } = useNotifications();
+
+    // ids of reports that still have an unread report-notification
+    const newReportIds = useMemo(
+        () =>
+            new Set(
+                (Array.isArray(notifications) ? notifications : [])
+                    .filter(
+                        (n) =>
+                            String(n?.notification_type ?? "").includes(
+                                "report"
+                            ) && Number(n?.status) === 0
+                    )
+                    .map((n) => Number(n.item_id))
+            ),
+        [notifications]
+    );
 
     useEffect(() => {
         if (reports && categories) {
@@ -331,9 +349,16 @@ const ReportTable = () => {
                                         className="transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50"
                                     >
                                         <td className={td}>
-                                            <p className="font-medium">
+                                            <p className="flex items-center gap-2 font-medium">
                                                 {r?.incident_type
                                                     ?.incident_name ?? "—"}
+                                                {newReportIds.has(
+                                                    Number(r.id)
+                                                ) && (
+                                                    <span className="rounded-full bg-red-500 px-2 py-0.5 text-[10px] font-semibold uppercase text-white">
+                                                        New
+                                                    </span>
+                                                )}
                                             </p>
                                             <span className="mt-1 inline-block rounded-md bg-green-500/10 px-2 py-0.5 text-xs text-green-600 dark:text-green-400">
                                                 {r?.incident_type?.category

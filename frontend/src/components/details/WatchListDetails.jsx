@@ -9,6 +9,8 @@ import {
     IoTimeOutline,
     IoOpenOutline,
     IoMapOutline,
+    IoExpandOutline,
+    IoContractOutline,
 } from "react-icons/io5";
 import useAppState from "../../store/useAppState";
 import { toast } from "../../store/useToast";
@@ -24,6 +26,7 @@ import {
     formatDateTime,
     card,
 } from "../WatchListUi";
+import useMarkNotificationRead from "../../hooks/useMarkNotificationRead";
 
 const BackButton = ({ onClick }) => (
     <button
@@ -62,12 +65,14 @@ const WatchListDetails = () => {
     const base_url = useAppState((s) => s.base_url);
     const token = useAppState((s) => s.token);
     const { id } = useParams();
+    useMarkNotificationRead(id, "sighting");
     const navigate = useNavigate();
     const queryClient = useQueryClient();
 
     const [editing, setEditing] = useState(false);
     const [confirmDelete, setConfirmDelete] = useState(false);
     const [selectedId, setSelectedId] = useState(null);
+    const [expanded, setExpanded] = useState(false);
     const mapSectionRef = useRef(null);
 
     const {
@@ -129,6 +134,14 @@ const WatchListDetails = () => {
         });
     };
 
+    const toggleExpanded = () => {
+        setExpanded((v) => !v);
+        mapSectionRef.current?.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+        });
+    };
+
     return (
         <motion.div
             initial={{ opacity: 0, y: 10 }}
@@ -173,10 +186,23 @@ const WatchListDetails = () => {
                 </div>
             </div>
 
-            {/* Main info (left) + map (right) */}
-            <div className="grid gap-5 lg:grid-cols-2">
+            {/* Main info (left) + map (right). Expanding slides the profile away
+                and lets the map take the whole row (grid columns animate). */}
+            <div
+                className={`grid gap-x-5 gap-y-5 transition-[grid-template-columns,column-gap] duration-500 ease-in-out motion-reduce:transition-none ${
+                    expanded
+                        ? "lg:grid-cols-[0fr_1fr] lg:gap-x-0"
+                        : "lg:grid-cols-[1fr_1fr]"
+                }`}
+            >
                 {/* Profile */}
-                <section className={`${card} flex flex-col`}>
+                <section
+                    className={`${card} flex min-w-0 flex-col overflow-hidden transition-opacity duration-300 motion-reduce:transition-none ${
+                        expanded
+                            ? "lg:pointer-events-none lg:border-transparent lg:bg-transparent lg:opacity-0 lg:shadow-none"
+                            : ""
+                    }`}
+                >
                     <div className="space-y-4 p-5">
                         <div className="flex gap-4">
                             <Thumb
@@ -228,10 +254,10 @@ const WatchListDetails = () => {
                     </div>
                 </section>
 
-                {/* Sighting map: always shown */}
+                {/* Sighting map: always shown, can expand to full width */}
                 <section
                     ref={mapSectionRef}
-                    className={`${card} flex flex-col overflow-hidden`}
+                    className={`${card} flex min-w-0 flex-col overflow-hidden`}
                 >
                     <div className="flex flex-wrap items-center justify-between gap-2 p-5 pb-3">
                         <h2 className="text-base font-semibold text-gray-900 dark:text-white">
@@ -247,17 +273,45 @@ const WatchListDetails = () => {
                                 Earlier
                             </span>
                             <span className="inline-flex items-center gap-1.5">
-                                <span className="inline-block w-4 border-t-2 border-dashed border-red-500/70" />
+                                <span className="inline-block w-4 border-t-[3px] border-green-500" />
                                 Oldest to newest
                             </span>
+                            <button
+                                type="button"
+                                onClick={toggleExpanded}
+                                className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-2.5 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800 cursor-pointer"
+                            >
+                                {expanded ? (
+                                    <>
+                                        <IoContractOutline
+                                            className="h-4 w-4"
+                                            aria-hidden="true"
+                                        />
+                                        Collapse
+                                    </>
+                                ) : (
+                                    <>
+                                        <IoExpandOutline
+                                            className="h-4 w-4"
+                                            aria-hidden="true"
+                                        />
+                                        Expand
+                                    </>
+                                )}
+                            </button>
                         </div>
                     </div>
-                    <div className="relative min-h-[360px] flex-1">
+                    <div
+                        className={`relative flex-1 transition-[min-height] duration-500 ease-in-out motion-reduce:transition-none ${
+                            expanded ? "min-h-[620px]" : "min-h-[360px]"
+                        }`}
+                    >
                         <div className="absolute inset-0">
                             <SightingsMap
                                 sightings={sightings}
                                 selectedId={selectedId}
                                 onSelect={setSelectedId}
+                                expanded={expanded}
                             />
                         </div>
                     </div>

@@ -93,8 +93,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('role:admin,tanod')->group(function () {
         Route::get('tanod/analytics', [AnalyticController::class, 'tanodHome']);
         // Route::apiResource('users', UserController::class);
-        Route::get('/notifications', [NotificationController::class, 'index']);
-        Route::put('/update-notification/{id}',[NotificationController::class, 'update']);
         Route::get('/get-zones', [GeoLocationController::class, 'getZones']);
         Route::get('/get-locations', [GeoLocationController::class, 'getLocations']);
         Route::post('/add-incident-type', [IncidentTypesController::class, 'addIncidentType']);
@@ -137,6 +135,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::apiResource('watch-lists', WatchListController::class)
             ->except(['index', 'show']);
     });
+    
+    Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::put('/update-notification/{id}', [NotificationController::class, 'markAsRead']);
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
     
     Route::apiResource('/hotline', HotlineController::class);
     Route::get('/get-categories', [IncidentTypesController::class, 'getIncidentCategories']);

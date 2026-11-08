@@ -2,63 +2,94 @@
 
 namespace App\Services;
 
-use Illuminate\Support\Facades\Notification;
-use App\Notifications\TestNotification;
-use App\Models\UserDevice;
-use App\Models\NotificationModel;
 use App\Models\User;
+use App\Notifications\ReportNotification;
+use App\Notifications\RequestNotification;
+use App\Notifications\SightingNotification;
+use App\Notifications\ViolatorsNotification;
+use Illuminate\Notifications\DatabaseNotification;
+use Illuminate\Notifications\Notification as BaseNotification;
+use Illuminate\Support\Collection;
 
 class NotificationService
 {
-    public function sendToAdminsAndTanods()
+    protected function notifyUsers(iterable $users, BaseNotification $notification): int
     {
-        $users = User::whereIn('role', ['admin', 'tanod'])->pluck('id');
+        $sent = 0;
 
-        $tokens = UserDevice::whereIn('user_id', $users)->pluck('device_token')->toArray();
-        
-        $serviceAccountPath = config('services.firebase.key_path');
-       
-        foreach ($tokens as $token) {
-            Notification::route('fcm', $token)
-                ->notify(new TestNotification());
+        foreach ($users as $user) {
+            try {
+                $user->notify($notification);
+                $sent++;
+            } catch (\Throwable $e) {
+                \Log::warning('Notification failed', [
+                    'user' => $user->id,
+                    'e'    => $e->getMessage(),
+                ]);
+            }
         }
 
-        return count($tokens); 
+        return $sent;
     }
 
-    public function getNotifications()
+    protected function recipients(?int $exceptUserId = null): Collection
     {
-        return NotificationModel::where('status', false)->get();
+        return User::whereIn('role', ['admin', 'tanod'])
+            ->when($exceptUserId, fn ($q) => $q->where('id', '!=', $exceptUserId))
+            ->get();
     }
 
-    public function saveRequestNotification(int $id): NotificationModel
+    protected function notifyStaff(BaseNotification $notification, ?int $exceptUserId = null): int
     {
-        return NotificationModel::create([
-            'item_id' => $id,
-            'notification_type' => 'request-notification',
-        ]);
+        return $this->notifyUsers($this->recipients($exceptUserId), $notification);
     }
 
-     public function saveReportNotification(int $id): NotificationModel
+    public function notifyUserIds(array $userIds, BaseNotification $notification): int
     {
-        return NotificationModel::create([
-            'item_id' => $id,
-            'notification_type' => 'report-notification',
-        ]);
+        return $this->notifyUsers(User::whereIn('id', $userIds)->get(), $notification);
     }
 
-     public function saveViolatorsNotification(int $id): NotificationModel
+    public function sendRequestNotification(int $id): int
     {
-        return NotificationModel::create([
-            'item_id' => $id,
-            'notification_type' => 'violators-notification',
-        ]);
+        return $this->notifyStaff(new RequestNotification($id));
     }
 
-    public function notificationStatusUpdate(int $id)
+    public function sendReportNotification(int $id): int
     {
-        $notification = NotificationModel::findOrFail($id);
-        $notification->status = 1;
-        $notification->save();
+        return $this->notifyStaff(new ReportNotification($id));
+    }
+
+    public function sendViolatorsNotification(int $id): int
+    {
+        return $this->notifyStaff(new ViolatorsNotification($id));
+    }
+
+    public function sendSightingNotification(int $id): int
+    {
+        return $this->notifyStaff(new SightingNotification($id));
+    }
+
+    public function getNotifications(User $user, bool $unreadOnly = false): Collection
+    {
+        if ($unreadOnly) {
+            return $user->unreadNotifications()->latest()->get();
+        }
+
+        return $user->notifications()->latest()->take(30)->get();
+    }
+
+    public function markAsRead(User $user, string $notificationId): ?DatabaseNotification
+    {
+        $notification = $user->notifications()->find($notificationId);
+        if ($notification) {
+            $notification->markAsRead();
+        }
+
+        return $notification;
+    }
+
+    public function markAllAsRead(User $user): void
+    {
+        $user->unreadNotifications->markAsRead();
     }
 }

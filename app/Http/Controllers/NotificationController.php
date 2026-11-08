@@ -2,32 +2,66 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\NotificationModel;
 use App\Services\NotificationService;
+use Illuminate\Http\Request;
 
 class NotificationController extends Controller
 {
-    //
+    public function __construct(private NotificationService $service) {}
 
-    protected $notificationService;
-
-    public function __construct(NotificationService $notificationService)
+    // Same shape the frontend already expects
+    public function index(Request $request)
     {
-        $this->notificationService = $notificationService;
+        $user = $request->user();
+        if (! $user) {
+            return response()->json(['notifications' => []]);
+        }
+
+        $unreadOnly = $request->boolean('unread_only') || $request->boolean('unread');
+        $items = $this->service->getNotifications($user, $unreadOnly)
+            ->map(fn ($n) => [
+                'id'                => $n->id,
+                'item_id'           => $n->data['item_id'] ?? null,
+                'notification_type' => $n->data['notification_type'] ?? null,
+                'title'             => $n->data['title'] ?? null,
+                'message'           => $n->data['body'] ?? $n->data['title'] ?? null,
+                'body'              => $n->data['body'] ?? null,
+                'status'            => $n->read_at ? 1 : 0,
+                'created_at'        => $n->created_at,
+            ])
+            ->values();
+
+        return response()->json(['notifications' => $items]);
     }
 
-    public function index()
+    public function markAsRead(Request $request, string $id)
     {
-        $notifications = $this->notificationService->getNotifications();
+        $user = $request->user();
+        if (! $user) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
 
-        return response()->json(['notifications' => $notifications]);
+        $notification = $this->service->markAsRead($user, $id);
+
+        return response()->json([
+            'message' => 'ok',
+            'notification' => $notification,
+        ]);
     }
 
-    public function update($id)
+    // Alias for markAsRead for backwards compatibility
+    public function update(Request $request, string $id)
     {
-        $notification = $this->notificationService->notificationStatusUpdate($id);
+        return $this->markAsRead($request, $id);
+    }
 
-        return response()->json(['notification' => $notification]);
+    public function markAllAsRead(Request $request)
+    {
+        $user = $request->user();
+        if ($user) {
+            $this->service->markAllAsRead($user);
+        }
+
+        return response()->json(['message' => 'all marked as read']);
     }
 }

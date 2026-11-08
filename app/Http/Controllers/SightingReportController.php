@@ -6,16 +6,22 @@ use App\Http\Requests\StoreSightingReportRequest;
 use App\Http\Requests\UpdateSightingReportRequest;
 use App\Http\Resources\SightingReportResource;
 use App\Models\SightingReport;
+use App\Events\SightingNotification;
 use App\Policies\SightingReportPolicy;
 use App\Services\SightingReportService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use App\Services\NotificationService;
 
 class SightingReportController extends Controller
 {
-    public function __construct(private SightingReportService $service)
-    {
+    protected $notificationService;
+
+    public function __construct(
+        private SightingReportService $service,
+        private NotificationService $notification,
+    ) {
     }
 
     // GET /sighting-reports?subject_id=&reporter_id=&from=&to=&per_page=15&paginate=false
@@ -45,6 +51,10 @@ class SightingReportController extends Controller
         $this->authorize('create', SightingReport::class);
 
         $sighting = $this->service->create($request->validated(), $request->user()->id);
+
+        $this->notification->sendSightingNotification($sighting->subject_id);
+
+        broadcast(new SightingNotification($sighting));
 
         return (new SightingReportResource($sighting))
             ->response()

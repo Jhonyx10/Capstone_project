@@ -1,9 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FaSearch, FaExclamationTriangle } from "react-icons/fa";
 import useAppState from "../../store/useAppState";
+import useNotifications from "../../hooks/useNotifications";
 import { getViolators } from "../../functions/ReportsApi";
 import { fadeIn, rowFade } from "../../utils/motion";
 
@@ -53,6 +54,24 @@ const ViolatorsTable = () => {
         queryKey: ["violators"],
         queryFn: () => getViolators({ token, base_url }),
     });
+
+    const { data: notifications = [] } = useNotifications();
+
+    // ids of violators that still have an unread violators-notification
+    const newViolatorIds = useMemo(
+        () =>
+            new Set(
+                (Array.isArray(notifications) ? notifications : [])
+                    .filter(
+                        (n) =>
+                            String(n?.notification_type ?? "").includes(
+                                "violator"
+                            ) && Number(n?.status) === 0
+                    )
+                    .map((n) => Number(n.item_id))
+            ),
+        [notifications]
+    );
 
     // Unique zones that appear in the data
     const zoneOptions = violators
@@ -218,9 +237,16 @@ const ViolatorsTable = () => {
                                             <div className="flex items-center gap-3">
                                                 <Avatar violator={v} />
                                                 <div>
-                                                    <p className="font-medium">
+                                                    <p className="flex items-center gap-2 font-medium">
                                                         {v.first_name}{" "}
                                                         {v.last_name}
+                                                        {newViolatorIds.has(
+                                                            Number(v.id)
+                                                        ) && (
+                                                            <span className="rounded-full bg-red-500 px-2 py-0.5 text-[10px] font-semibold uppercase text-white">
+                                                                New
+                                                            </span>
+                                                        )}
                                                     </p>
                                                     <p className="text-xs text-slate-500 dark:text-slate-400">
                                                         {v.age != null

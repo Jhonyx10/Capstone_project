@@ -12,6 +12,7 @@ import IgpitGeoFence from "../../assets/geomap/igpityoungsville.json";
 import echo from "../../echo";
 import * as turf from "@turf/turf"; 
 import WarningAlert from "../alerts/WarningAlert";
+import useMarkTypeRead from "../../hooks/useMarkTypeRead";
 
 const IncidentRequestMap = () => {
     const [mapLoaded, setMapLoaded] = useState(false);
@@ -39,6 +40,8 @@ const IncidentRequestMap = () => {
         queryFn: () => incidentRequest({ base_url, token }),
     });
 
+    useMarkTypeRead("request-notification");
+    
     const isInsideGeofence = (longitude, latitude) => {
         if (!IgpitGeoFence?.features?.length) return false;
         const polygon = IgpitGeoFence.features[0].geometry;

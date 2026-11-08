@@ -1,47 +1,52 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-    notifications,
-    updateNotification,
-} from "../functions/Notification";
+import { notifications, updateNotification } from "../functions/Notification";
 import useAppState from "../store/useAppState";
-import { MdReport } from "react-icons/md";
-import { MdPeopleAlt } from "react-icons/md";
-import { IoWarningSharp } from "react-icons/io5";
+import { MdReport, MdPeopleAlt } from "react-icons/md";
+import { IoWarningSharp, IoEye } from "react-icons/io5";
+
+// One place that says where each notification type goes and which icon it uses.
+// For sightings, item_id is the watch list entry's id.
+const TYPES = {
+    "violators-notification": {
+        Icon: MdPeopleAlt,
+        to: (n) => `/violators-details/${n.item_id}`,
+    },
+    "request-notification": {
+        Icon: IoWarningSharp,
+        to: () => "/incident-request",
+    },
+    "report-notification": {
+        Icon: MdReport,
+        to: (n) => `/report-details/${n.item_id}`,
+    },
+    "sighting-notification": {
+        Icon: IoEye,
+        to: (n) => `/watch-list-details/${n.item_id}`,
+    },
+};
 
 const DropNotifications = ({ dropdownRef, dropdownOpen }) => {
     const { base_url, token } = useAppState();
     const queryClient = useQueryClient();
+
     const { data } = useQuery({
         queryKey: ["notifications"],
         queryFn: () => notifications({ base_url, token }),
     });
-    
-    const getNotificationLink = (notification) => {
-        switch (notification.notification_type) {
-            case "violators-notification":
-                return `/violators-details/${notification.item_id}`;
-            case "request-notification":
-                return `/incident-request`;
-            case "report-notification":
-                return `/report-details/${notification.item_id}`;
-            default:
-                return "#";
-        }
-    };
 
     const mutation = useMutation({
         mutationFn: ({ id }) => updateNotification({ base_url, token, id }),
         onSuccess: () => {
-            queryClient.invalidateQueries(["notifications"]);
+            queryClient.invalidateQueries({ queryKey: ["notifications"] });
         },
     });
 
-     const handleNotificationClick = (id) => {
-         mutation.mutate({ id });
-     };
-     
+    const handleNotificationClick = (id) => {
+        mutation.mutate({ id });
+    };
+
     return (
         <AnimatePresence>
             {dropdownOpen && (
@@ -51,38 +56,38 @@ const DropNotifications = ({ dropdownRef, dropdownOpen }) => {
                dark:bg-slate-700 bg-white border-t border-gray-200 dark:border-gray-950 
                rounded-lg shadow-lg py-2 mr-6
                max-h-44 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] 
-               [&::-webkit-scrollbar]:hidden" 
+               [&::-webkit-scrollbar]:hidden"
                     initial={{ y: -10, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
                     exit={{ y: -10, opacity: 0 }}
                     transition={{ duration: 0.2, ease: "easeOut" }}
                 >
                     {data?.length > 0 ? (
-                        data.map((notification) => (
-                            <Link
-                                key={notification.id}
-                                to={getNotificationLink(notification)}
-                                onClick={() =>
-                                    handleNotificationClick(notification.id)
-                                }
-                                className="flex flex-row items-center gap-3 text-sm dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600 rounded-md px-2 py-1.5"
-                            >
-                                {notification.notification_type ===
-                                "violators-notification" ? (
-                                    <MdPeopleAlt color="tomato" size={22} />
-                                ) : notification.notification_type ===
-                                  "request-notification" ? (
-                                    <IoWarningSharp color="tomato" size={22} />
-                                ) : (
-                                    <MdReport color="tomato" size={22} />
-                                )}
+                        data.map((notification) => {
+                            const config =
+                                TYPES[notification.notification_type];
+                            const Icon = config?.Icon ?? MdReport;
 
-                                <span>
-                                    {notification.message ??
-                                        notification.notification_type}
-                                </span>
-                            </Link>
-                        ))
+                            return (
+                                <Link
+                                    key={notification.id}
+                                    to={config ? config.to(notification) : "#"}
+                                    onClick={() =>
+                                        handleNotificationClick(notification.id)
+                                    }
+                                    className="flex flex-row items-center gap-3 text-sm dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600 rounded-md px-2 py-1.5"
+                                >
+                                    <Icon color="tomato" size={22} />
+
+                                    <span>
+                                        {notification.body ??
+                                            notification.message ??
+                                            notification.title ??
+                                            notification.notification_type}
+                                    </span>
+                                </Link>
+                            );
+                        })
                     ) : (
                         <p className="text-center text-sm text-gray-500 dark:text-gray-300 px-2">
                             No notifications yet

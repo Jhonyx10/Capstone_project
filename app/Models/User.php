@@ -65,10 +65,10 @@ class User extends Authenticatable
         return $this->hasMany(UserDevice::class);
     }
 
-    public function routeNotificationForFcm()
+    public function routeNotificationForFcm($notification = null)
     {
         // return all tokens linked to this user
-        return $this->devices()->pluck('fcm_token')->toArray();
+        return $this->devices()->pluck('device_token')->filter()->values()->toArray();
     }
 
     public function chatBoxes()

@@ -6,6 +6,7 @@ import { FaArrowLeft, FaTimes } from "react-icons/fa";
 import useAppState from "../../store/useAppState";
 import { reportDetails } from "../../functions/ReportsApi";
 import ReportViolators from "./ReportViolators";
+import useMarkNotificationRead from "../../hooks/useMarkNotificationRead";
 
 const spring = { type: "spring", stiffness: 200, damping: 20 };
 
@@ -91,6 +92,7 @@ const SafeImage = ({ src, alt, className = "", ...rest }) => {
 
 const ReportDetails = () => {
     const { id } = useParams();
+    useMarkNotificationRead(id, "report");
     const navigate = useNavigate();
     const { token, base_url } = useAppState();
     const [lightbox, setLightbox] = useState(null);

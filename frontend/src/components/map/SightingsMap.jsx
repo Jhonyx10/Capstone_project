@@ -19,12 +19,19 @@ const boundsOf = (pts) => {
 // Same map setup as your Map page (react-map-gl + Igpit geofence),
 // showing where a watch list entry was sighted.
 // `sightings` should be newest first: pin 1 is the most recent.
-const SightingsMap = ({ sightings = [], selectedId, onSelect }) => {
+// `expanded` tells the map its container changed size so it can resize and refit.
+const SightingsMap = ({
+    sightings = [],
+    selectedId,
+    onSelect,
+    expanded = false,
+}) => {
     const map_token = useAppState((s) => s.map_token);
     const map_styles = useAppState((s) => s.map_styles);
     const darkMode = useAppState((s) => s.darkMode);
 
     const mapRef = useRef(null);
+    const containerRef = useRef(null);
     const [mapLoaded, setMapLoaded] = useState(false);
 
     const points = useMemo(
@@ -42,7 +49,7 @@ const SightingsMap = ({ sightings = [], selectedId, onSelect }) => {
         [sightings]
     );
 
-    // Dashed path from the oldest sighting to the newest, to show movement
+    // Path from the oldest sighting to the newest, to show movement
     const path = useMemo(
         () => ({
             type: "Feature",
@@ -102,8 +109,35 @@ const SightingsMap = ({ sightings = [], selectedId, onSelect }) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedId]);
 
+    // Keep the canvas matched to its container on every frame of the expand
+    // animation, so the map grows smoothly instead of stretching or cropping.
+    useEffect(() => {
+        const el = containerRef.current;
+        if (!el || typeof ResizeObserver === "undefined") return;
+        const ro = new ResizeObserver(() => mapRef.current?.resize());
+        ro.observe(el);
+        return () => ro.disconnect();
+    }, []);
+
+    // After the transition ends, refit the pins to the new size
+    const firstRender = useRef(true);
+    useEffect(() => {
+        if (firstRender.current) {
+            firstRender.current = false;
+            return;
+        }
+        const t = setTimeout(() => {
+            const map = mapRef.current;
+            if (!map) return;
+            map.resize();
+            if (!selected) showAll(); // keep the current view if a pin is selected
+        }, 540);
+        return () => clearTimeout(t);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [expanded]);
+
     return (
-        <div className="relative h-full w-full">
+        <div ref={containerRef} className="relative h-full w-full">
             <Map
                 ref={mapRef}
                 initialViewState={initialView}
@@ -146,6 +180,20 @@ const SightingsMap = ({ sightings = [], selectedId, onSelect }) => {
                                 type="geojson"
                                 data={path}
                             >
+                                {/* dark outline keeps the green readable on light and dark maps */}
+                                <Layer
+                                    id="sighting-path-casing"
+                                    type="line"
+                                    layout={{
+                                        "line-cap": "round",
+                                        "line-join": "round",
+                                    }}
+                                    paint={{
+                                        "line-color": "#052e16",
+                                        "line-width": 6,
+                                        "line-opacity": 0.6,
+                                    }}
+                                />
                                 <Layer
                                     id="sighting-path-line"
                                     type="line"
@@ -154,10 +202,9 @@ const SightingsMap = ({ sightings = [], selectedId, onSelect }) => {
                                         "line-join": "round",
                                     }}
                                     paint={{
-                                        "line-color": "#ef4444",
-                                        "line-width": 2,
-                                        "line-opacity": 0.6,
-                                        "line-dasharray": [2, 2],
+                                        "line-color": "#22c55e",
+                                        "line-width": 3.5,
+                                        "line-opacity": 1,
                                     }}
                                 />
                             </Source>
@@ -183,7 +230,7 @@ const SightingsMap = ({ sightings = [], selectedId, onSelect }) => {
                                 p.n === 1 ? "bg-red-500" : "bg-amber-500"
                             } ${
                                 p.id === selectedId
-                                    ? "scale-125 ring-2 ring-green-400"
+                                    ? "scale-125 ring-2 ring-white"
                                     : ""
                             }`}
                         >

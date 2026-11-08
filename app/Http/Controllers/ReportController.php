@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Requests\IncidentLocationRequest;
+use App\Http\Requests\IncidentRequestResponse;
 use App\Http\Requests\IncidentReportRequest;
 use App\Http\Requests\EvidenceRequest;
 use App\Http\Requests\ViolatorsProfileRequest;
@@ -22,6 +23,8 @@ use App\Notifications\TestNotification;
 use App\Services\NotificationService;
 use App\Services\ChatBoxService;
 use App\Models\User;
+use App\Models\IncidentRequestResponse as IncidentRequestModel;
+use App\Notifications\RequestUpdatedNotification;
 use Exception;
 
 class ReportController extends Controller
@@ -77,9 +80,9 @@ public function fileReport(
             }
         }
 
-        $notification = $this->notificationService->saveReportNotification($report->id);
-
         DB::commit();
+
+        $this->notificationService->sendReportNotification($report->id);
 
         try {
             broadcast(new ReportSubmittedEvent($report));
@@ -118,8 +121,8 @@ public function fileReport(
     {
         $violator = $this->incidentReport->createViolatorsProfile($request);
 
-        $notification = $this->notificationService->saveViolatorsNotification($violator->id);
-
+        $this->notificationService->sendViolatorsNotification($violator->id);
+        
         broadcast(new CreateViolatorEvent($violator));
         
         return response()->json([
@@ -150,19 +153,14 @@ public function fileReport(
 
             $chatBox = $this->chatBox->messages($response->id);
 
-            $notification = $this->notificationService->saveRequestNotification($response->id);
-
-            $firebase = $this->firebase->sendFCMNotification(
-                                    title: 'Incident Request has been filed.',
-                                    body: "A new response was created for request #{$response->id}"
-                                );
+            $this->notificationService->sendRequestNotification($response->id);
 
             broadcast(new RequestResponseEvent($response));
             
             return response()->json([
                 'response' => $response,
-                'firebase' => $firebase,
             ], 201);
+
     }
 
     public function getRequest()
@@ -190,9 +188,17 @@ public function fileReport(
         return response()->json($this->incidentReport->getNews($perPage));
     }
 
-    public function rejectRequest($id)
+   public function rejectRequest($id)
     {
         $status = $this->incidentReport->rejectRequest($id);
+
+        $request = IncidentRequestModel::find($id);
+        if ($request) {
+            $this->notificationService->notifyUserIds(
+                [$request->user_id],
+                new RequestUpdatedNotification($id)
+            );
+        }
 
         return response()->json($status);
     }

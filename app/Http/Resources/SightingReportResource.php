@@ -11,6 +11,7 @@ class SightingReportResource extends JsonResource
     {
         return [
             'id'         => $this->id,
+            'subject_id' => $this->subject_id,
             'location'   => $this->location,
             'latitude'   => $this->latitude,
             'longitude'  => $this->longitude,

@@ -13,6 +13,7 @@ import {
 } from "react-icons/io5";
 import useAppState from "../../store/useAppState";
 import { violatorsDetails } from "../../functions/ReportsApi";
+import useMarkNotificationRead from "../../hooks/useMarkNotificationRead";
 
 const card =
     "rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900";
@@ -91,6 +92,7 @@ const ViolatorsDetails = () => {
     const base_url = useAppState((s) => s.base_url);
     const token = useAppState((s) => s.token);
     const { id } = useParams();
+    useMarkNotificationRead(id, "violator");
     const navigate = useNavigate();
 
     const {

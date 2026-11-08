@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
@@ -12,6 +12,7 @@ import {
     IoEyeOutline,
 } from "react-icons/io5";
 import useAppState from "../../store/useAppState";
+import useNotifications from "../../hooks/useNotifications";
 import { toast } from "../../store/useToast";
 import {
     getWatchLists,
@@ -51,6 +52,23 @@ const WatchListTable = () => {
     const [editing, setEditing] = useState(null);
     const [deleteTarget, setDeleteTarget] = useState(null);
 
+    const { data: notifications = [] } = useNotifications();
+
+    // Unread sighting notifications per watch list entry (item_id = entry id)
+    const newSightings = useMemo(() => {
+        const counts = {};
+        (Array.isArray(notifications) ? notifications : []).forEach((n) => {
+            if (
+                n?.notification_type === "sighting-notification" &&
+                Number(n?.status) === 0
+            ) {
+                const key = String(n.item_id);
+                counts[key] = (counts[key] ?? 0) + 1;
+            }
+        });
+        return counts;
+    }, [notifications]);
+
     // Wait for the person to stop typing before asking the server
     useEffect(() => {
         const t = setTimeout(() => setDebouncedSearch(search.trim()), 300);
@@ -79,7 +97,7 @@ const WatchListTable = () => {
     const safePage = Math.min(page, totalPages);
     const pageRows = entries.slice(
         (safePage - 1) * PAGE_SIZE,
-        safePage * PAGE_SIZE,
+        safePage * PAGE_SIZE
     );
 
     const invalidate = () =>
@@ -95,7 +113,7 @@ const WatchListTable = () => {
         onError: () => {
             toast.error(
                 "Could not delete the entry. Please try again.",
-                "Delete failed",
+                "Delete failed"
             );
             setDeleteTarget(null);
         },
@@ -110,12 +128,12 @@ const WatchListTable = () => {
         onError: () =>
             toast.error(
                 "Could not restore the entry. Please try again.",
-                "Restore failed",
+                "Restore failed"
             ),
     });
 
     const hasFilters = Boolean(
-        debouncedSearch || type || status || showDeleted,
+        debouncedSearch || type || status || showDeleted
     );
 
     return (
@@ -172,7 +190,9 @@ const WatchListTable = () => {
                 <p className="ml-auto text-sm text-gray-500 dark:text-gray-400">
                     {isLoading
                         ? "Loading…"
-                        : `${entries.length} entr${entries.length === 1 ? "y" : "ies"}`}
+                        : `${entries.length} entr${
+                              entries.length === 1 ? "y" : "ies"
+                          }`}
                 </p>
             </div>
 
@@ -220,6 +240,11 @@ const WatchListTable = () => {
                             {!isLoading &&
                                 pageRows.map((entry, i) => {
                                     const deleted = Boolean(entry.deleted_at);
+                                    // unread sightings for this entry (never for deleted ones)
+                                    const fresh = deleted
+                                        ? 0
+                                        : newSightings[String(entry.id)] ?? 0;
+
                                     return (
                                         <motion.tr
                                             key={entry.id}
@@ -229,7 +254,11 @@ const WatchListTable = () => {
                                                 delay: i * 0.03,
                                                 duration: 0.2,
                                             }}
-                                            className="hover:bg-gray-50 dark:hover:bg-gray-800/40"
+                                            className={`hover:bg-gray-50 dark:hover:bg-gray-800/40 ${
+                                                fresh > 0
+                                                    ? "bg-red-50/60 dark:bg-red-500/5"
+                                                    : ""
+                                            }`}
                                         >
                                             <td className="px-4 py-3">
                                                 <div className="flex items-center gap-3">
@@ -240,22 +269,33 @@ const WatchListTable = () => {
                                                         className="h-11 w-11"
                                                     />
                                                     <div className="min-w-0">
-                                                        {deleted ? (
-                                                            <p className="font-medium text-gray-500 line-through dark:text-gray-400">
-                                                                {
-                                                                    entry.identifier
-                                                                }
-                                                            </p>
-                                                        ) : (
-                                                            <Link
-                                                                to={`/watch-list-details/${entry.id}`}
-                                                                className="font-medium text-gray-900 hover:text-green-600 focus:outline-none focus-visible:underline dark:text-white dark:hover:text-green-400"
-                                                            >
-                                                                {
-                                                                    entry.identifier
-                                                                }
-                                                            </Link>
-                                                        )}
+                                                        <div className="flex flex-wrap items-center gap-2">
+                                                            {deleted ? (
+                                                                <p className="font-medium text-gray-500 line-through dark:text-gray-400">
+                                                                    {
+                                                                        entry.identifier
+                                                                    }
+                                                                </p>
+                                                            ) : (
+                                                                <Link
+                                                                    to={`/watch-list-details/${entry.id}`}
+                                                                    className="font-medium text-gray-900 hover:text-green-600 focus:outline-none focus-visible:underline dark:text-white dark:hover:text-green-400"
+                                                                >
+                                                                    {
+                                                                        entry.identifier
+                                                                    }
+                                                                </Link>
+                                                            )}
+                                                            {fresh > 0 && (
+                                                                <span
+                                                                    aria-label={`${fresh} new sightings`}
+                                                                    className="inline-flex items-center gap-1 rounded-full bg-red-500 px-2 py-0.5 text-[11px] font-semibold text-white"
+                                                                >
+                                                                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white motion-reduce:animate-none" />
+                                                                    {fresh} new
+                                                                </span>
+                                                            )}
+                                                        </div>
                                                         <p className="max-w-xs truncate text-xs text-gray-500 dark:text-gray-400">
                                                             {entry.details}
                                                         </p>
